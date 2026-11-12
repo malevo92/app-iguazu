@@ -2,18 +2,18 @@ import { useState } from "react";
 
 // ---------- 1. DATOS: catálogo de 12 destinos ----------
 const ATRACTIVOS = [
-  { id: 1, nombre: "Cataratas Argentinas", lugar: "Puerto Iguazú", pais: "Argentina", horas: 7, emoji: "💦", desc: "Pasarelas sobre el río y la Garganta del Diablo, de cerca." },
-  { id: 2, nombre: "Cataratas Brasileñas", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 4, emoji: "🌈", desc: "La vista panorámica completa de todos los saltos." },
-  { id: 3, nombre: "Parque das Aves", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, emoji: "🦜", desc: "Tucanes, guacamayos y aviarios abiertos dentro de la selva." },
-  { id: 4, nombre: "Represa de Itaipú", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, emoji: "⚡", desc: "Visita guiada a una de las mayores hidroeléctricas del mundo." },
-  { id: 5, nombre: "Minas de Wanda", lugar: "Misiones", pais: "Argentina", horas: 3, emoji: "💎", desc: "Antiguas minas de piedras semipreciosas: amatista, ágata y cuarzo." },
-  { id: 6, nombre: "Compras en Ciudad del Este", lugar: "Paraguay", pais: "Paraguay", horas: 4, emoji: "🛍️", desc: "Tiendas de electrónica, perfumes y mucho más a precios libres de impuestos." },
-  { id: 7, nombre: "Hito Tres Fronteras", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, emoji: "📍", desc: "Mirador donde se juntan los ríos Iguazú y Paraná y se ven los tres países." },
-  { id: 8, nombre: "GüiráOga", lugar: "Puerto Iguazú", pais: "Argentina", horas: 2, emoji: "🦉", desc: "Centro de rescate de fauna silvestre en plena selva misionera." },
-  { id: 9, nombre: "La Aripuca", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, emoji: "🌳", desc: "Gran construcción de troncos de árboles nativos, inspirada en una trampa guaraní." },
-  { id: 10, nombre: "Ruinas de San Ignacio", lugar: "Misiones", pais: "Argentina", horas: 5, emoji: "🏛️", desc: "Misión jesuítico-guaraní de piedra roja, declarada Patrimonio de la Humanidad." },
-  { id: 11, nombre: "Templo Budista Chen Tien", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 1.5, emoji: "🛕", desc: "Templo tranquilo con jardines y esculturas, ideal para una pausa." },
-  { id: 12, nombre: "Saltos del Monday", lugar: "Presidente Franco", pais: "Paraguay", horas: 2.5, emoji: "🌊", desc: "Cascada sobre el río Monday, a pocos kilómetros de Ciudad del Este." },
+  { id: 1, nombre: "Cataratas Argentinas", lugar: "Puerto Iguazú", pais: "Argentina", horas: 7, foto: "/fotos/cataratas-arg.jpg", desc: "Pasarelas sobre el río y la Garganta del Diablo, de cerca." },
+  { id: 2, nombre: "Cataratas Brasileñas", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 4, foto: "/fotos/cataratas-br.jpg", desc: "La vista panorámica completa de todos los saltos." },
+  { id: 3, nombre: "Parque das Aves", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, foto: "/fotos/parque-aves.jpg", desc: "Tucanes, guacamayos y aviarios abiertos dentro de la selva." },
+  { id: 4, nombre: "Represa de Itaipú", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, foto: "/fotos/itaipu.jpg", desc: "Visita guiada a una de las mayores hidroeléctricas del mundo." },
+  { id: 5, nombre: "Minas de Wanda", lugar: "Misiones", pais: "Argentina", horas: 3, foto: "/fotos/wanda.jpg", desc: "Antiguas minas de piedras semipreciosas: amatista, ágata y cuarzo." },
+  { id: 6, nombre: "Compras en Ciudad del Este", lugar: "Paraguay", pais: "Paraguay", horas: 4, foto: "/fotos/ciudad-este.jpg", desc: "Tiendas de electrónica, perfumes y mucho más a precios libres de impuestos." },
+  { id: 7, nombre: "Hito Tres Fronteras", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, foto: "/fotos/hito.jpg", desc: "Mirador donde se juntan los ríos Iguazú y Paraná y se ven los tres países." },
+  { id: 8, nombre: "GüiráOga", lugar: "Puerto Iguazú", pais: "Argentina", horas: 2, foto: "/fotos/guiraoga.jpg", desc: "Centro de rescate de fauna silvestre en plena selva misionera." },
+  { id: 9, nombre: "La Aripuca", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, foto: "/fotos/aripuca.jpg", desc: "Gran construcción de troncos de árboles nativos, inspirada en una trampa guaraní." },
+  { id: 10, nombre: "Ruinas de San Ignacio", lugar: "Misiones", pais: "Argentina", horas: 5, foto: "/fotos/san-ignacio.jpg", desc: "Misión jesuítico-guaraní de piedra roja, declarada Patrimonio de la Humanidad." },
+  { id: 11, nombre: "Templo Budista Chen Tien", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 1.5, foto: "/fotos/templo-budista.jpg", desc: "Templo tranquilo con jardines y esculturas, ideal para una pausa." },
+  { id: 12, nombre: "Saltos del Monday", lugar: "Presidente Franco", pais: "Paraguay", horas: 2.5, foto: "/fotos/saltos-monday.jpg", desc: "Cascada sobre el río Monday, a pocos kilómetros de Ciudad del Este." },
 ];
 
 const FILTROS = ["Todos", "Argentina", "Brasil", "Paraguay"];
@@ -29,10 +29,10 @@ const MAPAS = [
 
 // ---------- Datos del guía ----------
 const GUIA = {
-  nombre: "Tapia Emanuel", // CAMBIAR POR DATOS REALES
+  nombre: "Juan Pérez", // CAMBIAR POR DATOS REALES
   titulo: "Guía de turismo habilitado · Tres Fronteras", // CAMBIAR POR DATOS REALES
-  whatsapp: "5493757433077", // CAMBIAR POR DATOS REALES (solo números, con código de país: 54 9 + área + número)
-  telefonoVisible: "+54 9 3757 433077", // CAMBIAR POR DATOS REALES
+  whatsapp: "5493757000000", // CAMBIAR POR DATOS REALES (solo números, con código de país: 54 9 + área + número)
+  telefonoVisible: "+54 9 3757 00-0000", // CAMBIAR POR DATOS REALES
   email: "guia@ejemplo.com", // CAMBIAR POR DATOS REALES
   horarios: [
     { dia: "Lunes a viernes", horas: "8:00 a 19:00" }, // CAMBIAR POR DATOS REALES
@@ -98,6 +98,15 @@ export default function App() {
           font-family: "Segoe UI", system-ui, sans-serif; padding: 24px 16px 48px;
         }
         .contenedor { max-width: 1100px; margin: 0 auto; }
+        /* Cabecera con foto de fondo y oscurecido suave */
+        .app .portada {
+          border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
+          background-color: #1b3a4b;
+          background-image: linear-gradient(rgba(5, 20, 32, .55), rgba(5, 20, 32, .55)), url('/fotos/portada.jpg');
+          background-size: cover; background-position: center;
+        }
+        .app .portada .titulo { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.4); margin: 0 0 8px; }
+        .app .portada .subtitulo { color: #fff; margin: 0; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
         /* Títulos con color fijo y alto contraste */
         .app h1, .app h2, .app h3 { color: var(--tinta); }
         .titulo { font-family: Georgia, "Times New Roman", serif; font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 4px; line-height: 1.1; }
@@ -116,7 +125,7 @@ export default function App() {
         @media (min-width: 900px) { .layout { grid-template-columns: 2fr 1fr; } .carrito { position: sticky; top: 16px; } }
         .grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
         .tarjeta { background: var(--papel); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 10px rgba(11,37,64,.12); }
-        .tarjeta-top { height: 88px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .tarjeta-foto { width: 100%; height: 180px; object-fit: cover; display: block; background: #c5d6d1; }
         .tarjeta-cuerpo { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
         .tarjeta h3 { margin: 0; font-size: 1.15rem; }
         .lugar { margin: 0; font-size: .9rem; color: #2c4a5e; }
@@ -161,8 +170,10 @@ export default function App() {
       `}</style>
 
       <div className="contenedor">
-        <h1 className="titulo">Tres Fronteras</h1>
-        <p className="subtitulo">Armá tu itinerario por Argentina, Brasil y Paraguay.</p>
+        <header className="portada">
+          <h1 className="titulo">Tres Fronteras</h1>
+          <p className="subtitulo">Armá tu itinerario por Argentina, Brasil y Paraguay.</p>
+        </header>
 
         {/* Menú de pestañas */}
         <nav className="pestanas" role="tablist">
@@ -198,7 +209,7 @@ export default function App() {
                   const agregado = carrito.some((x) => x.id === a.id);
                   return (
                     <article key={a.id} className="tarjeta">
-                      <div className={`tarjeta-top ${a.pais}`} aria-hidden="true">{a.emoji}</div>
+                      <img className="tarjeta-foto" src={a.foto} alt={`${a.nombre}, ${a.lugar}`} loading="lazy" />
                       <div className="tarjeta-cuerpo">
                         <h3>{a.nombre}</h3>
                         <p className="lugar">{a.lugar}</p>
