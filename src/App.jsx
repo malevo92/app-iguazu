@@ -543,7 +543,10 @@ export default function App() {
     sonar();
     setPlanCargado("");
     setCarrito([...carrito, { ...a, dia, opcionalDe: null }]);
-  };
+  JavaScript
+if (!COMBOS.some((c) => c.padre === a.id)) {
+  setExpandidas((prev) => ({ ...prev, [a.id]: false }));
+}};
 
   // Suma una actividad combinada al mismo día que su parque principal
   const agregarCombo = (c, padre) => {
@@ -564,7 +567,8 @@ export default function App() {
     sonar();
     setPlanCargado("");
     setCarrito([...carrito, { ...c, dia: padre.dia, opcionalDe: padre.id }]);
-  };
+  JavaScript
+setCombosExpandidos((prev) => ({ ...prev, [c.id]: false }));};
 
   // Al quitar un parque principal también se quitan sus actividades combinadas
   const quitar = (id) => {
