@@ -152,25 +152,25 @@ const AVENTURA = [
     id: "av-bici",
     nombre: "Paseos en bicicleta",
     foto: "/fotos/aventura-bici.jpg",
-    desc: "Recorridos privados en bicicleta por senderos y caminos naturales de la región, adaptados a tu ritmo. (Descripción detallada en preparación).",
+    desc: "Recorridos privados en bicicleta por senderos y caminos naturales de la región, adaptados a tu ritmo.",
   },
   {
     id: "av-kayak",
     nombre: "Kayak",
     foto: "/fotos/aventura-kayak.jpg",
-    desc: "Travesía privada en kayak por ríos y arroyos rodeados de selva misionera, con equipamiento incluido. (Descripción detallada en preparación).",
+    desc: "Travesía privada en kayak por ríos y arroyos rodeados de selva misionera, con equipamiento incluido.",
   },
   {
     id: "av-aves",
     nombre: "Bird Watching",
     foto: "/fotos/aventura-aves.jpg",
-    desc: "Salida privada de observación de aves autóctonas en selva, ideal para aficionados y fotógrafos de naturaleza. (Descripción detallada en preparación).",
+    desc: "Salida privada de observación de aves autóctonas en selva, ideal para aficionados y fotógrafos de naturaleza.",
   },
   {
     id: "av-sunset",
     nombre: "Sunset en la Selva",
     foto: "/fotos/aventura-sunset.jpg",
-    desc: "Experiencia privada al atardecer en un entorno natural único de la selva misionera. (Descripción detallada en preparación).",
+    desc: "Experiencia privada al atardecer en un entorno natural único de la selva misionera.",
   },
 ];
 
@@ -1174,12 +1174,11 @@ export default function App() {
                       {AVENTURA.map((av) => {
                         const abierta = !!expandidas[av.id];
                         const textoConsultaAv =
-                          `${nombre ? `¡Hola! Soy ${nombre} y me` : "¡Hola! Me"} gustaría consultar por la actividad privada *${av.nombre}* (Turismo Aventura).` +
-                          `
-- Personas: ${personas}
-- Días de estadía: ${dias}` +
-                          (hotel.trim() ? `
-- Alojamiento: ${hotel.trim()}` : "");
+                          `${nombre ? `¡Hola! Soy ${nombre} y me` : "¡Hola! Me"} gustaría saber más y consultar disponibilidad para la actividad privada *${av.nombre}* (Turismo Aventura).` +
+                          `\n\n*Datos del viaje*\n- Días de estadía: ${dias}\n- Personas: ${personas}` +
+                          `\n- Movilidad: ${movilidad === "si" ? "Tengo vehículo propio" : "No tengo, necesito traslado / chofer"}` +
+                          (hotel.trim() ? `\n- Alojamiento: ${hotel.trim()}` : "") +
+                          (carrito.length > 0 ? `\n\n*Mi itinerario actual en el carrito*\n${detalle}\n(Total actual: ${horasTotales} hs)` : "");
                         const linkAv = `https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(textoConsultaAv)}`;
                         return (
                           <div key={av.id} className={`act ${abierta ? "abierta" : ""}`}>
@@ -1197,7 +1196,7 @@ export default function App() {
                                     </div>
                                   </div>
                                   <a className="btn-whatsapp" href={linkAv} target="_blank" rel="noopener noreferrer">
-                                    Consultar más por WhatsApp
+                                    Quiero saber más
                                   </a>
                                 </div>
                               </div>
