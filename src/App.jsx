@@ -145,6 +145,35 @@ const PLANES = [
     ] },
 ];
 
+// ---------- TURISMO AVENTURA (tours privados a medida, sin precio fijo) ----------
+// Cuando tengas las ilustraciones en acuarela, guardalas en public/fotos/ con estos nombres.
+const AVENTURA = [
+  {
+    id: "av-bici",
+    nombre: "Paseos en bicicleta",
+    foto: "/fotos/aventura-bici.jpg",
+    desc: "Recorridos privados en bicicleta por senderos y caminos naturales de la región, adaptados a tu ritmo. (Descripción detallada en preparación).",
+  },
+  {
+    id: "av-kayak",
+    nombre: "Kayak",
+    foto: "/fotos/aventura-kayak.jpg",
+    desc: "Travesía privada en kayak por ríos y arroyos rodeados de selva misionera, con equipamiento incluido. (Descripción detallada en preparación).",
+  },
+  {
+    id: "av-aves",
+    nombre: "Bird Watching",
+    foto: "/fotos/aventura-aves.jpg",
+    desc: "Salida privada de observación de aves autóctonas en selva, ideal para aficionados y fotógrafos de naturaleza. (Descripción detallada en preparación).",
+  },
+  {
+    id: "av-sunset",
+    nombre: "Sunset en la Selva",
+    foto: "/fotos/aventura-sunset.jpg",
+    desc: "Experiencia privada al atardecer en un entorno natural único de la selva misionera. (Descripción detallada en preparación).",
+  },
+];
+
 // ---------- Mapas (se buscan por nombre, sin API Key) ----------
 const MAPAS = [
   { id: "m1", nombre: "Parque Nacional Iguazú", pais: "Argentina", consulta: "Parque Nacional Iguazú, Misiones, Argentina" },
@@ -543,10 +572,11 @@ export default function App() {
     sonar();
     setPlanCargado("");
     setCarrito([...carrito, { ...a, dia, opcionalDe: null }]);
-  JavaScript
-if (!COMBOS.some((c) => c.padre === a.id)) {
-  setExpandidas((prev) => ({ ...prev, [a.id]: false }));
-}};
+    // Auto-minimiza la actividad al conectarla (excepto Cataratas, que muestran sus combinables)
+    if (!COMBOS.some((c) => c.padre === a.id)) {
+      setExpandidas((prev) => ({ ...prev, [a.id]: false }));
+    }
+  };
 
   // Suma una actividad combinada al mismo día que su parque principal
   const agregarCombo = (c, padre) => {
@@ -567,8 +597,9 @@ if (!COMBOS.some((c) => c.padre === a.id)) {
     sonar();
     setPlanCargado("");
     setCarrito([...carrito, { ...c, dia: padre.dia, opcionalDe: padre.id }]);
-  JavaScript
-setCombosExpandidos((prev) => ({ ...prev, [c.id]: false }));};
+    // Auto-minimiza la actividad combinada al conectarla
+    setCombosExpandidos((prev) => ({ ...prev, [c.id]: false }));
+  };
 
   // Al quitar un parque principal también se quitan sus actividades combinadas
   const quitar = (id) => {
@@ -1127,6 +1158,56 @@ setCombosExpandidos((prev) => ({ ...prev, [c.id]: false }));};
                     </div>
                   );
                 })}
+                {/* Bloque desplegable: Turismo Aventura (tours privados a medida) */}
+                <div className="pais-bloque" style={{ "--c": "#d97706" }}>
+                  <button className="pais-cab" aria-expanded={paisAbierto === "aventura"} onClick={() => { setPaisAbierto(paisAbierto === "aventura" ? null : "aventura"); setExpandidas({}); setCombosExpandidos({}); }}>
+                    <span className="pais-bandera" aria-hidden="true">🌿</span>
+                    <span>
+                      <span className="pais-nombre">Turismo Aventura</span>
+                      <span className="pais-cant">{AVENTURA.length} experiencias privadas a medida</span>
+                    </span>
+                    <span className={`pais-flecha ${paisAbierto === "aventura" ? "abierta" : ""}`} aria-hidden="true">▼</span>
+                  </button>
+
+                  {paisAbierto === "aventura" && (
+                    <div className="pais-cuerpo">
+                      {AVENTURA.map((av) => {
+                        const abierta = !!expandidas[av.id];
+                        const textoConsultaAv =
+                          `${nombre ? `¡Hola! Soy ${nombre} y me` : "¡Hola! Me"} gustaría consultar por la actividad privada *${av.nombre}* (Turismo Aventura).` +
+                          `
+- Personas: ${personas}
+- Días de estadía: ${dias}` +
+                          (hotel.trim() ? `
+- Alojamiento: ${hotel.trim()}` : "");
+                        const linkAv = `https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(textoConsultaAv)}`;
+                        return (
+                          <div key={av.id} className={`act ${abierta ? "abierta" : ""}`}>
+                            <BarraResumen foto={av.foto} nombre={av.nombre} meta="Tour privado a medida · Consultar disponibilidad"
+                              conectado={false} abierto={abierta} onClick={() => setExpandidas({ ...expandidas, [av.id]: !abierta })} />
+                            {abierta && (
+                              <div className="tarjeta">
+                                <Foto className="tarjeta-foto" src={av.foto} alt={av.nombre} />
+                                <div className="tarjeta-cuerpo">
+                                  <p className="desc">{av.desc}</p>
+                                  <div className="info">
+                                    <div>
+                                      <h4>Modalidad y disponibilidad</h4>
+                                      Tour privado sujeto a condiciones climáticas, disponibilidad de equipos (bicicletas / kayaks), guía y traslado en la fecha elegida.
+                                    </div>
+                                  </div>
+                                  <a className="btn-whatsapp" href={linkAv} target="_blank" rel="noopener noreferrer">
+                                    Consultar más por WhatsApp
+                                  </a>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </section>
 
               {/* Carrito por día */}
