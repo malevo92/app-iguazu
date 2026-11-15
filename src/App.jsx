@@ -461,6 +461,55 @@ function BarraResumen({ foto, nombre, meta, conectado, abierto, onClick }) {
   );
 }
 
+// ---------- ASISTENTE VIRTUAL: CAPITÁN TANGARÁ ----------
+// Se posa en la parte superior del bloque activo (sin tapar tarjetas) y da consejos según días y circuito.
+function CapitanTangara({ modo, setModo, volando, mensaje, inline = false }) {
+  const [cuadro, setCuadro] = useState(0);
+  useEffect(() => {
+    if (!volando) return;
+    const iv = setInterval(() => setCuadro((c) => (c === 0 ? 1 : 0)), 130);
+    return () => clearInterval(iv);
+  }, [volando]);
+
+  if (modo === "libre") {
+    if (!inline) {
+      return (
+        <button type="button" className="tangara-mini" onClick={() => setModo("guiado")}
+          aria-label="Llamar al Capitán Tangará" title="Llamar al Capitán Tangará">
+          <img src="/fotos/asistente-posado.png" alt="Capitán Tangará" />
+          <span>Tangará</span>
+        </button>
+      );
+    }
+    return null;
+  }
+
+  const imgActual = !volando
+    ? "/fotos/asistente-posado.png"
+    : cuadro === 0
+      ? "/fotos/asistente-vuelo-1.png"
+      : "/fotos/asistente-vuelo-2.png";
+
+  return (
+    <aside className={`tangara-posado ${volando ? "volando" : ""} ${inline ? "en-bloque" : "esquina"}`} aria-live="polite">
+      <div className="tangara-globo">
+        <div className="tangara-cab">
+          <strong>🦜 Capitán Tangará</strong>
+          <button type="button" className="tangara-cerrar" onClick={() => setModo("libre")} aria-label="Minimizar asistente" title="Explorar por mi cuenta">✕</button>
+        </div>
+        <p>{mensaje}</p>
+        {modo === "bienvenida" && (
+          <div className="tangara-acciones">
+            <button type="button" className="t-btn si" onClick={() => setModo("guiado")}>Sí, guíame</button>
+            <button type="button" className="t-btn no" onClick={() => setModo("libre")}>Explorar solo</button>
+          </div>
+        )}
+      </div>
+      <img className="tangara-ave" src={imgActual} alt="Capitán Tangará" />
+    </aside>
+  );
+}
+
 // Foto con respaldo: si el archivo no existe en public/fotos/, muestra un degradado prolijo
 function Foto({ src, alt, className }) {
   const [falla, setFalla] = useState(false);
@@ -471,6 +520,14 @@ function Foto({ src, alt, className }) {
 export default function App() {
   // ---------- ESTADO ----------
   const [pestana, setPestana] = useState("destinos");
+  const [modoTangara, setModoTangara] = useState("bienvenida"); // "bienvenida" | "guiado" | "libre"
+  const [volandoTangara, setVolandoTangara] = useState(false);
+  const timerTangara = useRef(null);
+  const volarTangara = () => {
+    setVolandoTangara(true);
+    clearTimeout(timerTangara.current);
+    timerTangara.current = setTimeout(() => setVolandoTangara(false), 650);
+  };
   const [dias, setDias] = useState(3);
   const [personas, setPersonas] = useState(2);
   const [movilidad, setMovilidad] = useState("no"); // "no" = necesita traslado, "si" = vehículo propio
@@ -675,6 +732,53 @@ export default function App() {
     { id: "colab", etiqueta: "Colaboradores", icono: "🏨" },
     { id: "guia", etiqueta: "Contactos", icono: "💬" },
   ];
+
+  // Consejo inteligente de Capitán Tangará según días, país abierto y circuito cargado
+  const tienePais = (p) => carrito.some((x) => x.pais === p);
+  const consejoTangara = (() => {
+    if (modoTangara === "bienvenida") {
+      return "¡Hola! Soy el Capitán Tangará. Completá tu nombre, días y hotel arriba. ¿Querés que te guíe según tus días o preferís explorar solo?";
+    }
+    if (pestana === "mapas") return "Acá podés ver la ubicación de cada parque y abrirla directo en Google Maps al llegar.";
+    if (pestana === "colab") return "Mirá nuestros hospedajes aliados. Tocá cualquier foto del carrusel para ampliarla.";
+    if (pestana === "guia") return "¿Dudas antes de reservar? Escribinos directo por WhatsApp o mail.";
+    if (paisAbierto === "Argentina") {
+      if (tienePais("Argentina")) {
+        return `¡Circuito argentino listo! Llevá DNI físico vigente, calzado cerrado, piloto de lluvia, repelente y agua.${dias >= 2 && dias <= 3 && !tienePais("Brasil") ? " Con " + dias + " días te recomiendo sumar Brasil mañana." : ""}`;
+      }
+      return dias <= 2
+        ? "Con " + dias + " días, priorizá Cataratas Argentinas (7 hs) y sumá Gran Aventura si querés lancha. Luego te recomiendo cruzar a Brasil."
+        : "En " + dias + " días podés hacer Cataratas Argentinas un día y dejar Minas de Wanda, GüiráOga o San Ignacio para otro día.";
+    }
+    if (paisAbierto === "Brasil") {
+      if (tienePais("Brasil")) {
+        return "¡Gran circuito en Foz! Llevá DNI o pasaporte original (sin fotocopias) para aduana, protector solar, gorra y piloto.";
+      }
+      return "Cataratas Brasileñas lleva medio día: combinala el mismo día con Parque das Aves, Macuco Safari, Helisul o AquaFoz.";
+    }
+    if (paisAbierto === "Paraguay") {
+      if (tienePais("Paraguay")) {
+        return "Para el Puente de la Amistad llevá documento original vigente, efectivo (USD o Gs) y calzado antideslizante para Saltos del Monday.";
+      }
+      return "En Paraguay podés combinar Compras en Ciudad del Este por la mañana y Saltos del Monday por la tarde.";
+    }
+    if (paisAbierto === "aventura") {
+      return "Tours privados a medida (bici, kayak, aves o sunset). Tocá «Quiero saber más» y coordinamos según el clima.";
+    }
+    if (carrito.length > 0) {
+      return `¡Vas bárbaro! Ya armaste ${carrito.length} actividad(es). Recordá que la seña del 50% es solo por traslados y guías; entradas en boletería.`;
+    }
+    return dias <= 3
+      ? `Para ${dias} días te sugiero empezar abriendo Argentina o cargar un plan sugerido en 1 clic.`
+      : `Con ${dias} días podés recorrer los 3 países tranquilos. Abrí un bloque abajo para empezar.`;
+  })();
+
+  // Dónde se posa Capitán Tangará: encima del bloque abierto, o en el formulario/carrito
+  const dondeSePosa =
+    modoTangara === "bienvenida" ? "inicio" :
+    pestana !== "destinos" ? "pestana" :
+    paisAbierto ? `pais-${paisAbierto}` :
+    carrito.length > 0 ? "carrito" : "inicio";
 
   return (
     <div className={`app ${carrito.length > 0 ? "con-barra" : ""}`}>
@@ -957,6 +1061,29 @@ export default function App() {
         .combos-lista { display: flex; flex-direction: column; gap: 8px; }
         .combo-foto { height: 150px; }
         @media (min-width: 700px) { .tarjeta-foto { height: 220px; } }
+
+        /* ===== ASISTENTE VIRTUAL: CAPITÁN TANGARÁ (compacto y posado sobre botones) ===== */
+        .tangara-posado { display: flex; align-items: flex-end; justify-content: flex-end; gap: 8px; margin: 0 0 -6px; padding: 0 8px; position: relative; z-index: 5; }
+        .tangara-posado.esquina { position: fixed; bottom: 14px; right: 14px; z-index: 600; margin: 0; max-width: min(310px, calc(100vw - 24px)); pointer-events: none; }
+        .tangara-posado.esquina .tangara-globo, .tangara-posado.esquina .tangara-ave { pointer-events: auto; }
+        .tangara-posado.volando .tangara-ave { animation: vueloSalto .6s ease-out; }
+        @keyframes vueloSalto { 0% { transform: translate(-26px, -28px) scale(1.08) rotate(-8deg); } 60% { transform: translate(4px, -10px) rotate(3deg); } 100% { transform: translate(0, 0) scale(1) rotate(0); } }
+        .tangara-ave { width: 58px; height: auto; flex: none; filter: drop-shadow(0 6px 12px rgba(0,0,0,.55)); animation: flotarAve 3s ease-in-out infinite; }
+        @keyframes flotarAve { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        .tangara-globo { max-width: 340px; background: rgba(20,20,23,.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+          border: 1px solid #34d399; border-radius: 14px; padding: 8px 11px; color: #f4f4f5; box-shadow: 0 8px 22px rgba(0,0,0,.45); font-size: .78rem; line-height: 1.35; }
+        .tangara-cab { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px; color: #34d399; font-size: .74rem; }
+        .tangara-cerrar { border: none; background: transparent; color: #a1a1aa; cursor: pointer; font-size: .85rem; padding: 0 4px; }
+        .tangara-globo p { margin: 0; }
+        .tangara-acciones { display: flex; gap: 6px; margin-top: 7px; }
+        .t-btn { flex: 1; border: none; border-radius: 999px; padding: 5px 8px; font-family: inherit; font-weight: 700; font-size: .73rem; cursor: pointer; }
+        .t-btn.si { background: linear-gradient(135deg, #34d399, #10b981); color: #04261a; }
+        .t-btn.no { background: #27272a; color: #e4e4e7; border: 1px solid #3f3f46; }
+        .tangara-mini { position: fixed; bottom: 76px; right: 12px; z-index: 600; display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 5px;
+          border-radius: 999px; border: 1px solid #34d399; background: rgba(20,20,23,.9); color: #f4f4f5; font-family: inherit; font-weight: 700; font-size: .73rem;
+          cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,.5); }
+        .tangara-mini img { width: 26px; height: 26px; object-fit: contain; }
+        @media (max-width: 480px) { .tangara-ave { width: 50px; } .tangara-globo { font-size: .74rem; padding: 7px 10px; } }
       `}</style>
 
       <div className="contenedor">
@@ -971,7 +1098,7 @@ export default function App() {
 
         <nav className="historias" role="tablist" aria-label="Secciones">
           {PESTANAS.map((p) => (
-            <button key={p.id} role="tab" aria-selected={pestana === p.id} className={`historia ${pestana === p.id ? "activa" : ""}`} onClick={() => setPestana(p.id)}>
+            <button key={p.id} role="tab" aria-selected={pestana === p.id} className={`historia ${pestana === p.id ? "activa" : ""}`} onClick={() => { setPestana(p.id); if (modoTangara === "guiado") volarTangara(); }}>
               <span className="aro">
                 <span className="aro-interior" aria-hidden="true">{p.icono}</span>
                 {p.id === "destinos" && carrito.length > 0 && <span className="aro-cont" aria-label={`${carrito.length} actividades`}>{carrito.length}</span>}
@@ -984,6 +1111,7 @@ export default function App() {
         {/* ---------- PESTAÑA 1: Destinos y Carrito ---------- */}
         {pestana === "destinos" && (
           <>
+            {dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
             {/* Formulario del viajero */}
             <section className="caja" style={{ marginBottom: 24 }}>
               <h2>Datos del viajero</h2>
@@ -1048,8 +1176,10 @@ export default function App() {
                   const lista = ATRACTIVOS.filter((a) => a.pais === pais);
                   const abierto = paisAbierto === pais;
                   return (
+                    <Fragment key={pais}>
+                      {dondeSePosa === `pais-${pais}` && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
                     <div key={pais} className="pais-bloque" style={{ "--c": datos.color }}>
-                      <button className="pais-cab" aria-expanded={abierto} onClick={() => { setPaisAbierto(abierto ? null : pais); setExpandidas({}); setCombosExpandidos({}); }}>
+                      <button className="pais-cab" aria-expanded={abierto} onClick={() => { setPaisAbierto(abierto ? null : pais); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
                         <span className="pais-bandera" aria-hidden="true">{datos.bandera}</span>
                         <span>
                           <span className="pais-nombre">{pais}</span>
@@ -1156,11 +1286,13 @@ export default function App() {
                         </div>
                       )}
                     </div>
+                    </Fragment>
                   );
                 })}
+                {dondeSePosa === "pais-aventura" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
                 {/* Bloque desplegable: Turismo Aventura (tours privados a medida) */}
                 <div className="pais-bloque" style={{ "--c": "#d97706" }}>
-                  <button className="pais-cab" aria-expanded={paisAbierto === "aventura"} onClick={() => { setPaisAbierto(paisAbierto === "aventura" ? null : "aventura"); setExpandidas({}); setCombosExpandidos({}); }}>
+                  <button className="pais-cab" aria-expanded={paisAbierto === "aventura"} onClick={() => { setPaisAbierto(paisAbierto === "aventura" ? null : "aventura"); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
                     <span className="pais-bandera" aria-hidden="true">🌿</span>
                     <span>
                       <span className="pais-nombre">Turismo Aventura</span>
@@ -1210,6 +1342,8 @@ export default function App() {
               </section>
 
               {/* Carrito por día */}
+              <div>
+                {dondeSePosa === "carrito" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
               <aside className="caja carrito" ref={refCarrito}>
                 <h2>Mi Carrito de Actividades</h2>
                 {avisoGlobal && <p className="alerta global" role="status">{avisoGlobal}</p>}
@@ -1263,6 +1397,7 @@ export default function App() {
                     : "Se abrirá WhatsApp con tu itinerario ya escrito."}
                 </p>
               </aside>
+              </div>
             </div>
           </>
         )}
@@ -1368,6 +1503,7 @@ export default function App() {
           <button onClick={irAlCarrito}>Ver mi viaje ↓</button>
         </div>
       )}
+      {(dondeSePosa === "pestana" || modoTangara === "libre") && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline={false} />}
     </div>
   );
 }
