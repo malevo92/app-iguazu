@@ -109,9 +109,6 @@ const GUIA = {
 };
 
 // ---------- COLABORADORES DIVIDIDOS EN 4 SECCIONES ----------
-// Categorías disponibles: "hoteles" | "guias" | "choferes" | "restaurantes"
-// Para sumar un nuevo aliado, copiá el formato de Complejo El Ceibo y poné su tipo correspondiente.
-// Podés agregarle el campo opcional promo: "10% off mencionando App Iguazú" para que Capitán Tangará lo recomiende.
 const CATEGORIAS_COLAB = [
   { id: "hoteles", icono: "🏨", titulo: "Hoteles y Hospedajes", preguntaBtn: "🏨 Hospedaje" },
   { id: "guias", icono: "🧭", titulo: "Guías de Confianza", preguntaBtn: "🧭 Guía" },
@@ -126,7 +123,7 @@ const COLABORADORES = [
     destacado: true,
     nombre: "Complejo El Ceibo",
     categoria: "Hotelería y Hospedaje",
-    promo: "", // Ejemplo futuro: "Consultar tarifa especial para viajeros de App Iguazú"
+    promo: "",
     logo: "/colaboradores/el-ceibo-logo.png",
     logoRespaldo: "/colaboradores/el-ceibo-logo.jpg",
     fotos: [
@@ -562,7 +559,7 @@ export default function App() {
 
   // ---------- ESTADO ----------
   const [pestana, setPestana] = useState("destinos");
-  const [colabCat, setColabCat] = useState("hoteles"); // "hoteles" | "guias" | "choferes" | "restaurantes"
+  const [colabCat, setColabCat] = useState("hoteles");
   const [mapaAmpliado, setMapaAmpliado] = useState(null);
   const [zoomMapa, setZoomMapa] = useState(1);
   const [modoTangara, setModoTangara] = useState("bienvenida");
@@ -805,7 +802,6 @@ export default function App() {
     { id: "guia", etiqueta: t.tabs.guia, icono: "💬" },
   ];
 
-  // Colaboradores filtrados por la categoría activa
   const colabsDeCategoria = COLABORADORES.filter((c) => c.tipo === colabCat);
   const promosActivas = colabsDeCategoria.filter((c) => c.promo && c.promo.trim());
 
@@ -901,6 +897,9 @@ export default function App() {
           font-family: "Segoe UI", system-ui, sans-serif; padding: 24px 16px 48px; transition: background .25s, color .25s; }
         .contenedor { max-width: 1100px; margin: 0 auto; }
         .app h1, .app h2, .app h3 { color: var(--tinta); }
+        @keyframes entrarVista { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .vista-animada { animation: entrarVista .32s cubic-bezier(.22, 1, .36, 1) both; }
+        @media (prefers-reduced-motion: reduce) { .vista-animada { animation: none; } }
         .app .portada { border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
           background-color: #1b3a4b; background-image: linear-gradient(rgba(5,20,32,.55), rgba(5,20,32,.55)), url('/fotos/portada.jpg');
           background-size: cover; background-position: center; position: relative; border: 1px solid #27272a; }
@@ -1264,7 +1263,7 @@ export default function App() {
 
         {/* ---------- PESTAÑA 1: Destinos y Carrito ---------- */}
         {pestana === "destinos" && (
-          <>
+          <div key="destinos" className="vista-animada">
             {dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
             <section className="caja" style={{ marginBottom: 24 }}>
               <h2>{t.datosViajero}</h2>
@@ -1582,12 +1581,12 @@ export default function App() {
                 </aside>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* ---------- PESTAÑA 2: Mapas ilustrados ---------- */}
         {pestana === "mapas" && (
-          <section>
+          <section key="mapas" className="vista-animada">
             <CapitanTangara
               modo={modoTangara === "libre" ? "guiado" : modoTangara}
               setModo={setModoTangara}
@@ -1622,7 +1621,7 @@ export default function App() {
 
         {/* ---------- PESTAÑA 3: Colaboradores en 4 secciones ---------- */}
         {pestana === "colab" && (
-          <section>
+          <section key="colab" className="vista-animada">
             <CapitanTangara
               modo={modoTangara === "libre" ? "guiado" : modoTangara}
               setModo={setModoTangara}
@@ -1651,69 +1650,71 @@ export default function App() {
               })}
             </div>
 
-            {colabsDeCategoria.length === 0 ? (
-              <div className="colab-vacio">
-                <h3>{CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.icono} {CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo}</h3>
-                <p>
-                  Muy pronto vamos a ir sumando aliados verificados en esta sección. Mientras tanto, escribinos por WhatsApp y te recomendamos opciones de confianza según tu estadía.
-                </p>
-                <a
-                  className="btn-whatsapp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan! Estoy viendo la sección de ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo} en App Iguazú y quería pedirte recomendaciones para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}).`)}`}
-                >
-                  Consultar recomendaciones por WhatsApp
-                </a>
-              </div>
-            ) : (
-              colabsDeCategoria.map((c) => (
-                <article key={c.id} className="colab-card">
-                  <div className="colab-cab">
-                    <div className="medallon">
-                      <ImagenRespaldo src={c.logo} respaldo={c.logoRespaldo} alt={`Logo de ${c.nombre}`}
-                        fallback={<span className="medallon-ini">{c.nombre.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>} />
-                    </div>
-                    <div>
-                      {c.destacado && <span className="badge">Aliado destacado</span>}
-                      <h2>{c.nombre}</h2>
-                      <span className="cat">{c.categoria}</span>
-                      {c.promo && <div className="colab-promo">🎁 {c.promo}</div>}
-                    </div>
-                  </div>
-
-                  <div className="colab-cuerpo">
-                    <Carrusel fotos={c.fotos} nombre={c.nombre} />
-                    <div className="colab-info">
-                      <p>{c.descripcion}</p>
-                      <ul className="colab-datos">
-                        <li>📍 {c.ubicacion}</li>
-                        <li>📞 {c.telefonoVisible}</li>
-                        <li>📷 <a href={`https://instagram.com/${c.instagram.replace("@", "")}`} target="_blank" rel="noopener noreferrer">{c.instagram}</a></li>
-                      </ul>
-                      <div className="chips">{c.servicios.map((sv) => <span key={sv} className="chip">{sv}</span>)}</div>
-                      <div className="colab-botones">
-                        <a className="btn-whatsapp" target="_blank" rel="noopener noreferrer"
-                          href={`https://wa.me/${c.whatsapp}?text=${encodeURIComponent(`Hola! Los contacto desde la web de ${GUIA.nombre}. Quiero consultar disponibilidad en ${c.nombre} para ${personas} ${personas === 1 ? "persona" : "personas"} y una estadía de ${dias} ${dias === 1 ? "día" : "días"}.`)}`}>
-                          Consultar disponibilidad
-                        </a>
-                        <a className="btn-link" target="_blank" rel="noopener noreferrer"
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.mapa)}`}>
-                          Ver ubicación
-                        </a>
+            <div key={colabCat} className="vista-animada">
+              {colabsDeCategoria.length === 0 ? (
+                <div className="colab-vacio">
+                  <h3>{CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.icono} {CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo}</h3>
+                  <p>
+                    Muy pronto vamos a ir sumando aliados verificados en esta sección. Mientras tanto, escribinos por WhatsApp y te recomendamos opciones de confianza según tu estadía.
+                  </p>
+                  <a
+                    className="btn-whatsapp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan! Estoy viendo la sección de ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo} en App Iguazú y quería pedirte recomendaciones para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}).`)}`}
+                  >
+                    Consultar recomendaciones por WhatsApp
+                  </a>
+                </div>
+              ) : (
+                colabsDeCategoria.map((c) => (
+                  <article key={c.id} className="colab-card">
+                    <div className="colab-cab">
+                      <div className="medallon">
+                        <ImagenRespaldo src={c.logo} respaldo={c.logoRespaldo} alt={`Logo de ${c.nombre}`}
+                          fallback={<span className="medallon-ini">{c.nombre.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>} />
+                      </div>
+                      <div>
+                        {c.destacado && <span className="badge">Aliado destacado</span>}
+                        <h2>{c.nombre}</h2>
+                        <span className="cat">{c.categoria}</span>
+                        {c.promo && <div className="colab-promo">🎁 {c.promo}</div>}
                       </div>
                     </div>
-                  </div>
-                </article>
-              ))
-            )}
+
+                    <div className="colab-cuerpo">
+                      <Carrusel fotos={c.fotos} nombre={c.nombre} />
+                      <div className="colab-info">
+                        <p>{c.descripcion}</p>
+                        <ul className="colab-datos">
+                          <li>📍 {c.ubicacion}</li>
+                          <li>📞 {c.telefonoVisible}</li>
+                          <li>📷 <a href={`https://instagram.com/${c.instagram.replace("@", "")}`} target="_blank" rel="noopener noreferrer">{c.instagram}</a></li>
+                        </ul>
+                        <div className="chips">{c.servicios.map((sv) => <span key={sv} className="chip">{sv}</span>)}</div>
+                        <div className="colab-botones">
+                          <a className="btn-whatsapp" target="_blank" rel="noopener noreferrer"
+                            href={`https://wa.me/${c.whatsapp}?text=${encodeURIComponent(`Hola! Los contacto desde la web de ${GUIA.nombre}. Quiero consultar disponibilidad en ${c.nombre} para ${personas} ${personas === 1 ? "persona" : "personas"} y una estadía de ${dias} ${dias === 1 ? "día" : "días"}.`)}`}>
+                            Consultar disponibilidad
+                          </a>
+                          <a className="btn-link" target="_blank" rel="noopener noreferrer"
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.mapa)}`}>
+                            Ver ubicación
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
             <p className="nota">¿Tenés un hotel, restaurante, sos guía habilitado o chofer y querés sumarte? Escribinos por WhatsApp desde la pestaña de contacto.</p>
           </section>
         )}
 
         {/* ---------- PESTAÑA 4: Contacto del Guía ---------- */}
         {pestana === "guia" && (
-          <section className="guia-card">
+          <section key="guia" className="guia-card vista-animada">
             <div className="guia-capa">
               <span className="guia-sello">Tu guía en las Tres Fronteras</span>
               <h2>{GUIA.nombre}</h2>
