@@ -263,34 +263,95 @@ const MAPAS = [
   { id: "m13", nombre: "Centro de Puerto Iguazú", pais: "Argentina", img: "/mapas/mapa-centro-iguazu.jpg", consulta: "Puerto Iguazú, Misiones, Argentina" },
 ];
 
-// ---------- 3 PLUMAS DISTINTAS + RÁFAGA DE VIENTO AL DESLIZAR ----------
-function PlumasTransicion({ rafaga }) {
+// ---------- 3 PLUMAS ANIMADAS A 60 FPS (SIN LÍNEAS DE VIENTO) ----------
+function PlumasTransicion({ rafaga, onFin }) {
+  const refs = [useRef(null), useRef(null), useRef(null)];
+
+  useEffect(() => {
+    if (!rafaga) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+      onFin();
+      return;
+    }
+
+    const esIzq = rafaga.dir === "izq";
+    const dirNum = esIzq ? -1 : 1;
+    const vw = window.innerWidth || 390;
+    const vh = window.innerHeight || 800;
+
+    // 3 trayectorias distintas: (delay, duración, altura inicial, distancia, rulo envolvente, caída suave)
+    const configs = [
+      { delay: 0, dur: 1950, y0: vh * 0.22, dist: vw * 0.72, loopX: 46, loopY: 44, driftY: 75, baseRot: -18, phase: 0.2 },
+      { delay: 160, dur: 1750, y0: vh * 0.44, dist: vw * 0.60, loopX: 38, loopY: 36, driftY: 55, baseRot: 24, phase: 1.7 },
+      { delay: 90, dur: 2050, y0: vh * 0.62, dist: vw * 0.76, loopX: 52, loopY: 42, driftY: 65, baseRot: -10, phase: 3.1 },
+    ];
+
+    const start = performance.now();
+    let frameId = 0;
+
+    const animar = (ahora) => {
+      let todasTerminaron = true;
+
+      configs.forEach((cfg, i) => {
+        const el = refs[i].current;
+        if (!el) return;
+
+        const elapsed = ahora - start - cfg.delay;
+        if (elapsed < 0) {
+          todasTerminaron = false;
+          el.style.opacity = "0";
+          return;
+        }
+
+        const t = Math.min(1, elapsed / cfg.dur);
+        if (t < 1) todasTerminaron = false;
+
+        // Progreso horizontal con desaceleración natural
+        const ease = 1 - Math.pow(1 - t, 2.8);
+        const startX = esIzq ? vw + 40 : -72;
+
+        // Movimiento envolvente tipo rulo de viento en medio del vuelo
+        const env = Math.exp(-Math.pow((t - 0.52) / 0.19, 2));
+        const ondaX = Math.sin(t * Math.PI * 3.2 + cfg.phase) * cfg.loopX * env;
+        const ondaY = -Math.cos(t * Math.PI * 3.2 + cfg.phase) * cfg.loopY * env + Math.sin(t * Math.PI * 2.2) * 18;
+
+        const x = startX + dirNum * (cfg.dist * ease) + dirNum * ondaX;
+        const y = cfg.y0 + ondaY + cfg.driftY * Math.pow(t, 1.5);
+
+        // Giros suaves en 3D emulando hoja al viento
+        const rotZ = dirNum * (cfg.baseRot + Math.sin(t * Math.PI * 3.6 + cfg.phase) * 32 + t * 38);
+        const rotX = Math.sin(t * Math.PI * 4.4 + cfg.phase) * 28;
+        const rotY = Math.cos(t * Math.PI * 3.1 + cfg.phase) * 24;
+        const scale = 0.88 + Math.sin(t * Math.PI) * 0.14;
+
+        // Entrada rápida y desvanecimiento gradual al finalizar
+        let op = 1;
+        if (t < 0.1) op = t / 0.1;
+        else if (t > 0.64) op = Math.max(0, 1 - Math.pow((t - 0.64) / 0.36, 1.45));
+
+        el.style.opacity = op.toFixed(3);
+        el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${rotZ.toFixed(1)}deg) rotateX(${rotX.toFixed(1)}deg) rotateY(${rotY.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+      });
+
+      if (!todasTerminaron) {
+        frameId = requestAnimationFrame(animar);
+      } else {
+        onFin();
+      }
+    };
+
+    frameId = requestAnimationFrame(animar);
+    return () => cancelAnimationFrame(frameId);
+  }, [rafaga]);
+
   if (!rafaga) return null;
   const esIzq = rafaga.dir === "izq";
-  const dirNum = esIzq ? -1 : 1;
   const uid = rafaga.id;
 
   return (
-    <div key={uid} className={`plumas-capa dir-${rafaga.dir}`} style={{ "--dir": dirNum }} aria-hidden="true">
-      {/* Líneas suaves de viento con rulo (estilo boceto) */}
-      <svg className="viento-svg" viewBox="0 0 400 260" preserveAspectRatio="none"
-        style={{ transform: esIzq ? "scaleX(-1)" : "none" }}>
-        <path
-          className="viento-linea l1"
-          d="M 20 85 C 120 55, 220 110, 295 85 C 325 75, 320 42, 292 48 C 272 52, 278 72, 294 68"
-        />
-        <path
-          className="viento-linea l2"
-          d="M 45 165 C 150 185, 250 140, 340 168 C 368 176, 365 208, 336 204 C 316 200, 320 182, 334 185"
-        />
-      </svg>
-
-      {/* 1. Pluma Azul Principal (grande, curvada con pelusa en la base y punta desflecada) */}
-      <svg
-        className="pluma-svg pluma-v-1"
-        viewBox="0 0 90 60"
-        style={{ top: "22%", left: esIzq ? "100%" : "-76px", width: 72, height: 48, animationDelay: "0ms", animationDuration: "1.65s" }}
-      >
+    <div className="plumas-capa" aria-hidden="true">
+      {/* 1. Pluma Azul Principal (grande, curvada, pelusa en la base) */}
+      <svg ref={refs[0]} className="pluma-raf" viewBox="0 0 90 60" style={{ width: 72, height: 48 }}>
         <defs>
           <linearGradient id={`pAzul1-${uid}`} x1="0%" y1="30%" x2="100%" y2="70%">
             <stop offset="0%" stopColor="#1e40af" />
@@ -301,18 +362,14 @@ function PlumasTransicion({ rafaga }) {
         </defs>
         <g transform={esIzq ? "" : "scale(-1, 1) translate(-90, 0)"}>
           <path d="M84 14 L67 28 C58 24, 55 15, 51 11 L53 24 C45 18, 41 13, 35 12 L40 20 C27 12, 13 11, 5 18 C7 24, 15 33, 28 38 C39 42, 51 41, 61 36 L58 47 L66 39 C68 35, 69 31, 71 28 Z"
-            fill={`url(#pAzul1-${uid})`} opacity="0.95" />
+            fill={`url(#pAzul1-${uid})`} />
           <path d="M9 20 C24 28, 45 34, 65 29 C73 26, 79 20, 85 13" stroke="#e0f2fe" strokeWidth="1.9" strokeLinecap="round" fill="none" />
           <path d="M18 19 L11 16 M27 23 L19 18 M37 26 L29 20 M24 31 L31 35 M36 34 L43 38 M48 33 L54 37" stroke="rgba(255,255,255,0.45)" strokeWidth="1" strokeLinecap="round" fill="none" />
         </g>
       </svg>
 
-      {/* 2. Pluma Roja del Copete (más pequeña, otra postura/inclinación) */}
-      <svg
-        className="pluma-svg pluma-v-2"
-        viewBox="0 0 70 60"
-        style={{ top: "44%", left: esIzq ? "100%" : "-54px", width: 46, height: 40, animationDelay: "140ms", animationDuration: "1.5s" }}
-      >
+      {/* 2. Pluma Roja del Copete (más pequeña, postura diferente) */}
+      <svg ref={refs[1]} className="pluma-raf" viewBox="0 0 70 60" style={{ width: 44, height: 38 }}>
         <defs>
           <linearGradient id={`pRoja-${uid}`} x1="10%" y1="90%" x2="90%" y2="10%">
             <stop offset="0%" stopColor="#991b1b" />
@@ -322,18 +379,14 @@ function PlumasTransicion({ rafaga }) {
         </defs>
         <g transform="rotate(28 35 30)">
           <path d="M10 50 L22 39 C19 32, 22 21, 30 13 L32 19 L38 9 C45 8, 52 10, 55 16 C54 25, 48 34, 38 40 L33 36 L29 44 C26 44, 23 42, 21 40 Z"
-            fill={`url(#pRoja-${uid})`} opacity="0.95" />
+            fill={`url(#pRoja-${uid})`} />
           <path d="M9 51 C21 40, 35 27, 52 14" stroke="#fee2e2" strokeWidth="1.6" strokeLinecap="round" fill="none" />
           <path d="M27 33 L24 25 M35 26 L32 18 M42 21 L47 25" stroke="rgba(255,255,255,0.42)" strokeWidth="0.95" strokeLinecap="round" fill="none" />
         </g>
       </svg>
 
-      {/* 3. Pluma Azul Secundaria (mediana, orientada en ángulo opuesto) */}
-      <svg
-        className="pluma-svg pluma-v-3"
-        viewBox="0 0 80 60"
-        style={{ top: "63%", left: esIzq ? "100%" : "-64px", width: 58, height: 44, animationDelay: "80ms", animationDuration: "1.7s" }}
-      >
+      {/* 3. Pluma Azul Secundaria (mediana, ángulo opuesto) */}
+      <svg ref={refs[2]} className="pluma-raf" viewBox="0 0 80 60" style={{ width: 58, height: 44 }}>
         <defs>
           <linearGradient id={`pAzul2-${uid}`} x1="0%" y1="80%" x2="100%" y2="20%">
             <stop offset="0%" stopColor="#1d4ed8" />
@@ -343,7 +396,7 @@ function PlumasTransicion({ rafaga }) {
         </defs>
         <g transform="rotate(-18 40 30)">
           <path d="M6 44 L23 36 C21 29, 27 20, 37 14 L38 20 L46 11 C57 8, 68 9, 74 15 C71 24, 62 33, 49 38 L44 34 L38 41 C33 41, 28 39, 25 36 Z"
-            fill={`url(#pAzul2-${uid})`} opacity="0.94" />
+            fill={`url(#pAzul2-${uid})`} />
           <path d="M5 45 C22 37, 45 27, 70 14" stroke="#dbeafe" strokeWidth="1.7" strokeLinecap="round" fill="none" />
           <path d="M31 31 L27 23 M42 26 L38 18 M54 20 L50 13 M47 29 L54 33" stroke="rgba(255,255,255,0.42)" strokeWidth="1" strokeLinecap="round" fill="none" />
         </g>
@@ -663,12 +716,6 @@ export default function App() {
     clearTimeout(timerTangara.current);
     timerTangara.current = setTimeout(() => setVolandoTangara(false), 650);
   };
-
-  useEffect(() => {
-    if (!rafagaPlumas) return;
-    const tmr = setTimeout(() => setRafagaPlumas(null), 1900);
-    return () => clearTimeout(tmr);
-  }, [rafagaPlumas]);
 
   const cambiarPestana = (nueva, dirForzada = null) => {
     if (nueva === pestana) return;
@@ -1037,49 +1084,12 @@ export default function App() {
         .vista-animada { animation: entrarVista .3s cubic-bezier(.22, 1, .36, 1) both; }
         .vista-animada.dir-izq { animation: entrarDesdeDer .28s cubic-bezier(.22, 1, .36, 1) both; }
         .vista-animada.dir-der { animation: entrarDesdeIzq .28s cubic-bezier(.22, 1, .36, 1) both; }
-
-        /* ===== 3 PLUMAS + RÁFAGA DE VIENTO ===== */
-        .plumas-capa { position: fixed; inset: 0; pointer-events: none; z-index: 900; overflow: hidden; }
-        .viento-svg { position: absolute; inset: 18% 0; width: 100%; height: 64%; opacity: 0; animation: vientoFade 1.45s ease-out forwards; }
-        .viento-linea { fill: none; stroke: rgba(186, 230, 253, 0.35); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 480; stroke-dashoffset: 480; animation: trazoViento 1.15s cubic-bezier(.22, 1, .36, 1) forwards; }
-        .viento-linea.l2 { animation-delay: 120ms; stroke: rgba(167, 243, 208, 0.25); }
-        .app.claro .viento-linea { stroke: rgba(2, 132, 199, 0.3); }
-        @keyframes trazoViento { to { stroke-dashoffset: 0; } }
-        @keyframes vientoFade { 0% { opacity: 0; } 20% { opacity: 1; } 75% { opacity: .65; } 100% { opacity: 0; } }
-
-        .pluma-svg { position: absolute; filter: drop-shadow(0 6px 12px rgba(0,0,0,.45)); opacity: 0; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(.22, .61, .36, 1); }
-        .pluma-v-1 { animation-name: plumaBrisa1; }
-        .pluma-v-2 { animation-name: plumaBrisa2; }
-        .pluma-v-3 { animation-name: plumaBrisa3; }
-        @keyframes plumaBrisa1 {
-          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -22deg)) scale(.85); }
-          12%  { opacity: .96; }
-          38%  { opacity: .95; transform: translate(calc(var(--dir) * 28vw), -30px) rotate(calc(var(--dir) * 16deg)) scale(1.04); }
-          66%  { opacity: .9;  transform: translate(calc(var(--dir) * 56vw), 18px) rotate(calc(var(--dir) * -20deg)) scale(1); }
-          86%  { opacity: .8;  transform: translate(calc(var(--dir) * 69vw), 42px) rotate(calc(var(--dir) * 10deg)) scale(.96); }
-          100% { opacity: 0;   transform: translate(calc(var(--dir) * 72vw), 52px) rotate(calc(var(--dir) * 2deg)) scale(.94); }
-        }
-        @keyframes plumaBrisa2 {
-          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * 18deg)) scale(.82); }
-          14%  { opacity: .96; }
-          40%  { opacity: .95; transform: translate(calc(var(--dir) * 24vw), 24px) rotate(calc(var(--dir) * -24deg)) scale(1); }
-          68%  { opacity: .88; transform: translate(calc(var(--dir) * 48vw), -16px) rotate(calc(var(--dir) * 22deg)) scale(.97); }
-          87%  { opacity: .75; transform: translate(calc(var(--dir) * 59vw), 16px) rotate(calc(var(--dir) * -8deg)) scale(.94); }
-          100% { opacity: 0;   transform: translate(calc(var(--dir) * 62vw), 24px) rotate(calc(var(--dir) * 3deg)) scale(.92); }
-        }
-        @keyframes plumaBrisa3 {
-          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -14deg)) scale(.85); }
-          15%  { opacity: .95; }
-          39%  { opacity: .92; transform: translate(calc(var(--dir) * 30vw), 14px) rotate(calc(var(--dir) * 24deg)) scale(1.02); }
-          67%  { opacity: .86; transform: translate(calc(var(--dir) * 56vw), -22px) rotate(calc(var(--dir) * -18deg)) scale(.98); }
-          86%  { opacity: .72; transform: translate(calc(var(--dir) * 70vw), 18px) rotate(calc(var(--dir) * 10deg)) scale(.95); }
-          100% { opacity: 0;   transform: translate(calc(var(--dir) * 74vw), 26px) rotate(calc(var(--dir) * -2deg)) scale(.92); }
-        }
+        .plumas-capa { position: fixed; inset: 0; pointer-events: none; z-index: 900; overflow: hidden; perspective: 600px; }
+        .pluma-raf { position: absolute; top: 0; left: 0; opacity: 0; will-change: transform, opacity; filter: drop-shadow(0 8px 14px rgba(0,0,0,.45)); }
         @media (prefers-reduced-motion: reduce) {
           .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der { animation: none; }
           .plumas-capa { display: none; }
         }
-
         .app .portada { border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
           background-color: #1b3a4b; background-image: linear-gradient(rgba(5,20,32,.55), rgba(5,20,32,.55)), url('/fotos/portada.jpg');
           background-size: cover; background-position: center; position: relative; border: 1px solid #27272a; }
@@ -1391,7 +1401,7 @@ export default function App() {
         .app.claro .colab-promo { color: #92400e; background: rgba(245,158,11,.15); }
       `}</style>
 
-      <PlumasTransicion rafaga={rafagaPlumas} />
+      <PlumasTransicion rafaga={rafagaPlumas} onFin={() => setRafagaPlumas(null)} />
 
       <div className="contenedor">
         <header className="portada">
