@@ -263,61 +263,91 @@ const MAPAS = [
   { id: "m13", nombre: "Centro de Puerto Iguazú", pais: "Argentina", img: "/mapas/mapa-centro-iguazu.jpg", consulta: "Puerto Iguazú, Misiones, Argentina" },
 ];
 
-// ---------- 3 PLUMAS DEL BAILARÍN AZUL (2 AZULES + 1 ROJA MÁS PEQUEÑA) ----------
-const PLUMAS_3 = [
-  { id: "azul-1", top: "24%", size: 56, delay: "0ms", dur: "1.55s", gradId: "plumaAzulA", c1: "#7dd3fc", c2: "#0284c7", anim: "1" },
-  { id: "roja-copete", top: "45%", size: 36, delay: "130ms", dur: "1.45s", gradId: "plumaRoja", c1: "#fca5a5", c2: "#dc2626", anim: "2" },
-  { id: "azul-2", top: "64%", size: 48, delay: "70ms", dur: "1.65s", gradId: "plumaAzulB", c1: "#60a5fa", c2: "#1d4ed8", anim: "3" },
-];
-
+// ---------- 3 PLUMAS DISTINTAS + RÁFAGA DE VIENTO AL DESLIZAR ----------
 function PlumasTransicion({ rafaga }) {
   if (!rafaga) return null;
   const esIzq = rafaga.dir === "izq";
+  const dirNum = esIzq ? -1 : 1;
+  const uid = rafaga.id;
+
   return (
-    <div key={rafaga.id} className={`plumas-capa dir-${rafaga.dir}`} style={{ "--dir": esIzq ? -1 : 1 }} aria-hidden="true">
-      {PLUMAS_3.map((p) => (
-        <svg
-          key={p.id}
-          className={`pluma-svg pluma-v-${p.anim}`}
-          viewBox="0 0 64 64"
-          style={{
-            top: p.top,
-            left: esIzq ? "100%" : "-64px",
-            width: p.size,
-            height: p.size,
-            animationDelay: p.delay,
-            animationDuration: p.dur,
-          }}
-        >
-          <defs>
-            <linearGradient id={`${p.gradId}-${rafaga.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={p.c2} />
-              <stop offset="55%" stopColor={p.c1} />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.95" />
-            </linearGradient>
-          </defs>
-          {/* Silueta realista de pluma con barbas separadas */}
-          <path
-            d="M54 8 C41 8, 29 14, 21 24 L26 26 L18 29 C14 35, 11 41, 11 47 L16 45 L12 51 C17 51, 24 49, 31 44 L29 39 L35 41 C45 33, 52 21, 54 8 Z"
-            fill={`url(#${p.gradId}-${rafaga.id})`}
-          />
-          {/* Raquis central curvo y detalle de nervaduras */}
-          <path
-            d="M7 57 C19 44, 34 29, 53 9"
-            stroke="rgba(255,255,255,0.85)"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M27 36 L20 31 M34 29 L27 24 M41 22 L35 17 M33 35 L39 32 M25 43 L31 40"
-            stroke="rgba(255,255,255,0.45)"
-            strokeWidth="1.1"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </svg>
-      ))}
+    <div key={uid} className={`plumas-capa dir-${rafaga.dir}`} style={{ "--dir": dirNum }} aria-hidden="true">
+      {/* Líneas suaves de viento con rulo (estilo boceto) */}
+      <svg className="viento-svg" viewBox="0 0 400 260" preserveAspectRatio="none"
+        style={{ transform: esIzq ? "scaleX(-1)" : "none" }}>
+        <path
+          className="viento-linea l1"
+          d="M 20 85 C 120 55, 220 110, 295 85 C 325 75, 320 42, 292 48 C 272 52, 278 72, 294 68"
+        />
+        <path
+          className="viento-linea l2"
+          d="M 45 165 C 150 185, 250 140, 340 168 C 368 176, 365 208, 336 204 C 316 200, 320 182, 334 185"
+        />
+      </svg>
+
+      {/* 1. Pluma Azul Principal (grande, curvada con pelusa en la base y punta desflecada) */}
+      <svg
+        className="pluma-svg pluma-v-1"
+        viewBox="0 0 90 60"
+        style={{ top: "22%", left: esIzq ? "100%" : "-76px", width: 72, height: 48, animationDelay: "0ms", animationDuration: "1.65s" }}
+      >
+        <defs>
+          <linearGradient id={`pAzul1-${uid}`} x1="0%" y1="30%" x2="100%" y2="70%">
+            <stop offset="0%" stopColor="#1e40af" />
+            <stop offset="45%" stopColor="#0284c7" />
+            <stop offset="82%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#bae6fd" />
+          </linearGradient>
+        </defs>
+        <g transform={esIzq ? "" : "scale(-1, 1) translate(-90, 0)"}>
+          <path d="M84 14 L67 28 C58 24, 55 15, 51 11 L53 24 C45 18, 41 13, 35 12 L40 20 C27 12, 13 11, 5 18 C7 24, 15 33, 28 38 C39 42, 51 41, 61 36 L58 47 L66 39 C68 35, 69 31, 71 28 Z"
+            fill={`url(#pAzul1-${uid})`} opacity="0.95" />
+          <path d="M9 20 C24 28, 45 34, 65 29 C73 26, 79 20, 85 13" stroke="#e0f2fe" strokeWidth="1.9" strokeLinecap="round" fill="none" />
+          <path d="M18 19 L11 16 M27 23 L19 18 M37 26 L29 20 M24 31 L31 35 M36 34 L43 38 M48 33 L54 37" stroke="rgba(255,255,255,0.45)" strokeWidth="1" strokeLinecap="round" fill="none" />
+        </g>
+      </svg>
+
+      {/* 2. Pluma Roja del Copete (más pequeña, otra postura/inclinación) */}
+      <svg
+        className="pluma-svg pluma-v-2"
+        viewBox="0 0 70 60"
+        style={{ top: "44%", left: esIzq ? "100%" : "-54px", width: 46, height: 40, animationDelay: "140ms", animationDuration: "1.5s" }}
+      >
+        <defs>
+          <linearGradient id={`pRoja-${uid}`} x1="10%" y1="90%" x2="90%" y2="10%">
+            <stop offset="0%" stopColor="#991b1b" />
+            <stop offset="55%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#fecaca" />
+          </linearGradient>
+        </defs>
+        <g transform="rotate(28 35 30)">
+          <path d="M10 50 L22 39 C19 32, 22 21, 30 13 L32 19 L38 9 C45 8, 52 10, 55 16 C54 25, 48 34, 38 40 L33 36 L29 44 C26 44, 23 42, 21 40 Z"
+            fill={`url(#pRoja-${uid})`} opacity="0.95" />
+          <path d="M9 51 C21 40, 35 27, 52 14" stroke="#fee2e2" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+          <path d="M27 33 L24 25 M35 26 L32 18 M42 21 L47 25" stroke="rgba(255,255,255,0.42)" strokeWidth="0.95" strokeLinecap="round" fill="none" />
+        </g>
+      </svg>
+
+      {/* 3. Pluma Azul Secundaria (mediana, orientada en ángulo opuesto) */}
+      <svg
+        className="pluma-svg pluma-v-3"
+        viewBox="0 0 80 60"
+        style={{ top: "63%", left: esIzq ? "100%" : "-64px", width: 58, height: 44, animationDelay: "80ms", animationDuration: "1.7s" }}
+      >
+        <defs>
+          <linearGradient id={`pAzul2-${uid}`} x1="0%" y1="80%" x2="100%" y2="20%">
+            <stop offset="0%" stopColor="#1d4ed8" />
+            <stop offset="50%" stopColor="#2563eb" />
+            <stop offset="100%" stopColor="#7dd3fc" />
+          </linearGradient>
+        </defs>
+        <g transform="rotate(-18 40 30)">
+          <path d="M6 44 L23 36 C21 29, 27 20, 37 14 L38 20 L46 11 C57 8, 68 9, 74 15 C71 24, 62 33, 49 38 L44 34 L38 41 C33 41, 28 39, 25 36 Z"
+            fill={`url(#pAzul2-${uid})`} opacity="0.94" />
+          <path d="M5 45 C22 37, 45 27, 70 14" stroke="#dbeafe" strokeWidth="1.7" strokeLinecap="round" fill="none" />
+          <path d="M31 31 L27 23 M42 26 L38 18 M54 20 L50 13 M47 29 L54 33" stroke="rgba(255,255,255,0.42)" strokeWidth="1" strokeLinecap="round" fill="none" />
+        </g>
+      </svg>
     </div>
   );
 }
@@ -636,7 +666,7 @@ export default function App() {
 
   useEffect(() => {
     if (!rafagaPlumas) return;
-    const tmr = setTimeout(() => setRafagaPlumas(null), 1850);
+    const tmr = setTimeout(() => setRafagaPlumas(null), 1900);
     return () => clearTimeout(tmr);
   }, [rafagaPlumas]);
 
@@ -1008,35 +1038,42 @@ export default function App() {
         .vista-animada.dir-izq { animation: entrarDesdeDer .28s cubic-bezier(.22, 1, .36, 1) both; }
         .vista-animada.dir-der { animation: entrarDesdeIzq .28s cubic-bezier(.22, 1, .36, 1) both; }
 
-        /* ===== 3 PLUMAS PLANEANDO COMO HOJA AL VIENTO ===== */
+        /* ===== 3 PLUMAS + RÁFAGA DE VIENTO ===== */
         .plumas-capa { position: fixed; inset: 0; pointer-events: none; z-index: 900; overflow: hidden; }
-        .pluma-svg { position: absolute; filter: drop-shadow(0 6px 10px rgba(0,0,0,.45)); opacity: 0; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(.25, .46, .45, .94); }
-        .pluma-v-1 { animation-name: plumaHoja1; }
-        .pluma-v-2 { animation-name: plumaHoja2; }
-        .pluma-v-3 { animation-name: plumaHoja3; }
-        @keyframes plumaHoja1 {
-          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -28deg)) scale(.85); }
+        .viento-svg { position: absolute; inset: 18% 0; width: 100%; height: 64%; opacity: 0; animation: vientoFade 1.45s ease-out forwards; }
+        .viento-linea { fill: none; stroke: rgba(186, 230, 253, 0.35); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 480; stroke-dashoffset: 480; animation: trazoViento 1.15s cubic-bezier(.22, 1, .36, 1) forwards; }
+        .viento-linea.l2 { animation-delay: 120ms; stroke: rgba(167, 243, 208, 0.25); }
+        .app.claro .viento-linea { stroke: rgba(2, 132, 199, 0.3); }
+        @keyframes trazoViento { to { stroke-dashoffset: 0; } }
+        @keyframes vientoFade { 0% { opacity: 0; } 20% { opacity: 1; } 75% { opacity: .65; } 100% { opacity: 0; } }
+
+        .pluma-svg { position: absolute; filter: drop-shadow(0 6px 12px rgba(0,0,0,.45)); opacity: 0; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(.22, .61, .36, 1); }
+        .pluma-v-1 { animation-name: plumaBrisa1; }
+        .pluma-v-2 { animation-name: plumaBrisa2; }
+        .pluma-v-3 { animation-name: plumaBrisa3; }
+        @keyframes plumaBrisa1 {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -22deg)) scale(.85); }
           12%  { opacity: .96; }
-          36%  { opacity: .95; transform: translate(calc(var(--dir) * 26vw), -26px) rotate(calc(var(--dir) * 18deg)) scale(1.04); }
-          64%  { opacity: .9;  transform: translate(calc(var(--dir) * 52vw), 22px) rotate(calc(var(--dir) * -22deg)) scale(1); }
-          85%  { opacity: .75; transform: translate(calc(var(--dir) * 66vw), 42px) rotate(calc(var(--dir) * 8deg)) scale(.95); }
-          100% { opacity: 0;   transform: translate(calc(var(--dir) * 70vw), 52px) rotate(calc(var(--dir) * -4deg)) scale(.92); }
+          38%  { opacity: .95; transform: translate(calc(var(--dir) * 28vw), -30px) rotate(calc(var(--dir) * 16deg)) scale(1.04); }
+          66%  { opacity: .9;  transform: translate(calc(var(--dir) * 56vw), 18px) rotate(calc(var(--dir) * -20deg)) scale(1); }
+          86%  { opacity: .8;  transform: translate(calc(var(--dir) * 69vw), 42px) rotate(calc(var(--dir) * 10deg)) scale(.96); }
+          100% { opacity: 0;   transform: translate(calc(var(--dir) * 72vw), 52px) rotate(calc(var(--dir) * 2deg)) scale(.94); }
         }
-        @keyframes plumaHoja2 {
-          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * 20deg)) scale(.8); }
+        @keyframes plumaBrisa2 {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * 18deg)) scale(.82); }
           14%  { opacity: .96; }
-          40%  { opacity: .95; transform: translate(calc(var(--dir) * 22vw), 22px) rotate(calc(var(--dir) * -26deg)) scale(1); }
-          68%  { opacity: .88; transform: translate(calc(var(--dir) * 44vw), -14px) rotate(calc(var(--dir) * 24deg)) scale(.96); }
-          87%  { opacity: .72; transform: translate(calc(var(--dir) * 55vw), 18px) rotate(calc(var(--dir) * -10deg)) scale(.92); }
-          100% { opacity: 0;   transform: translate(calc(var(--dir) * 58vw), 26px) rotate(calc(var(--dir) * 4deg)) scale(.9); }
+          40%  { opacity: .95; transform: translate(calc(var(--dir) * 24vw), 24px) rotate(calc(var(--dir) * -24deg)) scale(1); }
+          68%  { opacity: .88; transform: translate(calc(var(--dir) * 48vw), -16px) rotate(calc(var(--dir) * 22deg)) scale(.97); }
+          87%  { opacity: .75; transform: translate(calc(var(--dir) * 59vw), 16px) rotate(calc(var(--dir) * -8deg)) scale(.94); }
+          100% { opacity: 0;   transform: translate(calc(var(--dir) * 62vw), 24px) rotate(calc(var(--dir) * 3deg)) scale(.92); }
         }
-        @keyframes plumaHoja3 {
-          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -16deg)) scale(.85); }
-          15%  { opacity: .94; }
-          38%  { opacity: .92; transform: translate(calc(var(--dir) * 28vw), 14px) rotate(calc(var(--dir) * 25deg)) scale(1.02); }
-          66%  { opacity: .85; transform: translate(calc(var(--dir) * 54vw), -20px) rotate(calc(var(--dir) * -18deg)) scale(.97); }
-          86%  { opacity: .7;  transform: translate(calc(var(--dir) * 69vw), 16px) rotate(calc(var(--dir) * 10deg)) scale(.93); }
-          100% { opacity: 0;   transform: translate(calc(var(--dir) * 73vw), 24px) rotate(calc(var(--dir) * -3deg)) scale(.9); }
+        @keyframes plumaBrisa3 {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -14deg)) scale(.85); }
+          15%  { opacity: .95; }
+          39%  { opacity: .92; transform: translate(calc(var(--dir) * 30vw), 14px) rotate(calc(var(--dir) * 24deg)) scale(1.02); }
+          67%  { opacity: .86; transform: translate(calc(var(--dir) * 56vw), -22px) rotate(calc(var(--dir) * -18deg)) scale(.98); }
+          86%  { opacity: .72; transform: translate(calc(var(--dir) * 70vw), 18px) rotate(calc(var(--dir) * 10deg)) scale(.95); }
+          100% { opacity: 0;   transform: translate(calc(var(--dir) * 74vw), 26px) rotate(calc(var(--dir) * -2deg)) scale(.92); }
         }
         @media (prefers-reduced-motion: reduce) {
           .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der { animation: none; }
