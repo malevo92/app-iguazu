@@ -263,44 +263,56 @@ const MAPAS = [
   { id: "m13", nombre: "Centro de Puerto Iguazú", pais: "Argentina", img: "/mapas/mapa-centro-iguazu.jpg", consulta: "Puerto Iguazú, Misiones, Argentina" },
 ];
 
-// ---------- PLUMITAS DEL BAILARÍN AZUL (ANIMACIÓN DE TRANSICIÓN) ----------
-const PLUMAS_DATA = [
-  { top: "18%", size: 22, delay: "0ms", color: "#38bdf8", rot: "-24deg" },
-  { top: "28%", size: 18, delay: "45ms", color: "#0284c7", rot: "18deg" },
-  { top: "38%", size: 26, delay: "20ms", color: "#60a5fa", rot: "-12deg" },
-  { top: "47%", size: 17, delay: "75ms", color: "#ef4444", rot: "28deg" },
-  { top: "55%", size: 24, delay: "35ms", color: "#2563eb", rot: "-30deg" },
-  { top: "64%", size: 20, delay: "90ms", color: "#38bdf8", rot: "14deg" },
-  { top: "72%", size: 18, delay: "55ms", color: "#34d399", rot: "-18deg" },
-  { top: "80%", size: 22, delay: "105ms", color: "#60a5fa", rot: "22deg" },
+// ---------- 3 PLUMAS DEL BAILARÍN AZUL (2 AZULES + 1 ROJA MÁS PEQUEÑA) ----------
+const PLUMAS_3 = [
+  { id: "azul-1", top: "24%", size: 56, delay: "0ms", dur: "1.55s", gradId: "plumaAzulA", c1: "#7dd3fc", c2: "#0284c7", anim: "1" },
+  { id: "roja-copete", top: "45%", size: 36, delay: "130ms", dur: "1.45s", gradId: "plumaRoja", c1: "#fca5a5", c2: "#dc2626", anim: "2" },
+  { id: "azul-2", top: "64%", size: 48, delay: "70ms", dur: "1.65s", gradId: "plumaAzulB", c1: "#60a5fa", c2: "#1d4ed8", anim: "3" },
 ];
 
 function PlumasTransicion({ rafaga }) {
   if (!rafaga) return null;
+  const esIzq = rafaga.dir === "izq";
   return (
-    <div key={rafaga.id} className={`plumas-capa dir-${rafaga.dir}`} aria-hidden="true">
-      {PLUMAS_DATA.map((p, i) => (
+    <div key={rafaga.id} className={`plumas-capa dir-${rafaga.dir}`} style={{ "--dir": esIzq ? -1 : 1 }} aria-hidden="true">
+      {PLUMAS_3.map((p) => (
         <svg
-          key={i}
-          className="pluma-svg"
-          viewBox="0 0 32 32"
+          key={p.id}
+          className={`pluma-svg pluma-v-${p.anim}`}
+          viewBox="0 0 64 64"
           style={{
             top: p.top,
+            left: esIzq ? "100%" : "-64px",
             width: p.size,
             height: p.size,
             animationDelay: p.delay,
-            "--rot": p.rot,
+            animationDuration: p.dur,
           }}
         >
+          <defs>
+            <linearGradient id={`${p.gradId}-${rafaga.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={p.c2} />
+              <stop offset="55%" stopColor={p.c1} />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.95" />
+            </linearGradient>
+          </defs>
+          {/* Silueta realista de pluma con barbas separadas */}
           <path
-            d="M27 5C19 5 11 10 6 19c-1.5 2.7-2 5.3-1 7 1.7 1 4.3.5 7-1C21 20 26 12 27 5z"
-            fill={p.color}
-            opacity="0.92"
+            d="M54 8 C41 8, 29 14, 21 24 L26 26 L18 29 C14 35, 11 41, 11 47 L16 45 L12 51 C17 51, 24 49, 31 44 L29 39 L35 41 C45 33, 52 21, 54 8 Z"
+            fill={`url(#${p.gradId}-${rafaga.id})`}
+          />
+          {/* Raquis central curvo y detalle de nervaduras */}
+          <path
+            d="M7 57 C19 44, 34 29, 53 9"
+            stroke="rgba(255,255,255,0.85)"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            fill="none"
           />
           <path
-            d="M5 27C10 21 17 14 26 6"
-            stroke="rgba(255,255,255,0.65)"
-            strokeWidth="1.4"
+            d="M27 36 L20 31 M34 29 L27 24 M41 22 L35 17 M33 35 L39 32 M25 43 L31 40"
+            stroke="rgba(255,255,255,0.45)"
+            strokeWidth="1.1"
             strokeLinecap="round"
             fill="none"
           />
@@ -624,7 +636,7 @@ export default function App() {
 
   useEffect(() => {
     if (!rafagaPlumas) return;
-    const tmr = setTimeout(() => setRafagaPlumas(null), 750);
+    const tmr = setTimeout(() => setRafagaPlumas(null), 1850);
     return () => clearTimeout(tmr);
   }, [rafagaPlumas]);
 
@@ -995,26 +1007,42 @@ export default function App() {
         .vista-animada { animation: entrarVista .3s cubic-bezier(.22, 1, .36, 1) both; }
         .vista-animada.dir-izq { animation: entrarDesdeDer .28s cubic-bezier(.22, 1, .36, 1) both; }
         .vista-animada.dir-der { animation: entrarDesdeIzq .28s cubic-bezier(.22, 1, .36, 1) both; }
+
+        /* ===== 3 PLUMAS PLANEANDO COMO HOJA AL VIENTO ===== */
         .plumas-capa { position: fixed; inset: 0; pointer-events: none; z-index: 900; overflow: hidden; }
-        .pluma-svg { position: absolute; left: 50%; filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); opacity: 0; }
-        @keyframes plumaIzq {
-          0%   { opacity: 0; transform: translate(38vw, 8px) rotate(var(--rot)) scale(.7); }
-          18%  { opacity: .95; }
-          65%  { opacity: .85; transform: translate(-18vw, -18px) rotate(calc(var(--rot) * -1)) scale(1.05); }
-          100% { opacity: 0; transform: translate(-52vw, 10px) rotate(var(--rot)) scale(.8); }
+        .pluma-svg { position: absolute; filter: drop-shadow(0 6px 10px rgba(0,0,0,.45)); opacity: 0; animation-fill-mode: forwards; animation-timing-function: cubic-bezier(.25, .46, .45, .94); }
+        .pluma-v-1 { animation-name: plumaHoja1; }
+        .pluma-v-2 { animation-name: plumaHoja2; }
+        .pluma-v-3 { animation-name: plumaHoja3; }
+        @keyframes plumaHoja1 {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -28deg)) scale(.85); }
+          12%  { opacity: .96; }
+          36%  { opacity: .95; transform: translate(calc(var(--dir) * 26vw), -26px) rotate(calc(var(--dir) * 18deg)) scale(1.04); }
+          64%  { opacity: .9;  transform: translate(calc(var(--dir) * 52vw), 22px) rotate(calc(var(--dir) * -22deg)) scale(1); }
+          85%  { opacity: .75; transform: translate(calc(var(--dir) * 66vw), 42px) rotate(calc(var(--dir) * 8deg)) scale(.95); }
+          100% { opacity: 0;   transform: translate(calc(var(--dir) * 70vw), 52px) rotate(calc(var(--dir) * -4deg)) scale(.92); }
         }
-        @keyframes plumaDer {
-          0%   { opacity: 0; transform: translate(-38vw, 8px) rotate(var(--rot)) scale(.7); }
-          18%  { opacity: .95; }
-          65%  { opacity: .85; transform: translate(18vw, -18px) rotate(calc(var(--rot) * -1)) scale(1.05); }
-          100% { opacity: 0; transform: translate(52vw, 10px) rotate(var(--rot)) scale(.8); }
+        @keyframes plumaHoja2 {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * 20deg)) scale(.8); }
+          14%  { opacity: .96; }
+          40%  { opacity: .95; transform: translate(calc(var(--dir) * 22vw), 22px) rotate(calc(var(--dir) * -26deg)) scale(1); }
+          68%  { opacity: .88; transform: translate(calc(var(--dir) * 44vw), -14px) rotate(calc(var(--dir) * 24deg)) scale(.96); }
+          87%  { opacity: .72; transform: translate(calc(var(--dir) * 55vw), 18px) rotate(calc(var(--dir) * -10deg)) scale(.92); }
+          100% { opacity: 0;   transform: translate(calc(var(--dir) * 58vw), 26px) rotate(calc(var(--dir) * 4deg)) scale(.9); }
         }
-        .plumas-capa.dir-izq .pluma-svg { animation: plumaIzq .68s cubic-bezier(.22, 1, .36, 1) forwards; }
-        .plumas-capa.dir-der .pluma-svg { animation: plumaDer .68s cubic-bezier(.22, 1, .36, 1) forwards; }
+        @keyframes plumaHoja3 {
+          0%   { opacity: 0; transform: translate(0, 0) rotate(calc(var(--dir) * -16deg)) scale(.85); }
+          15%  { opacity: .94; }
+          38%  { opacity: .92; transform: translate(calc(var(--dir) * 28vw), 14px) rotate(calc(var(--dir) * 25deg)) scale(1.02); }
+          66%  { opacity: .85; transform: translate(calc(var(--dir) * 54vw), -20px) rotate(calc(var(--dir) * -18deg)) scale(.97); }
+          86%  { opacity: .7;  transform: translate(calc(var(--dir) * 69vw), 16px) rotate(calc(var(--dir) * 10deg)) scale(.93); }
+          100% { opacity: 0;   transform: translate(calc(var(--dir) * 73vw), 24px) rotate(calc(var(--dir) * -3deg)) scale(.9); }
+        }
         @media (prefers-reduced-motion: reduce) {
           .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der { animation: none; }
           .plumas-capa { display: none; }
         }
+
         .app .portada { border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
           background-color: #1b3a4b; background-image: linear-gradient(rgba(5,20,32,.55), rgba(5,20,32,.55)), url('/fotos/portada.jpg');
           background-size: cover; background-position: center; position: relative; border: 1px solid #27272a; }
