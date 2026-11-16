@@ -279,7 +279,6 @@ function PlumasTransicion({ rafaga, onFin }) {
     const vw = window.innerWidth || 390;
     const vh = window.innerHeight || 800;
 
-    // 3 trayectorias distintas: (delay, duración, altura inicial, distancia, rulo envolvente, caída suave)
     const configs = [
       { delay: 0, dur: 1950, y0: vh * 0.22, dist: vw * 0.72, loopX: 46, loopY: 44, driftY: 75, baseRot: -18, phase: 0.2 },
       { delay: 160, dur: 1750, y0: vh * 0.44, dist: vw * 0.60, loopX: 38, loopY: 36, driftY: 55, baseRot: 24, phase: 1.7 },
@@ -306,11 +305,9 @@ function PlumasTransicion({ rafaga, onFin }) {
         const t = Math.min(1, elapsed / cfg.dur);
         if (t < 1) todasTerminaron = false;
 
-        // Progreso horizontal con desaceleración natural
         const ease = 1 - Math.pow(1 - t, 2.8);
         const startX = esIzq ? vw + 40 : -72;
 
-        // Movimiento envolvente tipo rulo de viento en medio del vuelo
         const env = Math.exp(-Math.pow((t - 0.52) / 0.19, 2));
         const ondaX = Math.sin(t * Math.PI * 3.2 + cfg.phase) * cfg.loopX * env;
         const ondaY = -Math.cos(t * Math.PI * 3.2 + cfg.phase) * cfg.loopY * env + Math.sin(t * Math.PI * 2.2) * 18;
@@ -318,13 +315,11 @@ function PlumasTransicion({ rafaga, onFin }) {
         const x = startX + dirNum * (cfg.dist * ease) + dirNum * ondaX;
         const y = cfg.y0 + ondaY + cfg.driftY * Math.pow(t, 1.5);
 
-        // Giros suaves en 3D emulando hoja al viento
         const rotZ = dirNum * (cfg.baseRot + Math.sin(t * Math.PI * 3.6 + cfg.phase) * 32 + t * 38);
         const rotX = Math.sin(t * Math.PI * 4.4 + cfg.phase) * 28;
         const rotY = Math.cos(t * Math.PI * 3.1 + cfg.phase) * 24;
         const scale = 0.88 + Math.sin(t * Math.PI) * 0.14;
 
-        // Entrada rápida y desvanecimiento gradual al finalizar
         let op = 1;
         if (t < 0.1) op = t / 0.1;
         else if (t > 0.64) op = Math.max(0, 1 - Math.pow((t - 0.64) / 0.36, 1.45));
@@ -350,7 +345,6 @@ function PlumasTransicion({ rafaga, onFin }) {
 
   return (
     <div className="plumas-capa" aria-hidden="true">
-      {/* 1. Pluma Azul Principal (grande, curvada, pelusa en la base) */}
       <svg ref={refs[0]} className="pluma-raf" viewBox="0 0 90 60" style={{ width: 72, height: 48 }}>
         <defs>
           <linearGradient id={`pAzul1-${uid}`} x1="0%" y1="30%" x2="100%" y2="70%">
@@ -368,7 +362,6 @@ function PlumasTransicion({ rafaga, onFin }) {
         </g>
       </svg>
 
-      {/* 2. Pluma Roja del Copete (más pequeña, postura diferente) */}
       <svg ref={refs[1]} className="pluma-raf" viewBox="0 0 70 60" style={{ width: 44, height: 38 }}>
         <defs>
           <linearGradient id={`pRoja-${uid}`} x1="10%" y1="90%" x2="90%" y2="10%">
@@ -385,7 +378,6 @@ function PlumasTransicion({ rafaga, onFin }) {
         </g>
       </svg>
 
-      {/* 3. Pluma Azul Secundaria (mediana, ángulo opuesto) */}
       <svg ref={refs[2]} className="pluma-raf" viewBox="0 0 80 60" style={{ width: 58, height: 44 }}>
         <defs>
           <linearGradient id={`pAzul2-${uid}`} x1="0%" y1="80%" x2="100%" y2="20%">
@@ -471,6 +463,50 @@ function reproducirCampanita() {
       gain.connect(ctx.destination);
       osc.start(ahora + i * 0.09);
       osc.stop(ahora + i * 0.09 + 0.24);
+    });
+  } catch {
+    // ignorar si el navegador bloquea audio
+  }
+}
+
+function reproducirAleteo() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const ahora = ctx.currentTime;
+    const durBuffer = 0.5;
+    const bufferSize = Math.floor(ctx.sampleRate * durBuffer);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.sin((i / bufferSize) * Math.PI);
+    }
+
+    // 3 batidos suaves de alas/plumas
+    [0, 0.12, 0.24].forEach((offset, idx) => {
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+
+      const filtro = ctx.createBiquadFilter();
+      filtro.type = "bandpass";
+      filtro.Q.value = 1.6;
+      const baseFreq = 540 - idx * 70;
+      filtro.frequency.setValueAtTime(baseFreq, ahora + offset);
+      filtro.frequency.exponentialRampToValueAtTime(baseFreq + 360, ahora + offset + 0.07);
+      filtro.frequency.exponentialRampToValueAtTime(280, ahora + offset + 0.16);
+
+      const gain = ctx.createGain();
+      const pico = 0.11 - idx * 0.025;
+      gain.gain.setValueAtTime(0.001, ahora + offset);
+      gain.gain.linearRampToValueAtTime(pico, ahora + offset + 0.045);
+      gain.gain.exponentialRampToValueAtTime(0.001, ahora + offset + 0.17);
+
+      src.connect(filtro);
+      filtro.connect(gain);
+      gain.connect(ctx.destination);
+      src.start(ahora + offset);
+      src.stop(ahora + offset + 0.19);
     });
   } catch {
     // ignorar si el navegador bloquea audio
@@ -717,37 +753,6 @@ export default function App() {
     timerTangara.current = setTimeout(() => setVolandoTangara(false), 650);
   };
 
-  const cambiarPestana = (nueva, dirForzada = null) => {
-    if (nueva === pestana) return;
-    const idxActual = ORDEN_PESTANAS.indexOf(pestana);
-    const idxNueva = ORDEN_PESTANAS.indexOf(nueva);
-    const dir = dirForzada || (idxNueva > idxActual ? "izq" : "der");
-    setDirVista(dir);
-    setRafagaPlumas({ id: Date.now(), dir });
-    setPestana(nueva);
-    if (modoTangara === "guiado") volarTangara();
-  };
-
-  const onTouchStartTab = (e) => {
-    if (mapaAmpliado || e.touches.length !== 1) return;
-    const ignorar = Boolean(e.target.closest(".deslizable.puede, .carrusel, .mapa-scroll, input, select, textarea"));
-    swipeTabRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, ignorar };
-  };
-
-  const onTouchEndTab = (e) => {
-    const { x, y, ignorar } = swipeTabRef.current;
-    if (ignorar || !e.changedTouches.length || mapaAmpliado) return;
-    const dx = e.changedTouches[0].clientX - x;
-    const dy = e.changedTouches[0].clientY - y;
-    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
-    const idx = ORDEN_PESTANAS.indexOf(pestana);
-    if (dx < 0 && idx < ORDEN_PESTANAS.length - 1) {
-      cambiarPestana(ORDEN_PESTANAS[idx + 1], "izq");
-    } else if (dx > 0 && idx > 0) {
-      cambiarPestana(ORDEN_PESTANAS[idx - 1], "der");
-    }
-  };
-
   const [dias, setDias] = useState(guardado.dias || 3);
   const [personas, setPersonas] = useState(guardado.personas || 2);
   const [movilidad, setMovilidad] = useState(guardado.movilidad || "no");
@@ -774,6 +779,38 @@ export default function App() {
   const [avisoGlobal, setAvisoGlobal] = useState("");
   const [sonido, setSonido] = useState(true);
   const sonar = () => { if (sonido) reproducirCampanita(); };
+
+  const cambiarPestana = (nueva, dirForzada = null) => {
+    if (nueva === pestana) return;
+    const idxActual = ORDEN_PESTANAS.indexOf(pestana);
+    const idxNueva = ORDEN_PESTANAS.indexOf(nueva);
+    const dir = dirForzada || (idxNueva > idxActual ? "izq" : "der");
+    setDirVista(dir);
+    setRafagaPlumas({ id: Date.now(), dir });
+    setPestana(nueva);
+    if (sonido) reproducirAleteo();
+    if (modoTangara === "guiado") volarTangara();
+  };
+
+  const onTouchStartTab = (e) => {
+    if (mapaAmpliado || e.touches.length !== 1) return;
+    const ignorar = Boolean(e.target.closest(".deslizable.puede, .carrusel, .mapa-scroll, input, select, textarea"));
+    swipeTabRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, ignorar };
+  };
+
+  const onTouchEndTab = (e) => {
+    const { x, y, ignorar } = swipeTabRef.current;
+    if (ignorar || !e.changedTouches.length || mapaAmpliado) return;
+    const dx = e.changedTouches[0].clientX - x;
+    const dy = e.changedTouches[0].clientY - y;
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+    const idx = ORDEN_PESTANAS.indexOf(pestana);
+    if (dx < 0 && idx < ORDEN_PESTANAS.length - 1) {
+      cambiarPestana(ORDEN_PESTANAS[idx + 1], "izq");
+    } else if (dx > 0 && idx > 0) {
+      cambiarPestana(ORDEN_PESTANAS[idx - 1], "der");
+    }
+  };
 
   const t = TEXTOS[idioma] || TEXTOS.es;
 
