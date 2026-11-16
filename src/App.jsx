@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 
 const STORAGE_KEY = "app_iguazu_v1";
+const ORDEN_PESTANAS = ["destinos", "mapas", "colab", "guia"];
 
 // ---------- TASAS DE CAMBIO (EDITAR ACÁ) ----------
 // Cuántas unidades de cada moneda equivalen a 1 dólar (USD). Actualizalas cuando cambie el valor.
@@ -559,6 +560,8 @@ export default function App() {
 
   // ---------- ESTADO ----------
   const [pestana, setPestana] = useState("destinos");
+  const [dirVista, setDirVista] = useState("abajo"); // "izq" | "der" | "abajo"
+  const swipeTabRef = useRef({ x: 0, y: 0, ignorar: false });
   const [colabCat, setColabCat] = useState("hoteles");
   const [mapaAmpliado, setMapaAmpliado] = useState(null);
   const [zoomMapa, setZoomMapa] = useState(1);
@@ -569,6 +572,35 @@ export default function App() {
     setVolandoTangara(true);
     clearTimeout(timerTangara.current);
     timerTangara.current = setTimeout(() => setVolandoTangara(false), 650);
+  };
+
+  const cambiarPestana = (nueva, dirForzada = null) => {
+    if (nueva === pestana) return;
+    const idxActual = ORDEN_PESTANAS.indexOf(pestana);
+    const idxNueva = ORDEN_PESTANAS.indexOf(nueva);
+    setDirVista(dirForzada || (idxNueva > idxActual ? "izq" : "der"));
+    setPestana(nueva);
+    if (modoTangara === "guiado") volarTangara();
+  };
+
+  const onTouchStartTab = (e) => {
+    if (mapaAmpliado || e.touches.length !== 1) return;
+    const ignorar = Boolean(e.target.closest(".deslizable.puede, .carrusel, .mapa-scroll, input, select, textarea"));
+    swipeTabRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, ignorar };
+  };
+
+  const onTouchEndTab = (e) => {
+    const { x, y, ignorar } = swipeTabRef.current;
+    if (ignorar || !e.changedTouches.length || mapaAmpliado) return;
+    const dx = e.changedTouches[0].clientX - x;
+    const dy = e.changedTouches[0].clientY - y;
+    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+    const idx = ORDEN_PESTANAS.indexOf(pestana);
+    if (dx < 0 && idx < ORDEN_PESTANAS.length - 1) {
+      cambiarPestana(ORDEN_PESTANAS[idx + 1], "izq");
+    } else if (dx > 0 && idx > 0) {
+      cambiarPestana(ORDEN_PESTANAS[idx - 1], "der");
+    }
   };
 
   const [dias, setDias] = useState(guardado.dias || 3);
@@ -780,7 +812,7 @@ export default function App() {
 
   const irAlCarrito = () => {
     const ir = () => refCarrito.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    if (pestana !== "destinos") { setPestana("destinos"); window.setTimeout(ir, 120); } else ir();
+    if (pestana !== "destinos") { cambiarPestana("destinos", "der"); window.setTimeout(ir, 120); } else ir();
   };
 
   const nodo = (a, opcional, primero) => (
@@ -887,19 +919,27 @@ export default function App() {
     carrito.length > 0 ? "carrito" : "inicio";
 
   return (
-    <div className={`app ${carrito.length > 0 ? "con-barra" : ""} ${modoClaro ? "claro" : ""}`}>
+    <div
+      className={`app ${carrito.length > 0 ? "con-barra" : ""} ${modoClaro ? "claro" : ""}`}
+      onTouchStart={onTouchStartTab}
+      onTouchEnd={onTouchEndTab}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
         * { box-sizing: border-box; }
         body { margin: 0; display: block; }
         .app { --tinta: #f4f4f5; --rio: #34d399; --niebla: #1c1c21; --papel: #141417; --suave: #a1a1aa;
           color-scheme: dark; text-align: left; min-height: 100vh; background: #09090b; color: var(--tinta);
-          font-family: "Segoe UI", system-ui, sans-serif; padding: 24px 16px 48px; transition: background .25s, color .25s; }
+          font-family: "Segoe UI", system-ui, sans-serif; padding: 24px 16px 48px; transition: background .25s, color .25s; touch-action: pan-y; }
         .contenedor { max-width: 1100px; margin: 0 auto; }
         .app h1, .app h2, .app h3 { color: var(--tinta); }
         @keyframes entrarVista { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        .vista-animada { animation: entrarVista .32s cubic-bezier(.22, 1, .36, 1) both; }
-        @media (prefers-reduced-motion: reduce) { .vista-animada { animation: none; } }
+        @keyframes entrarDesdeDer { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes entrarDesdeIzq { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
+        .vista-animada { animation: entrarVista .3s cubic-bezier(.22, 1, .36, 1) both; }
+        .vista-animada.dir-izq { animation: entrarDesdeDer .28s cubic-bezier(.22, 1, .36, 1) both; }
+        .vista-animada.dir-der { animation: entrarDesdeIzq .28s cubic-bezier(.22, 1, .36, 1) both; }
+        @media (prefers-reduced-motion: reduce) { .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der { animation: none; } }
         .app .portada { border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
           background-color: #1b3a4b; background-image: linear-gradient(rgba(5,20,32,.55), rgba(5,20,32,.55)), url('/fotos/portada.jpg');
           background-size: cover; background-position: center; position: relative; border: 1px solid #27272a; }
@@ -1251,7 +1291,7 @@ export default function App() {
 
         <nav className="historias" role="tablist" aria-label="Secciones">
           {PESTANAS.map((p) => (
-            <button key={p.id} role="tab" aria-selected={pestana === p.id} className={`historia ${pestana === p.id ? "activa" : ""}`} onClick={() => { setPestana(p.id); if (modoTangara === "guiado") volarTangara(); }}>
+            <button key={p.id} role="tab" aria-selected={pestana === p.id} className={`historia ${pestana === p.id ? "activa" : ""}`} onClick={() => cambiarPestana(p.id)}>
               <span className="aro">
                 <span className="aro-interior" aria-hidden="true">{p.icono}</span>
                 {p.id === "destinos" && carrito.length > 0 && <span className="aro-cont" aria-label={`${carrito.length} actividades`}>{carrito.length}</span>}
@@ -1263,7 +1303,7 @@ export default function App() {
 
         {/* ---------- PESTAÑA 1: Destinos y Carrito ---------- */}
         {pestana === "destinos" && (
-          <div key="destinos" className="vista-animada">
+          <div key="destinos" className={`vista-animada dir-${dirVista}`}>
             {dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
             <section className="caja" style={{ marginBottom: 24 }}>
               <h2>{t.datosViajero}</h2>
@@ -1586,7 +1626,7 @@ export default function App() {
 
         {/* ---------- PESTAÑA 2: Mapas ilustrados ---------- */}
         {pestana === "mapas" && (
-          <section key="mapas" className="vista-animada">
+          <section key="mapas" className={`vista-animada dir-${dirVista}`}>
             <CapitanTangara
               modo={modoTangara === "libre" ? "guiado" : modoTangara}
               setModo={setModoTangara}
@@ -1621,7 +1661,7 @@ export default function App() {
 
         {/* ---------- PESTAÑA 3: Colaboradores en 4 secciones ---------- */}
         {pestana === "colab" && (
-          <section key="colab" className="vista-animada">
+          <section key="colab" className={`vista-animada dir-${dirVista}`}>
             <CapitanTangara
               modo={modoTangara === "libre" ? "guiado" : modoTangara}
               setModo={setModoTangara}
@@ -1714,7 +1754,7 @@ export default function App() {
 
         {/* ---------- PESTAÑA 4: Contacto del Guía ---------- */}
         {pestana === "guia" && (
-          <section key="guia" className="guia-card vista-animada">
+          <section key="guia" className={`guia-card vista-animada dir-${dirVista}`}>
             <div className="guia-capa">
               <span className="guia-sello">Tu guía en las Tres Fronteras</span>
               <h2>{GUIA.nombre}</h2>
