@@ -263,6 +263,53 @@ const MAPAS = [
   { id: "m13", nombre: "Centro de Puerto Iguazú", pais: "Argentina", img: "/mapas/mapa-centro-iguazu.jpg", consulta: "Puerto Iguazú, Misiones, Argentina" },
 ];
 
+// ---------- PLUMITAS DEL BAILARÍN AZUL (ANIMACIÓN DE TRANSICIÓN) ----------
+const PLUMAS_DATA = [
+  { top: "18%", size: 22, delay: "0ms", color: "#38bdf8", rot: "-24deg" },
+  { top: "28%", size: 18, delay: "45ms", color: "#0284c7", rot: "18deg" },
+  { top: "38%", size: 26, delay: "20ms", color: "#60a5fa", rot: "-12deg" },
+  { top: "47%", size: 17, delay: "75ms", color: "#ef4444", rot: "28deg" },
+  { top: "55%", size: 24, delay: "35ms", color: "#2563eb", rot: "-30deg" },
+  { top: "64%", size: 20, delay: "90ms", color: "#38bdf8", rot: "14deg" },
+  { top: "72%", size: 18, delay: "55ms", color: "#34d399", rot: "-18deg" },
+  { top: "80%", size: 22, delay: "105ms", color: "#60a5fa", rot: "22deg" },
+];
+
+function PlumasTransicion({ rafaga }) {
+  if (!rafaga) return null;
+  return (
+    <div key={rafaga.id} className={`plumas-capa dir-${rafaga.dir}`} aria-hidden="true">
+      {PLUMAS_DATA.map((p, i) => (
+        <svg
+          key={i}
+          className="pluma-svg"
+          viewBox="0 0 32 32"
+          style={{
+            top: p.top,
+            width: p.size,
+            height: p.size,
+            animationDelay: p.delay,
+            "--rot": p.rot,
+          }}
+        >
+          <path
+            d="M27 5C19 5 11 10 6 19c-1.5 2.7-2 5.3-1 7 1.7 1 4.3.5 7-1C21 20 26 12 27 5z"
+            fill={p.color}
+            opacity="0.92"
+          />
+          <path
+            d="M5 27C10 21 17 14 26 6"
+            stroke="rgba(255,255,255,0.65)"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
 // ---------- FUNCIONES DE MONEDA Y SONIDO ----------
 function aUSD(monto, moneda) {
   if (moneda === "USD") return monto;
@@ -560,7 +607,8 @@ export default function App() {
 
   // ---------- ESTADO ----------
   const [pestana, setPestana] = useState("destinos");
-  const [dirVista, setDirVista] = useState("abajo"); // "izq" | "der" | "abajo"
+  const [dirVista, setDirVista] = useState("abajo");
+  const [rafagaPlumas, setRafagaPlumas] = useState(null);
   const swipeTabRef = useRef({ x: 0, y: 0, ignorar: false });
   const [colabCat, setColabCat] = useState("hoteles");
   const [mapaAmpliado, setMapaAmpliado] = useState(null);
@@ -574,11 +622,19 @@ export default function App() {
     timerTangara.current = setTimeout(() => setVolandoTangara(false), 650);
   };
 
+  useEffect(() => {
+    if (!rafagaPlumas) return;
+    const tmr = setTimeout(() => setRafagaPlumas(null), 750);
+    return () => clearTimeout(tmr);
+  }, [rafagaPlumas]);
+
   const cambiarPestana = (nueva, dirForzada = null) => {
     if (nueva === pestana) return;
     const idxActual = ORDEN_PESTANAS.indexOf(pestana);
     const idxNueva = ORDEN_PESTANAS.indexOf(nueva);
-    setDirVista(dirForzada || (idxNueva > idxActual ? "izq" : "der"));
+    const dir = dirForzada || (idxNueva > idxActual ? "izq" : "der");
+    setDirVista(dir);
+    setRafagaPlumas({ id: Date.now(), dir });
     setPestana(nueva);
     if (modoTangara === "guiado") volarTangara();
   };
@@ -939,7 +995,26 @@ export default function App() {
         .vista-animada { animation: entrarVista .3s cubic-bezier(.22, 1, .36, 1) both; }
         .vista-animada.dir-izq { animation: entrarDesdeDer .28s cubic-bezier(.22, 1, .36, 1) both; }
         .vista-animada.dir-der { animation: entrarDesdeIzq .28s cubic-bezier(.22, 1, .36, 1) both; }
-        @media (prefers-reduced-motion: reduce) { .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der { animation: none; } }
+        .plumas-capa { position: fixed; inset: 0; pointer-events: none; z-index: 900; overflow: hidden; }
+        .pluma-svg { position: absolute; left: 50%; filter: drop-shadow(0 3px 6px rgba(0,0,0,.45)); opacity: 0; }
+        @keyframes plumaIzq {
+          0%   { opacity: 0; transform: translate(38vw, 8px) rotate(var(--rot)) scale(.7); }
+          18%  { opacity: .95; }
+          65%  { opacity: .85; transform: translate(-18vw, -18px) rotate(calc(var(--rot) * -1)) scale(1.05); }
+          100% { opacity: 0; transform: translate(-52vw, 10px) rotate(var(--rot)) scale(.8); }
+        }
+        @keyframes plumaDer {
+          0%   { opacity: 0; transform: translate(-38vw, 8px) rotate(var(--rot)) scale(.7); }
+          18%  { opacity: .95; }
+          65%  { opacity: .85; transform: translate(18vw, -18px) rotate(calc(var(--rot) * -1)) scale(1.05); }
+          100% { opacity: 0; transform: translate(52vw, 10px) rotate(var(--rot)) scale(.8); }
+        }
+        .plumas-capa.dir-izq .pluma-svg { animation: plumaIzq .68s cubic-bezier(.22, 1, .36, 1) forwards; }
+        .plumas-capa.dir-der .pluma-svg { animation: plumaDer .68s cubic-bezier(.22, 1, .36, 1) forwards; }
+        @media (prefers-reduced-motion: reduce) {
+          .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der { animation: none; }
+          .plumas-capa { display: none; }
+        }
         .app .portada { border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
           background-color: #1b3a4b; background-image: linear-gradient(rgba(5,20,32,.55), rgba(5,20,32,.55)), url('/fotos/portada.jpg');
           background-size: cover; background-position: center; position: relative; border: 1px solid #27272a; }
@@ -1250,6 +1325,8 @@ export default function App() {
         .app.claro .dia { border-color: #cbd5e1; }
         .app.claro .colab-promo { color: #92400e; background: rgba(245,158,11,.15); }
       `}</style>
+
+      <PlumasTransicion rafaga={rafagaPlumas} />
 
       <div className="contenedor">
         <header className="portada">
