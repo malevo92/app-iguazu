@@ -19,8 +19,13 @@ const TEXTOS = {
   es: {
     subtitulo: "Armá tu itinerario por Argentina, Brasil y Paraguay.",
     tabs: { destinos: "Destinos", mapas: "Mapas", colab: "Colaboradores", guia: "Contactos" },
+    climaTitulo: "Clima en Iguazú",
+    climaHoy: "Hoy",
+    climaManana: "Mañana",
     datosViajero: "Datos del viajero",
     nombre: "Tu nombre",
+    origen: "De dónde vengo",
+    origenPh: "Ej: Buenos Aires, Córdoba, Brasil...",
     dias: "Días de estadía",
     personas: "Cantidad de personas",
     movilidad: "¿Cuenta con movilidad propia?",
@@ -46,8 +51,13 @@ const TEXTOS = {
   pt: {
     subtitulo: "Monte seu roteiro pela Argentina, Brasil e Paraguai.",
     tabs: { destinos: "Destinos", mapas: "Mapas", colab: "Parceiros", guia: "Contatos" },
+    climaTitulo: "Clima em Iguaçu",
+    climaHoy: "Hoje",
+    climaManana: "Amanhã",
     datosViajero: "Dados do viajante",
     nombre: "Seu nome",
+    origen: "De onde venho",
+    origenPh: "Ex: São Paulo, Curitiba, Argentina...",
     dias: "Dias de estadia",
     personas: "Quantidade de pessoas",
     movilidad: "Possui transporte próprio?",
@@ -73,8 +83,13 @@ const TEXTOS = {
   en: {
     subtitulo: "Build your itinerary across Argentina, Brazil and Paraguay.",
     tabs: { destinos: "Destinations", mapas: "Maps", colab: "Partners", guia: "Contacts" },
+    climaTitulo: "Iguazú Weather",
+    climaHoy: "Today",
+    climaManana: "Tomorrow",
     datosViajero: "Traveler details",
     nombre: "Your name",
+    origen: "Where I'm from",
+    origenPh: "E.g.: Buenos Aires, USA, Brazil...",
     dias: "Stay duration",
     personas: "Number of travelers",
     movilidad: "Do you have your own vehicle?",
@@ -262,6 +277,26 @@ const MAPAS = [
   { id: "m12", nombre: "Saltos del Monday", pais: "Paraguay", img: "/mapas/mapa-saltos-monday.jpg", consulta: "Saltos del Monday, Presidente Franco, Paraguay" },
   { id: "m13", nombre: "Centro de Puerto Iguazú", pais: "Argentina", img: "/mapas/mapa-centro-iguazu.jpg", consulta: "Puerto Iguazú, Misiones, Argentina" },
 ];
+
+// ---------- CLIMA EN VIVO (OPEN-METEO) ----------
+function iconoClima(code) {
+  if (code === 0) return "☀️";
+  if (code === 1 || code === 2) return "⛅";
+  if (code === 3) return "☁️";
+  if (code === 45 || code === 48) return "🌫️";
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return "🌧️";
+  if (code >= 95) return "⛈️";
+  return "🌤️";
+}
+
+function etiquetaDiaClima(fechaStr, idx, t, idioma) {
+  if (idx === 0) return t.climaHoy;
+  if (idx === 1) return t.climaManana;
+  const loc = idioma === "pt" ? "pt-BR" : idioma === "en" ? "en-US" : "es-AR";
+  const d = new Date(`${fechaStr}T12:00:00`);
+  const txt = d.toLocaleDateString(loc, { weekday: "short" }).replace(".", "");
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+}
 
 // ---------- 3 PLUMAS ANIMADAS A 60 FPS (SIN LÍNEAS DE VIENTO) ----------
 function PlumasTransicion({ rafaga, onFin }) {
@@ -758,10 +793,12 @@ export default function App() {
   const [movilidad, setMovilidad] = useState(guardado.movilidad || "no");
   const [hotel, setHotel] = useState(guardado.hotel || "");
   const [nombreTurista, setNombreTurista] = useState(guardado.nombreTurista || "");
+  const [origen, setOrigen] = useState(guardado.origen || "");
   const [carrito, setCarrito] = useState(Array.isArray(guardado.carrito) ? guardado.carrito : []);
   const [divisa, setDivisa] = useState(guardado.divisa || "ARS");
   const [idioma, setIdioma] = useState(guardado.idioma || "es");
   const [modoClaro, setModoClaro] = useState(Boolean(guardado.modoClaro));
+  const [clima, setClima] = useState(null);
 
   const [expandidas, setExpandidas] = useState({});
   const [combosExpandidos, setCombosExpandidos] = useState({});
@@ -815,15 +852,35 @@ export default function App() {
   const t = TEXTOS[idioma] || TEXTOS.es;
 
   useEffect(() => {
+    let activo = true;
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=-25.5991&longitude=-54.5735&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=3")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!activo || !data?.daily?.time) return;
+        const lista = data.daily.time.slice(0, 3).map((fecha, i) => ({
+          fecha,
+          code: data.daily.weather_code[i],
+          min: Math.round(data.daily.temperature_2m_min[i]),
+          max: Math.round(data.daily.temperature_2m_max[i]),
+        }));
+        setClima(lista);
+      })
+      .catch(() => {
+        // ignorar si no hay conexión
+      });
+    return () => { activo = false; };
+  }, []);
+
+  useEffect(() => {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias, personas, movilidad, hotel, nombreTurista, carrito, divisa, idioma, modoClaro })
+        JSON.stringify({ dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro })
       );
     } catch {
       // ignorar
     }
-  }, [dias, personas, movilidad, hotel, nombreTurista, carrito, divisa, idioma, modoClaro]);
+  }, [dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro]);
 
   useEffect(() => {
     const el = refCarrito.current;
@@ -850,6 +907,7 @@ export default function App() {
     setMovilidad("no");
     setHotel("");
     setNombreTurista("");
+    setOrigen("");
     setPlanCargado("");
     setAviso(null);
     setAvisoCombo(null);
@@ -971,12 +1029,18 @@ export default function App() {
     })
     .join("\n\n");
   const nombre = nombreTurista.trim();
+  const rawPrimer = nombre.split(/\s+/)[0] || "";
+  const primerNombre = rawPrimer ? rawPrimer.charAt(0).toUpperCase() + rawPrimer.slice(1) : "";
+  const origenTxt = origen.trim();
+
   const saludo = nombre
     ? `¡Hola! Soy ${nombre} y me encantaría coordinar mi viaje por las Tres Fronteras con ustedes. Les comparto mi itinerario:`
     : "¡Hola! Me encantaría coordinar mi viaje por las Tres Fronteras con ustedes. Les comparto mi itinerario:";
   const mensajeReserva =
     `${saludo}\n\n` +
-    `*Datos del viaje*\n- Días de estadía: ${dias}\n- Cantidad de personas: ${personas}\n` +
+    `*Datos del viaje*\n` +
+    (origenTxt ? `- De dónde vengo: ${origenTxt}\n` : "") +
+    `- Días de estadía: ${dias}\n- Cantidad de personas: ${personas}\n` +
     `- Movilidad: ${movilidad === "si" ? "Tengo vehículo propio" : "No tengo, necesito traslado / chofer"}\n` +
     `- Alojamiento: ${hotel.trim() || "A confirmar"}\n\n*Itinerario*\n${detalle}\n\n` +
     `Total: ${horasTotales} hs de paseo.\n\n*Condiciones de reserva*\n- ${POLITICA_SENA}\n- ${POLITICA_ENTRADAS}\n\n` +
@@ -1021,8 +1085,11 @@ export default function App() {
 
   const tienePais = (p) => carrito.some((x) => x.pais === p);
   const consejoTangara = (() => {
+    const hola = primerNombre ? `¡Hola ${primerNombre}! ` : "¡Hola! ";
+    const pref = primerNombre ? `${primerNombre}, ` : "";
+
     if (pestana === "mapas") {
-      return "Importante: estos mapas son meramente ilustrativos para darte una orientación general; ningún mapa representa con total exactitud el recorrido real. Usá el botón de Google Maps para navegar con precisión.";
+      return `${pref}importante: estos mapas son meramente ilustrativos para darte una orientación general; ningún mapa representa con total exactitud el recorrido real. Usá el botón de Google Maps para navegar con precisión.`;
     }
     if (pestana === "colab") {
       const listaNombres = colabsDeCategoria.map((c) => c.nombre).join(", ");
@@ -1030,57 +1097,59 @@ export default function App() {
         ? ` Promos activas ahora: ${promosActivas.map((p) => `${p.nombre} (${p.promo})`).join(" · ")}.`
         : "";
       if (colabCat === "hoteles") {
-        return `¿Estás buscando hospedaje para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"})? Hoy te recomiendo consultar disponibilidad en: ${listaNombres || "nuestros aliados"}.${promoTexto}`;
+        return `${pref}¿estás buscando hospedaje para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"})? Hoy te recomiendo consultar disponibilidad en: ${listaNombres || "nuestros aliados"}.${promoTexto}`;
       }
       if (colabCat === "restaurantes") {
         return colabsDeCategoria.length
-          ? `¿Viendo qué cenar o almorzar en la ciudad? Te recomiendo: ${listaNombres}.${promoTexto}`
-          : "¿Viendo qué cenar en la ciudad? Muy pronto vamos a sumar restaurantes aliados con promos. Mientras tanto, preguntale a Alan por WhatsApp sus lugares favoritos.";
+          ? `${pref}¿viendo qué cenar o almorzar en la ciudad? Te recomiendo: ${listaNombres}.${promoTexto}`
+          : `${pref}¿viendo qué cenar en la ciudad? Muy pronto vamos a sumar restaurantes aliados con promos. Mientras tanto, preguntale a Alan por WhatsApp sus lugares favoritos.`;
       }
       if (colabCat === "guias") {
         return colabsDeCategoria.length
-          ? `¿Buscás un guía habilitado de confianza? Podés contactar a: ${listaNombres}.${promoTexto}`
-          : "¿Necesitás un guía de confianza para tu recorrido? Pronto sumamos el listado completo; por ahora coordinamos directo con Alan por WhatsApp.";
+          ? `${pref}¿buscás un guía habilitado de confianza? Podés contactar a: ${listaNombres}.${promoTexto}`
+          : `${pref}¿necesitás un guía de confianza para tu recorrido? Pronto sumamos el listado completo; por ahora coordinamos directo con Alan por WhatsApp.`;
       }
       if (colabCat === "choferes") {
         return colabsDeCategoria.length
-          ? `¿Buscás chofer o traslado privado? Tenés disponible a: ${listaNombres}.${promoTexto}`
-          : "¿Necesitás chofer o traslado privado entre Argentina, Brasil y Paraguay? Pronto sumamos más choferes acá; consultanos por WhatsApp para reservar.";
+          ? `${pref}¿buscás chofer o traslado privado? Tenés disponible a: ${listaNombres}.${promoTexto}`
+          : `${pref}¿necesitás chofer o traslado privado entre Argentina, Brasil y Paraguay? Pronto sumamos más choferes acá; consultanos por WhatsApp para reservar.`;
       }
     }
     if (modoTangara === "bienvenida") {
-      return "¡Hola! Soy el Capitán Tangará. Completá tu nombre, días y hotel arriba. ¿Querés que te guíe según tus días o preferís explorar solo?";
+      return primerNombre
+        ? `¡Hola ${primerNombre}! Qué bueno tenerte por acá. Soy el Capitán Tangará. ¿Querés que te guíe según tus días o preferís explorar solo?`
+        : "¡Hola! Soy el Capitán Tangará. Completá tu nombre, días y hotel abajo. ¿Querés que te guíe según tus días o preferís explorar solo?";
     }
-    if (pestana === "guia") return "¿Dudas antes de reservar? Escribinos directo por WhatsApp o mail.";
+    if (pestana === "guia") return `${pref}¿tenés dudas antes de reservar? Escribinos directo por WhatsApp o mail.`;
     if (paisAbierto === "Argentina") {
       if (tienePais("Argentina")) {
-        return `¡Circuito argentino listo! Llevá DNI físico vigente, calzado cerrado, piloto de lluvia, repelente y agua.${dias >= 2 && dias <= 3 && !tienePais("Brasil") ? " Con " + dias + " días te recomiendo sumar Brasil mañana." : ""}`;
+        return `¡Circuito argentino listo${primerNombre ? `, ${primerNombre}` : ""}! Llevá DNI físico vigente, calzado cerrado, piloto de lluvia, repelente y agua.${dias >= 2 && dias <= 3 && !tienePais("Brasil") ? " Con " + dias + " días te recomiendo sumar Brasil mañana." : ""}`;
       }
       return dias <= 2
-        ? "Con " + dias + " días, priorizá Cataratas Argentinas (7 hs) y sumá Gran Aventura si querés lancha. Luego te recomiendo cruzar a Brasil."
-        : "En " + dias + " días podés hacer Cataratas Argentinas un día y dejar Minas de Wanda, GüiráOga o San Ignacio para otro día.";
+        ? `${pref}con ${dias} días priorizá Cataratas Argentinas (7 hs) y sumá Gran Aventura si querés lancha. Luego te recomiendo cruzar a Brasil.`
+        : `${pref}en ${dias} días podés hacer Cataratas Argentinas un día y dejar Minas de Wanda, GüiráOga o San Ignacio para otro día.`;
     }
     if (paisAbierto === "Brasil") {
       if (tienePais("Brasil")) {
-        return "¡Gran circuito en Foz! Llevá DNI o pasaporte original (sin fotocopias) para aduana, protector solar, gorra y piloto.";
+        return `¡Gran circuito en Foz${primerNombre ? `, ${primerNombre}` : ""}! Llevá DNI o pasaporte original (sin fotocopias) para aduana, protector solar, gorra y piloto.`;
       }
-      return "Cataratas Brasileñas lleva medio día: combinala el mismo día con Parque das Aves, Macuco Safari, Helisul o AquaFoz.";
+      return `${pref}Cataratas Brasileñas lleva medio día: combinala el mismo día con Parque das Aves, Macuco Safari, Helisul o AquaFoz.`;
     }
     if (paisAbierto === "Paraguay") {
       if (tienePais("Paraguay")) {
-        return "Para el Puente de la Amistad llevá documento original vigente, efectivo (USD o Gs) y calzado antideslizante para Saltos del Monday.";
+        return `${pref}para el Puente de la Amistad llevá documento original vigente, efectivo (USD o Gs) y calzado antideslizante para Saltos del Monday.`;
       }
-      return "En Paraguay podés combinar Compras en Ciudad del Este por la mañana y Saltos del Monday por la tarde.";
+      return `${pref}en Paraguay podés combinar Compras en Ciudad del Este por la mañana y Saltos del Monday por la tarde.`;
     }
     if (paisAbierto === "aventura") {
-      return "Tours privados a medida (bici, kayak, aves o sunset). Tocá «Quiero saber más» y coordinamos según el clima.";
+      return `${pref}son tours privados a medida (bici, kayak, aves o sunset). Tocá «Quiero saber más» y coordinamos según el clima.`;
     }
     if (carrito.length > 0) {
-      return `¡Vas bárbaro! Ya armaste ${carrito.length} actividad(es). Recordá que la seña del 50% es solo por traslados y guías; entradas en boletería.`;
+      return `¡Vas bárbaro${primerNombre ? `, ${primerNombre}` : ""}! Ya armaste ${carrito.length} actividad(es). Recordá que la seña del 50% es solo por traslados y guías; entradas en boletería.`;
     }
     return dias <= 3
-      ? `Para ${dias} días te sugiero empezar abriendo Argentina o cargar un plan sugerido en 1 clic.`
-      : `Con ${dias} días podés recorrer los 3 países tranquilos. Abrí un bloque abajo para empezar.`;
+      ? `${hola}Para ${dias} días te sugiero empezar abriendo Argentina o cargar un plan sugerido en 1 clic.`
+      : `${hola}Con ${dias} días podés recorrer los 3 países tranquilos. Abrí un bloque abajo para empezar.`;
   })();
 
   const botonesColabTangara = pestana === "colab"
@@ -1137,6 +1206,13 @@ export default function App() {
           -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: #fff; font-size: .82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
         .ctrl-top.activo { background: #10b981; color: #04261a; border-color: #10b981; }
         .app button:focus-visible, .app select:focus-visible, .app input:focus-visible, .app a:focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
+        .clima-tira { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+          padding: 8px 14px; margin: 0 auto 18px; border-radius: 12px; background: var(--papel); border: 1px solid #27272a; font-size: .8rem; }
+        .clima-etiq { font-weight: 700; color: var(--suave); white-space: nowrap; }
+        .clima-dias { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .clima-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: var(--niebla); border: 1px solid #27272a; color: var(--tinta); white-space: nowrap; }
+        .clima-chip strong { font-weight: 700; color: var(--suave); font-size: .76rem; }
+        .clima-chip span { font-weight: 700; }
         .caja { background: var(--papel); border-radius: 16px; padding: 20px; box-shadow: 0 2px 10px rgba(11,37,64,.12); }
         .caja h2 { margin: 0 0 14px; font-family: Georgia, serif; font-size: 1.35rem; }
         .form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
@@ -1271,7 +1347,7 @@ export default function App() {
         .firma-logo { height: 40px; width: auto; display: block; }
         .firma span { font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive; font-size: 1.6rem; color: var(--tinta); opacity: .85; }
         .app option { background: #1c1c21; color: #f4f4f5; }
-        .historias { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 460px; margin: 4px auto 28px; }
+        .historias { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 460px; margin: 4px auto 22px; }
         .historia { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; padding: 0; border: none; background: transparent; color: #a1a1aa; font-family: inherit; cursor: pointer; }
         .historia.activa { color: var(--tinta); }
         .aro { position: relative; width: min(72px, 17vw); height: min(72px, 17vw); padding: 3px; border-radius: 50%; background: #3f3f46; transition: transform .2s; }
@@ -1414,6 +1490,7 @@ export default function App() {
         .btn-limpiar { border: 1px solid #7f1d1d; background: rgba(127,29,29,.22); color: #fca5a5; border-radius: 999px; padding: 6px 12px; font-size: .78rem; font-weight: 700; cursor: pointer; }
         .app.claro { --tinta: #18181b; --rio: #059669; --niebla: #f4f4f5; --papel: #ffffff; --suave: #52525b; color-scheme: light; background: #e4e4e7; color: #18181b; }
         .app.claro .portada { border-color: #d4d4d8; }
+        .app.claro .clima-tira, .app.claro .clima-chip { border-color: #d4d4d8; }
         .app.claro .caja, .app.claro .pais-bloque, .app.claro .mapa-tarjeta, .app.claro .colab-card, .app.claro .tips-card, .app.claro .colab-tab, .app.claro .colab-vacio { box-shadow: 0 0 0 1px #d4d4d8, 0 8px 24px rgba(0,0,0,.08); border-color: #d4d4d8; }
         .app.claro .campo select, .app.claro .campo input, .app.claro .asignar select { background: #ffffff; border-color: #cbd5e1; color: #18181b; }
         .app.claro option { background: #ffffff; color: #18181b; }
@@ -1490,6 +1567,21 @@ export default function App() {
           ))}
         </nav>
 
+        {clima && (
+          <div className="clima-tira" aria-label={t.climaTitulo}>
+            <span className="clima-etiq">🌤️ {t.climaTitulo}</span>
+            <div className="clima-dias">
+              {clima.map((d, i) => (
+                <span key={d.fecha} className="clima-chip">
+                  <strong>{etiquetaDiaClima(d.fecha, i, t, idioma)}</strong>
+                  <span aria-hidden="true">{iconoClima(d.code)}</span>
+                  <span>{d.min}° / {d.max}°</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ---------- PESTAÑA 1: Destinos y Carrito ---------- */}
         {pestana === "destinos" && (
           <div key="destinos" className={`vista-animada dir-${dirVista}`}>
@@ -1502,6 +1594,11 @@ export default function App() {
                   <input id="nombre" ref={refNombre} type="text" placeholder="Ej: Sofía Gómez" autoComplete="name" value={nombreTurista}
                     onChange={(e) => { setNombreTurista(e.target.value); if (e.target.value.trim()) setFaltaNombre(false); }} />
                   {faltaNombre && <p className="aviso-nombre" role="alert">¡Ya casi! Escribí al menos tu nombre para que sepamos a quién responderle por WhatsApp. 😊</p>}
+                </div>
+                <div className="campo">
+                  <label htmlFor="origen">{t.origen}</label>
+                  <input id="origen" type="text" placeholder={t.origenPh} autoComplete="address-level1" value={origen}
+                    onChange={(e) => setOrigen(e.target.value)} />
                 </div>
                 <div className="campo">
                   <label htmlFor="dias">{t.dias}</label>
@@ -1712,7 +1809,9 @@ export default function App() {
                         const abierta = !!expandidas[av.id];
                         const textoConsultaAv =
                           `${nombre ? `¡Hola! Soy ${nombre} y me` : "¡Hola! Me"} gustaría saber más y consultar disponibilidad para la actividad privada *${av.nombre}* (Turismo Aventura).` +
-                          `\n\n*Datos del viaje*\n- Días de estadía: ${dias}\n- Personas: ${personas}` +
+                          `\n\n*Datos del viaje*` +
+                          (origenTxt ? `\n- De dónde vengo: ${origenTxt}` : "") +
+                          `\n- Días de estadía: ${dias}\n- Personas: ${personas}` +
                           `\n- Movilidad: ${movilidad === "si" ? "Tengo vehículo propio" : "No tengo, necesito traslado / chofer"}` +
                           (hotel.trim() ? `\n- Alojamiento: ${hotel.trim()}` : "") +
                           (carrito.length > 0 ? `\n\n*Mi itinerario actual en el carrito*\n${detalle}\n(Total actual: ${horasTotales} hs)` : "");
@@ -1890,7 +1989,7 @@ export default function App() {
                     className="btn-whatsapp"
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan! Estoy viendo la sección de ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo} en App Iguazú y quería pedirte recomendaciones para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}).`)}`}
+                    href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan!${primerNombre ? ` Soy ${primerNombre}.` : ""} Estoy viendo la sección de ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo} en App Iguazú y quería pedirte recomendaciones para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}).`)}`}
                   >
                     Consultar recomendaciones por WhatsApp
                   </a>
@@ -1923,7 +2022,7 @@ export default function App() {
                         <div className="chips">{c.servicios.map((sv) => <span key={sv} className="chip">{sv}</span>)}</div>
                         <div className="colab-botones">
                           <a className="btn-whatsapp" target="_blank" rel="noopener noreferrer"
-                            href={`https://wa.me/${c.whatsapp}?text=${encodeURIComponent(`Hola! Los contacto desde la web de ${GUIA.nombre}. Quiero consultar disponibilidad en ${c.nombre} para ${personas} ${personas === 1 ? "persona" : "personas"} y una estadía de ${dias} ${dias === 1 ? "día" : "días"}.`)}`}>
+                            href={`https://wa.me/${c.whatsapp}?text=${encodeURIComponent(`Hola!${primerNombre ? ` Soy ${primerNombre},` : ""} los contacto desde la web de ${GUIA.nombre}. Quiero consultar disponibilidad en ${c.nombre} para ${personas} ${personas === 1 ? "persona" : "personas"} y una estadía de ${dias} ${dias === 1 ? "día" : "días"}.`)}`}>
                             Consultar disponibilidad
                           </a>
                           <a className="btn-link" target="_blank" rel="noopener noreferrer"
