@@ -22,6 +22,8 @@ const TEXTOS = {
     climaTitulo: "Clima en Iguazú",
     climaHoy: "Hoy",
     climaManana: "Mañana",
+    climaCargando: "Cargando pronóstico...",
+    climaError: "Sin conexión al pronóstico",
     datosViajero: "Datos del viajero",
     nombre: "Tu nombre",
     origen: "De dónde vengo",
@@ -54,6 +56,8 @@ const TEXTOS = {
     climaTitulo: "Clima em Iguaçu",
     climaHoy: "Hoje",
     climaManana: "Amanhã",
+    climaCargando: "Carregando previsão...",
+    climaError: "Sem conexão com a previsão",
     datosViajero: "Dados do viajante",
     nombre: "Seu nome",
     origen: "De onde venho",
@@ -86,6 +90,8 @@ const TEXTOS = {
     climaTitulo: "Iguazú Weather",
     climaHoy: "Today",
     climaManana: "Tomorrow",
+    climaCargando: "Loading forecast...",
+    climaError: "Forecast unavailable",
     datosViajero: "Traveler details",
     nombre: "Your name",
     origen: "Where I'm from",
@@ -558,6 +564,56 @@ function cargarGuardado() {
   return {};
 }
 
+// ---------- BIENVENIDA EN PRIMER PLANO (SOLO PRIMERA VEZ) ----------
+const POSES_BIENVENIDA = [
+  "/fotos/asistente-posado.png",
+  "/fotos/asistente-hablando.png",
+  "/fotos/asistente-posado.png",
+  "/fotos/asistente-hablando.png",
+  "/fotos/asistente-hablando.png",
+  "/fotos/asistente-sonriendo.png",
+  "/fotos/asistente-sonriendo.png",
+  "/fotos/asistente-hablando.png",
+];
+
+function BienvenidaTangara({ primerNombre, onElegir }) {
+  const [paso, setPaso] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+    const iv = setInterval(() => setPaso((p) => (p + 1) % POSES_BIENVENIDA.length), 340);
+    return () => clearInterval(iv);
+  }, []);
+
+  return (
+    <div className="bienvenida-capa" role="dialog" aria-modal="true" aria-labelledby="bienv-titulo">
+      <div className="bienvenida-card">
+        <img
+          className="bienvenida-ave"
+          src={POSES_BIENVENIDA[paso]}
+          alt="Capitán Tangará dándote la bienvenida"
+        />
+        <span className="bienvenida-sello">🦜 Capitán Tangará · Tu anfitrión</span>
+        <h2 id="bienv-titulo">
+          {primerNombre ? `¡Hola ${primerNombre}! Bienvenido a Tres Fronteras` : "¡Hola! Bienvenido a Tres Fronteras"}
+        </h2>
+        <p>
+          Soy el <strong>Capitán Tangará</strong>, un bailarín azul de la selva misionera. Voy a acompañarte para armar tu viaje por Puerto Iguazú, Foz do Iguaçu y Ciudad del Este, con consejos de frontera, clima y horarios.
+        </p>
+        <p className="bienvenida-preg">¿Querés que te guíe en tus primeros pasos o preferís explorar por tu cuenta?</p>
+        <div className="bienvenida-botones">
+          <button type="button" className="b-btn si" onClick={() => onElegir("guiado")}>
+            🧭 Sí, guíame paso a paso
+          </button>
+          <button type="button" className="b-btn no" onClick={() => onElegir("libre")}>
+            Explorar por mi cuenta
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---------- COMPONENTES AUXILIARES ----------
 function CapitanTangara({ modo, setModo, volando, mensaje, inline = false, botonesRapidos = null }) {
   const [cuadro, setCuadro] = useState(0);
@@ -601,12 +657,6 @@ function CapitanTangara({ modo, setModo, volando, mensaje, inline = false, boton
                 {b.label}
               </button>
             ))}
-          </div>
-        )}
-        {modo === "bienvenida" && !botonesRapidos && (
-          <div className="tangara-acciones">
-            <button type="button" className="t-btn si" onClick={() => setModo("guiado")}>Sí, guíame</button>
-            <button type="button" className="t-btn no" onClick={() => setModo("libre")}>Explorar solo</button>
           </div>
         )}
       </div>
@@ -779,7 +829,8 @@ export default function App() {
   const [colabCat, setColabCat] = useState("hoteles");
   const [mapaAmpliado, setMapaAmpliado] = useState(null);
   const [zoomMapa, setZoomMapa] = useState(1);
-  const [modoTangara, setModoTangara] = useState("bienvenida");
+  const [bienvenidaVista, setBienvenidaVista] = useState(Boolean(guardado.bienvenidaVista));
+  const [modoTangara, setModoTangara] = useState(guardado.modoTangara || "guiado");
   const [volandoTangara, setVolandoTangara] = useState(false);
   const timerTangara = useRef(null);
   const volarTangara = () => {
@@ -799,6 +850,7 @@ export default function App() {
   const [idioma, setIdioma] = useState(guardado.idioma || "es");
   const [modoClaro, setModoClaro] = useState(Boolean(guardado.modoClaro));
   const [clima, setClima] = useState(null);
+  const [climaEstado, setClimaEstado] = useState("cargando");
 
   const [expandidas, setExpandidas] = useState({});
   const [combosExpandidos, setCombosExpandidos] = useState({});
@@ -817,6 +869,13 @@ export default function App() {
   const [sonido, setSonido] = useState(true);
   const sonar = () => { if (sonido) reproducirCampanita(); };
 
+  const elegirBienvenida = (eleccion) => {
+    setModoTangara(eleccion);
+    setBienvenidaVista(true);
+    if (sonido) reproducirAleteo();
+    if (eleccion === "guiado") volarTangara();
+  };
+
   const cambiarPestana = (nueva, dirForzada = null) => {
     if (nueva === pestana) return;
     const idxActual = ORDEN_PESTANAS.indexOf(pestana);
@@ -830,14 +889,14 @@ export default function App() {
   };
 
   const onTouchStartTab = (e) => {
-    if (mapaAmpliado || e.touches.length !== 1) return;
+    if (!bienvenidaVista || mapaAmpliado || e.touches.length !== 1) return;
     const ignorar = Boolean(e.target.closest(".deslizable.puede, .carrusel, .mapa-scroll, input, select, textarea"));
     swipeTabRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, ignorar };
   };
 
   const onTouchEndTab = (e) => {
     const { x, y, ignorar } = swipeTabRef.current;
-    if (ignorar || !e.changedTouches.length || mapaAmpliado) return;
+    if (!bienvenidaVista || ignorar || !e.changedTouches.length || mapaAmpliado) return;
     const dx = e.changedTouches[0].clientX - x;
     const dy = e.changedTouches[0].clientY - y;
     if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
@@ -851,12 +910,15 @@ export default function App() {
 
   const t = TEXTOS[idioma] || TEXTOS.es;
 
-  useEffect(() => {
-    let activo = true;
+  const cargarClima = () => {
+    setClimaEstado("cargando");
     fetch("https://api.open-meteo.com/v1/forecast?latitude=-25.5991&longitude=-54.5735&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=3")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!activo || !data?.daily?.time) return;
+        if (!data?.daily?.time) {
+          setClimaEstado("error");
+          return;
+        }
         const lista = data.daily.time.slice(0, 3).map((fecha, i) => ({
           fecha,
           code: data.daily.weather_code[i],
@@ -864,23 +926,27 @@ export default function App() {
           max: Math.round(data.daily.temperature_2m_max[i]),
         }));
         setClima(lista);
+        setClimaEstado("listo");
       })
       .catch(() => {
-        // ignorar si no hay conexión
+        setClimaEstado("error");
       });
-    return () => { activo = false; };
+  };
+
+  useEffect(() => {
+    cargarClima();
   }, []);
 
   useEffect(() => {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro })
+        JSON.stringify({ dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara })
       );
     } catch {
       // ignorar
     }
-  }, [dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro]);
+  }, [dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara]);
 
   useEffect(() => {
     const el = refCarrito.current;
@@ -913,7 +979,10 @@ export default function App() {
     setAvisoCombo(null);
     setAvisoGlobal("");
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ dias: 3, personas: 2, movilidad: "no", hotel: "", nombreTurista: "", origen: "", carrito: [], divisa, idioma, modoClaro, bienvenidaVista: true, modoTangara })
+      );
     } catch {
       // ignorar
     }
@@ -1115,11 +1184,6 @@ export default function App() {
           : `${pref}¿necesitás chofer o traslado privado entre Argentina, Brasil y Paraguay? Pronto sumamos más choferes acá; consultanos por WhatsApp para reservar.`;
       }
     }
-    if (modoTangara === "bienvenida") {
-      return primerNombre
-        ? `¡Hola ${primerNombre}! Qué bueno tenerte por acá. Soy el Capitán Tangará. ¿Querés que te guíe según tus días o preferís explorar solo?`
-        : "¡Hola! Soy el Capitán Tangará. Completá tu nombre, días y hotel abajo. ¿Querés que te guíe según tus días o preferís explorar solo?";
-    }
     if (pestana === "guia") return `${pref}¿tenés dudas antes de reservar? Escribinos directo por WhatsApp o mail.`;
     if (paisAbierto === "Argentina") {
       if (tienePais("Argentina")) {
@@ -1148,8 +1212,8 @@ export default function App() {
       return `¡Vas bárbaro${primerNombre ? `, ${primerNombre}` : ""}! Ya armaste ${carrito.length} actividad(es). Recordá que la seña del 50% es solo por traslados y guías; entradas en boletería.`;
     }
     return dias <= 3
-      ? `${hola}Para ${dias} días te sugiero empezar abriendo Argentina o cargar un plan sugerido en 1 clic.`
-      : `${hola}Con ${dias} días podés recorrer los 3 países tranquilos. Abrí un bloque abajo para empezar.`;
+      ? `${hola}Completá tus datos abajo y para ${dias} días te sugiero empezar abriendo Argentina o cargar un plan sugerido en 1 clic.`
+      : `${hola}Completá tus datos abajo y con ${dias} días podés recorrer los 3 países tranquilos. Abrí un bloque para empezar.`;
   })();
 
   const botonesColabTangara = pestana === "colab"
@@ -1164,7 +1228,6 @@ export default function App() {
   const dondeSePosa =
     pestana === "mapas" ? "mapas-top" :
     pestana === "colab" ? "colab-top" :
-    modoTangara === "bienvenida" ? "inicio" :
     pestana !== "destinos" ? "pestana" :
     paisAbierto ? `pais-${paisAbierto}` :
     carrito.length > 0 ? "carrito" : "inicio";
@@ -1182,7 +1245,8 @@ export default function App() {
         .app { --tinta: #f4f4f5; --rio: #34d399; --niebla: #1c1c21; --papel: #141417; --suave: #a1a1aa;
           color-scheme: dark; text-align: left; min-height: 100vh; background: #09090b; color: var(--tinta);
           font-family: "Segoe UI", system-ui, sans-serif; padding: 24px 16px 48px; transition: background .25s, color .25s; touch-action: pan-y; }
-        .contenedor { max-width: 1100px; margin: 0 auto; }
+        .contenedor { max-width: 1100px; margin: 0 auto; transition: filter .35s ease; }
+        .contenedor.difuminado { filter: blur(8px) brightness(.72); pointer-events: none; user-select: none; -webkit-user-select: none; }
         .app h1, .app h2, .app h3 { color: var(--tinta); }
         @keyframes entrarVista { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes entrarDesdeDer { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
@@ -1192,8 +1256,23 @@ export default function App() {
         .vista-animada.dir-der { animation: entrarDesdeIzq .28s cubic-bezier(.22, 1, .36, 1) both; }
         .plumas-capa { position: fixed; inset: 0; pointer-events: none; z-index: 900; overflow: hidden; perspective: 600px; }
         .pluma-raf { position: absolute; top: 0; left: 0; opacity: 0; will-change: transform, opacity; filter: drop-shadow(0 8px 14px rgba(0,0,0,.45)); }
+        .bienvenida-capa { position: fixed; inset: 0; z-index: 950; display: flex; align-items: center; justify-content: center; padding: 18px;
+          background: rgba(9,9,11,.55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: lbEntrada .35s ease; }
+        .bienvenida-card { width: 100%; max-width: 440px; background: rgba(20,20,23,.96); border: 1.5px solid #34d399; border-radius: 24px;
+          padding: 22px 20px 20px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(52,211,153,.25);
+          display: flex; flex-direction: column; align-items: center; gap: 10px; animation: entrarVista .38s cubic-bezier(.22, 1, .36, 1); }
+        .bienvenida-ave { width: clamp(148px, 38vw, 196px); height: auto; display: block; filter: drop-shadow(0 12px 24px rgba(0,0,0,.55)); animation: flotarAve 3.2s ease-in-out infinite; }
+        .bienvenida-sello { display: inline-block; font-size: .78rem; font-weight: 800; color: #34d399; background: rgba(16,185,129,.14); border: 1px solid #065f46; border-radius: 999px; padding: 4px 12px; }
+        .bienvenida-card h2 { margin: 2px 0 0; font-family: Georgia, serif; font-size: clamp(1.3rem, 4.5vw, 1.6rem); line-height: 1.2; }
+        .bienvenida-card p { margin: 0; font-size: .92rem; line-height: 1.45; color: #d4d4d8; }
+        .bienvenida-preg { font-weight: 700; color: #f4f4f5 !important; margin-top: 2px !important; }
+        .bienvenida-botones { width: 100%; display: flex; flex-direction: column; gap: 9px; margin-top: 6px; }
+        .b-btn { width: 100%; border: none; border-radius: 14px; padding: 13px 16px; font-family: inherit; font-weight: 800; font-size: .96rem; cursor: pointer; transition: transform .15s; }
+        .b-btn:active { transform: scale(.98); }
+        .b-btn.si { background: linear-gradient(135deg, #34d399, #10b981); color: #04261a; }
+        .b-btn.no { background: #27272a; color: #e4e4e7; border: 1px solid #3f3f46; }
         @media (prefers-reduced-motion: reduce) {
-          .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der { animation: none; }
+          .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der, .bienvenida-capa, .bienvenida-card, .bienvenida-ave { animation: none; }
           .plumas-capa { display: none; }
         }
         .app .portada { border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
@@ -1213,6 +1292,7 @@ export default function App() {
         .clima-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: var(--niebla); border: 1px solid #27272a; color: var(--tinta); white-space: nowrap; }
         .clima-chip strong { font-weight: 700; color: var(--suave); font-size: .76rem; }
         .clima-chip span { font-weight: 700; }
+        .clima-reintentar { border: 1px solid #3f3f46; background: transparent; color: var(--rio); border-radius: 999px; padding: 2px 9px; font-size: .76rem; font-weight: 700; cursor: pointer; }
         .caja { background: var(--papel); border-radius: 16px; padding: 20px; box-shadow: 0 2px 10px rgba(11,37,64,.12); }
         .caja h2 { margin: 0 0 14px; font-family: Georgia, serif; font-size: 1.35rem; }
         .form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
@@ -1489,6 +1569,12 @@ export default function App() {
         .carrito-cab h2 { margin: 0; }
         .btn-limpiar { border: 1px solid #7f1d1d; background: rgba(127,29,29,.22); color: #fca5a5; border-radius: 999px; padding: 6px 12px; font-size: .78rem; font-weight: 700; cursor: pointer; }
         .app.claro { --tinta: #18181b; --rio: #059669; --niebla: #f4f4f5; --papel: #ffffff; --suave: #52525b; color-scheme: light; background: #e4e4e7; color: #18181b; }
+        .app.claro .bienvenida-capa { background: rgba(228,228,231,.65); }
+        .app.claro .bienvenida-card { background: rgba(255,255,255,.97); border-color: #059669; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+        .app.claro .bienvenida-card p { color: #3f3f46; }
+        .app.claro .bienvenida-preg { color: #18181b !important; }
+        .app.claro .bienvenida-sello { color: #059669; background: rgba(16,185,129,.12); border-color: #a7f3d0; }
+        .app.claro .b-btn.no { background: #f4f4f5; color: #18181b; border-color: #d4d4d8; }
         .app.claro .portada { border-color: #d4d4d8; }
         .app.claro .clima-tira, .app.claro .clima-chip { border-color: #d4d4d8; }
         .app.claro .caja, .app.claro .pais-bloque, .app.claro .mapa-tarjeta, .app.claro .colab-card, .app.claro .tips-card, .app.claro .colab-tab, .app.claro .colab-vacio { box-shadow: 0 0 0 1px #d4d4d8, 0 8px 24px rgba(0,0,0,.08); border-color: #d4d4d8; }
@@ -1517,7 +1603,9 @@ export default function App() {
 
       <PlumasTransicion rafaga={rafagaPlumas} onFin={() => setRafagaPlumas(null)} />
 
-      <div className="contenedor">
+      {!bienvenidaVista && <BienvenidaTangara primerNombre={primerNombre} onElegir={elegirBienvenida} />}
+
+      <div className={`contenedor ${!bienvenidaVista ? "difuminado" : ""}`}>
         <header className="portada">
           <div className="controles-top">
             {["es", "pt", "en"].map((lang) => (
@@ -1567,25 +1655,32 @@ export default function App() {
           ))}
         </nav>
 
-        {clima && (
-          <div className="clima-tira" aria-label={t.climaTitulo}>
-            <span className="clima-etiq">🌤️ {t.climaTitulo}</span>
-            <div className="clima-dias">
-              {clima.map((d, i) => (
+        <div className="clima-tira" aria-label={t.climaTitulo}>
+          <span className="clima-etiq">🌤️ {t.climaTitulo}</span>
+          <div className="clima-dias">
+            {climaEstado === "listo" && clima ? (
+              clima.map((d, i) => (
                 <span key={d.fecha} className="clima-chip">
                   <strong>{etiquetaDiaClima(d.fecha, i, t, idioma)}</strong>
                   <span aria-hidden="true">{iconoClima(d.code)}</span>
                   <span>{d.min}° / {d.max}°</span>
                 </span>
-              ))}
-            </div>
+              ))
+            ) : climaEstado === "error" ? (
+              <>
+                <span className="clima-etiq">{t.climaError}</span>
+                <button type="button" className="clima-reintentar" onClick={cargarClima}>↻</button>
+              </>
+            ) : (
+              <span className="clima-etiq">{t.climaCargando}</span>
+            )}
           </div>
-        )}
+        </div>
 
         {/* ---------- PESTAÑA 1: Destinos y Carrito ---------- */}
         {pestana === "destinos" && (
           <div key="destinos" className={`vista-animada dir-${dirVista}`}>
-            {dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+            {bienvenidaVista && dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
             <section className="caja" style={{ marginBottom: 24 }}>
               <h2>{t.datosViajero}</h2>
               <div className="form" style={{ marginBottom: 0 }}>
@@ -1676,7 +1771,7 @@ export default function App() {
                   const abierto = paisAbierto === pais;
                   return (
                     <Fragment key={pais}>
-                      {dondeSePosa === `pais-${pais}` && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+                      {bienvenidaVista && dondeSePosa === `pais-${pais}` && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
                       <div className="pais-bloque" style={{ "--c": datos.color }}>
                         <button className="pais-cab" aria-expanded={abierto} onClick={() => { setPaisAbierto(abierto ? null : pais); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
                           <span className="pais-bandera" aria-hidden="true">{datos.bandera}</span>
@@ -1792,7 +1887,7 @@ export default function App() {
                   );
                 })}
 
-                {dondeSePosa === "pais-aventura" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+                {bienvenidaVista && dondeSePosa === "pais-aventura" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
                 <div className="pais-bloque" style={{ "--c": "#d97706" }}>
                   <button className="pais-cab" aria-expanded={paisAbierto === "aventura"} onClick={() => { setPaisAbierto(paisAbierto === "aventura" ? null : "aventura"); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
                     <span className="pais-bandera" aria-hidden="true">🌿</span>
@@ -1846,7 +1941,7 @@ export default function App() {
               </section>
 
               <div>
-                {dondeSePosa === "carrito" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+                {bienvenidaVista && dondeSePosa === "carrito" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
                 <aside className="caja carrito" ref={refCarrito}>
                   <div className="carrito-cab">
                     <h2>{t.carritoTitulo}</h2>
@@ -1915,13 +2010,15 @@ export default function App() {
         {/* ---------- PESTAÑA 2: Mapas ilustrados ---------- */}
         {pestana === "mapas" && (
           <section key="mapas" className={`vista-animada dir-${dirVista}`}>
-            <CapitanTangara
-              modo={modoTangara === "libre" ? "guiado" : modoTangara}
-              setModo={setModoTangara}
-              volando={volandoTangara}
-              mensaje={consejoTangara}
-              inline
-            />
+            {bienvenidaVista && (
+              <CapitanTangara
+                modo={modoTangara === "libre" ? "guiado" : modoTangara}
+                setModo={setModoTangara}
+                volando={volandoTangara}
+                mensaje={consejoTangara}
+                inline
+              />
+            )}
             <div className="grilla-mapas">
               {MAPAS.map((m) => (
                 <article key={m.id} className="mapa-tarjeta">
@@ -1950,14 +2047,16 @@ export default function App() {
         {/* ---------- PESTAÑA 3: Colaboradores en 4 secciones ---------- */}
         {pestana === "colab" && (
           <section key="colab" className={`vista-animada dir-${dirVista}`}>
-            <CapitanTangara
-              modo={modoTangara === "libre" ? "guiado" : modoTangara}
-              setModo={setModoTangara}
-              volando={volandoTangara}
-              mensaje={consejoTangara}
-              botonesRapidos={botonesColabTangara}
-              inline
-            />
+            {bienvenidaVista && (
+              <CapitanTangara
+                modo={modoTangara === "libre" ? "guiado" : modoTangara}
+                setModo={setModoTangara}
+                volando={volandoTangara}
+                mensaje={consejoTangara}
+                botonesRapidos={botonesColabTangara}
+                inline
+              />
+            )}
 
             <div className="colab-tabs" role="tablist" aria-label="Categorías de colaboradores">
               {CATEGORIAS_COLAB.map((cat) => {
@@ -2070,7 +2169,7 @@ export default function App() {
         </footer>
       </div>
 
-      {carrito.length > 0 && !(pestana === "destinos" && carritoVisible) && (
+      {bienvenidaVista && carrito.length > 0 && !(pestana === "destinos" && carritoVisible) && (
         <div className="barra-movil" role="region" aria-label="Resumen de tu viaje">
           <span>🧭 {carrito.length} {carrito.length === 1 ? "actividad" : "actividades"} en tu viaje</span>
           <button onClick={irAlCarrito}>Ver mi viaje ↓</button>
@@ -2095,7 +2194,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {(dondeSePosa === "pestana" || (modoTangara === "libre" && pestana !== "mapas" && pestana !== "colab")) && (
+      {bienvenidaVista && (dondeSePosa === "pestana" || (modoTangara === "libre" && pestana !== "mapas" && pestana !== "colab")) && (
         <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline={false} />
       )}
     </div>
