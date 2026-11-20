@@ -30,6 +30,8 @@ const TEXTOS = {
     origenPh: "Ej: Buenos Aires, Córdoba, Brasil...",
     dias: "Días de estadía",
     personas: "Cantidad de personas",
+    conChicos: "👶 Con chicos / menores",
+    conMayores: "👴 Con adultos mayores / silla de ruedas",
     movilidad: "¿Cuenta con movilidad propia?",
     movNo: "No, necesito traslado / chofer",
     movSi: "Sí, tengo vehículo propio",
@@ -44,6 +46,8 @@ const TEXTOS = {
     tipsPagosD: "En Brasil aceptan Pix y tarjetas en casi todos lados. En Argentina y Paraguay conviene llevar efectivo (pesos, reales o dólares billete azul en buen estado) para ferias y boleterías.",
     tipsLluviaT: "☔ Opciones ideales si llueve",
     tipsLluviaD: "Si llueve, podés aprovechar La Aripuca, Minas de Wanda, Represa de Itaipú, AquaFoz, Dreamland o compras en Ciudad del Este.",
+    accesibleTitulo: "Turismo Accesible",
+    accesibleSub: "Opciones recomendadas para adultos mayores, sillas de ruedas o cochecitos",
     carritoTitulo: "Mi Carrito de Actividades",
     limpiarViaje: "🗑️ Limpiar viaje",
     carritoVacio: "Todavía no agregaste excursiones. Abrí un país, elegí el día y sumá actividades.",
@@ -64,6 +68,8 @@ const TEXTOS = {
     origenPh: "Ex: São Paulo, Curitiba, Argentina...",
     dias: "Dias de estadia",
     personas: "Quantidade de pessoas",
+    conChicos: "👶 Com crianças / menores",
+    conMayores: "👴 Com idosos / cadeira de rodas",
     movilidad: "Possui transporte próprio?",
     movNo: "Não, preciso de transfer / motorista",
     movSi: "Sim, tenho veículo próprio",
@@ -78,6 +84,8 @@ const TEXTOS = {
     tipsPagosD: "No Brasil, Pix e cartões são aceitos em quase todo lugar. Na Argentina e no Paraguai, vale levar dinheiro em espécie para feiras e bilheterias.",
     tipsLluviaT: "☔ Boas opções em dias de chuva",
     tipsLluviaD: "Se chover, aproveite La Aripuca, Minas de Wanda, Usina de Itaipu, AquaFoz, Dreamland ou compras em Ciudad del Este.",
+    accesibleTitulo: "Turismo Acessível",
+    accesibleSub: "Opções recomendadas para idosos, cadeira de rodas ou carrinho de bebê",
     carritoTitulo: "Meu Roteiro de Atividades",
     limpiarViaje: "🗑️ Limpar roteiro",
     carritoVacio: "Você ainda não adicionou passeios. Abra um país, escolha o dia e adicione atividades.",
@@ -98,6 +106,8 @@ const TEXTOS = {
     origenPh: "E.g.: Buenos Aires, USA, Brazil...",
     dias: "Stay duration",
     personas: "Number of travelers",
+    conChicos: "👶 Traveling with kids",
+    conMayores: "👴 Seniors / wheelchair accessible",
     movilidad: "Do you have your own vehicle?",
     movNo: "No, I need transfer / driver",
     movSi: "Yes, I have my own car",
@@ -112,6 +122,8 @@ const TEXTOS = {
     tipsPagosD: "Cards and Pix are widely accepted in Brazil. Carry crisp USD bills or local cash for smaller shops and ticket offices in Argentina and Paraguay.",
     tipsLluviaT: "☔ Great Rainy Day Options",
     tipsLluviaD: "If it rains, enjoy La Aripuca, Wanda Mines, Itaipu Dam, AquaFoz, Dreamland, or shopping in Ciudad del Este.",
+    accesibleTitulo: "Accessible Tourism",
+    accesibleSub: "Recommended options for seniors, wheelchairs or strollers",
     carritoTitulo: "My Activity Cart",
     limpiarViaje: "🗑️ Clear trip",
     carritoVacio: "No tours added yet. Open a country, pick a day and add activities.",
@@ -130,12 +142,13 @@ const GUIA = {
   horarios: "Atención todos los días de 07:00 a 22:00 hs",
 };
 
-// ---------- COLABORADORES DIVIDIDOS EN 4 SECCIONES ----------
+// ---------- COLABORADORES DIVIDIDOS EN 5 SECCIONES (ESTILO BENTO GRID) ----------
 const CATEGORIAS_COLAB = [
-  { id: "hoteles", icono: "🏨", titulo: "Hoteles y Hospedajes", preguntaBtn: "🏨 Hospedaje" },
-  { id: "guias", icono: "🧭", titulo: "Guías de Confianza", preguntaBtn: "🧭 Guía" },
-  { id: "choferes", icono: "🚐", titulo: "Choferes y Traslados", preguntaBtn: "🚐 Chofer" },
-  { id: "restaurantes", icono: "🍽️", titulo: "Restaurantes", preguntaBtn: "🍽️ Qué cenar" },
+  { id: "hoteles", icono: "🏨", titulo: "Hoteles y Hospedajes", preguntaBtn: "🏨 Hospedaje", foto: "/colaboradores/el-ceibo-1.jpg", grande: true },
+  { id: "restaurantes", icono: "🍽️", titulo: "Restaurantes", preguntaBtn: "🍽️ Qué cenar", foto: "/fotos/portada.jpg" },
+  { id: "guias", icono: "🧭", titulo: "Guías de Confianza", preguntaBtn: "🧭 Guía", foto: "/fotos/cataratas-arg.jpg" },
+  { id: "choferes", icono: "🚐", titulo: "Choferes y Traslados", preguntaBtn: "🚐 Chofer", foto: "/fotos/cataratas-br.jpg" },
+  { id: "actividades", icono: "🌿", titulo: "Actividades", preguntaBtn: "🌿 Actividades", foto: "/fotos/aventura-kayak.jpg" },
 ];
 
 const COLABORADORES = [
@@ -163,7 +176,7 @@ const COLABORADORES = [
     instagram: "@complejoelceibo",
     servicios: ["Piscina", "Wi-Fi", "Estacionamiento", "Entorno natural"],
   },
-  // Sumar acá nuevos guías (tipo: "guias"), choferes (tipo: "choferes") y restaurantes (tipo: "restaurantes")
+  // Sumar acá nuevos guías (tipo: "guias"), choferes (tipo: "choferes"), restaurantes (tipo: "restaurantes") y actividades (tipo: "actividades")
 ];
 
 const POLITICA_SENA = "El 50% de seña previa corresponde exclusivamente a los servicios de traslados y guías para confirmar tu reserva (el 50% restante se abona en persona al encontrarse en destino).";
@@ -201,17 +214,17 @@ const PAISES = {
 
 // ---------- CATÁLOGO: 12 destinos ----------
 const ATRACTIVOS = [
-  { id: 1, mapaImg: "/mapas/mapa-cataratas-arg.jpg", entrada: { moneda: "ARS", general: 60000, etqGeneral: "General", local: 25000, etqLocal: "Argentinos" }, nombre: "Cataratas Argentinas", lugar: "Puerto Iguazú", pais: "Argentina", horas: 7, foto: "/fotos/cataratas-arg.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata moderada", "💦 Rocío / te mojás"], resumen: "Vivís el lado más cercano y envolvente de las Cataratas: el Circuito Superior te lleva por pasarelas sobre el borde de los saltos y el Circuito Inferior te acerca al pie de las caídas, entre selva, arcoíris y rocío. El tren ecológico te deja frente a la Garganta del Diablo, donde el río se desploma con un rugido que se siente en el pecho. Un día completo para recorrer a tu ritmo, con coatíes, mariposas y tucanes en el camino.", desc: "Pasarelas sobre el río y la Garganta del Diablo, de cerca.", horario: "08:00 a 18:00 hs", llevar: ["Calzado cerrado y cómodo", "Piloto de lluvia", "Repelente", "Agua y protector solar", "Ropa de recambio"] },
-  { id: 2, mapaImg: "/mapas/mapa-cataratas-br.jpg", entrada: { moneda: "BRL", general: 134, etqGeneral: "Extranjeros", local: 121, etqLocal: "Mercosur" }, nombre: "Cataratas Brasileñas", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 4, foto: "/fotos/cataratas-br.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata suave", "💦 Rocío / te mojás"], resumen: "Es la vista panorámica frontal que todos sueñan: el sendero recorre la ladera brasileña y te muestra el conjunto completo de saltos con el lado argentino de fondo. Al final, una pasarela avanza sobre el salto Floriano hasta dejarte casi dentro de la caída de agua. Perfecto para fotos inolvidables y para entender la magnitud de las Cataratas.", desc: "La vista panorámica completa de todos los saltos.", horario: "09:00 a 17:00 hs", llevar: ["Piloto de lluvia", "Calzado cómodo", "Protector solar y gorra", "Agua"] },
-  { id: 3, mapaImg: "/mapas/mapa-parque-aves.jpg", entrada: { moneda: "BRL", general: 110 }, nombre: "Parque das Aves", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, foto: "/fotos/parque-aves.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata suave", "☀️ Al aire libre"], resumen: "Una inmersión en viveros gigantes donde caminás entre tucanes, guacamayos, loros y flamencos que vuelan libres a tu alrededor, en plena selva. Los senderos pasan por aviarios abiertos y te permiten ver de cerca especies de colores increíbles, además de mariposas. Ideal para ir en familia y sacar fotos únicas.", desc: "Tucanes, guacamayos y aviarios abiertos dentro de la selva.", horario: "08:30 a 17:00 hs", llevar: ["Repelente", "Calzado cerrado", "Protector solar", "Agua"] },
-  { id: 4, mapaImg: "/mapas/mapa-itaipu.jpg", entrada: { moneda: "BRL", general: 63, etqGeneral: "Panorámica" }, nombre: "Represa de Itaipú", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, foto: "/fotos/itaipu.jpg", tags: ["♿ Apto cochecito / silla", "☔ Apto día de lluvia"], resumen: "Conocés por dentro una de las mayores hidroeléctricas del planeta. El recorrido guiado te lleva frente al imponente muro de la represa y sus vertederos, mientras te cuentan cómo se genera la energía que comparten Brasil y Paraguay. Un paseo que impresiona por su escala y por la ingeniería detrás de cada detalle.", desc: "Visita guiada a una de las mayores hidroeléctricas del mundo.", horario: "08:00 a 16:00 hs", llevar: ["Documento original (se controla el ingreso)", "Calzado cerrado", "Ropa cómoda"] },
+  { id: 1, accesible: "Tren ecológico adaptado, pasarelas amplias con rampas hacia Garganta del Diablo y Circuito Superior (silla de ruedas sin escaleras). El Circuito Inferior tiene algunos tramos con escalones.", mapaImg: "/mapas/mapa-cataratas-arg.jpg", entrada: { moneda: "ARS", general: 60000, etqGeneral: "General", local: 25000, etqLocal: "Argentinos" }, nombre: "Cataratas Argentinas", lugar: "Puerto Iguazú", pais: "Argentina", horas: 7, foto: "/fotos/cataratas-arg.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata moderada", "💦 Rocío / te mojás"], resumen: "Vivís el lado más cercano y envolvente de las Cataratas: el Circuito Superior te lleva por pasarelas sobre el borde de los saltos y el Circuito Inferior te acerca al pie de las caídas, entre selva, arcoíris y rocío. El tren ecológico te deja frente a la Garganta del Diablo, donde el río se desploma con un rugido que se siente en el pecho. Un día completo para recorrer a tu ritmo, con coatíes, mariposas y tucanes en el camino.", desc: "Pasarelas sobre el río y la Garganta del Diablo, de cerca.", horario: "08:00 a 18:00 hs", llevar: ["Calzado cerrado y cómodo", "Piloto de lluvia", "Repelente", "Agua y protector solar", "Ropa de recambio"] },
+  { id: 2, accesible: "Buses internos con plataforma elevadora y ascensor panorámico en el mirador final sobre el Salto Floriano. Sendero asfaltado con miradores accesibles.", mapaImg: "/mapas/mapa-cataratas-br.jpg", entrada: { moneda: "BRL", general: 134, etqGeneral: "Extranjeros", local: 121, etqLocal: "Mercosur" }, nombre: "Cataratas Brasileñas", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 4, foto: "/fotos/cataratas-br.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata suave", "💦 Rocío / te mojás"], resumen: "Es la vista panorámica frontal que todos sueñan: el sendero recorre la ladera brasileña y te muestra el conjunto completo de saltos con el lado argentino de fondo. Al final, una pasarela avanza sobre el salto Floriano hasta dejarte casi dentro de la caída de agua. Perfecto para fotos inolvidables y para entender la magnitud de las Cataratas.", desc: "La vista panorámica completa de todos los saltos.", horario: "09:00 a 17:00 hs", llevar: ["Piloto de lluvia", "Calzado cómodo", "Protector solar y gorra", "Agua"] },
+  { id: 3, accesible: "Sendero pavimentado, plano y sombreado en todo el recorrido, ideal para adultos mayores, sillas de ruedas y cochecitos.", mapaImg: "/mapas/mapa-parque-aves.jpg", entrada: { moneda: "BRL", general: 110 }, nombre: "Parque das Aves", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, foto: "/fotos/parque-aves.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata suave", "☀️ Al aire libre"], resumen: "Una inmersión en viveros gigantes donde caminás entre tucanes, guacamayos, loros y flamencos que vuelan libres a tu alrededor, en plena selva. Los senderos pasan por aviarios abiertos y te permiten ver de cerca especies de colores increíbles, además de mariposas. Ideal para ir en familia y sacar fotos únicas.", desc: "Tucanes, guacamayos y aviarios abiertos dentro de la selva.", horario: "08:30 a 17:00 hs", llevar: ["Repelente", "Calzado cerrado", "Protector solar", "Agua"] },
+  { id: 4, accesible: "Recorrido principal en bus panorámico con paradas adaptadas y casi sin caminata exigente; excelente opción para descansar y disfrutar la vista.", mapaImg: "/mapas/mapa-itaipu.jpg", entrada: { moneda: "BRL", general: 63, etqGeneral: "Panorámica" }, nombre: "Represa de Itaipú", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 3, foto: "/fotos/itaipu.jpg", tags: ["♿ Apto cochecito / silla", "☔ Apto día de lluvia"], resumen: "Conocés por dentro una de las mayores hidroeléctricas del planeta. El recorrido guiado te lleva frente al imponente muro de la represa y sus vertederos, mientras te cuentan cómo se genera la energía que comparten Brasil y Paraguay. Un paseo que impresiona por su escala y por la ingeniería detrás de cada detalle.", desc: "Visita guiada a una de las mayores hidroeléctricas del mundo.", horario: "08:00 a 16:00 hs", llevar: ["Documento original (se controla el ingreso)", "Calzado cerrado", "Ropa cómoda"] },
   { id: 5, mapaImg: "/mapas/mapa-wanda.jpg", entrada: { moneda: "USD", general: 4 }, nombre: "Minas de Wanda", lugar: "Misiones", pais: "Argentina", horas: 3, foto: "/fotos/wanda.jpg", tags: ["🥾 Caminata suave", "☔ Apto día de lluvia"], resumen: "Descendés a antiguas minas a cielo abierto donde las paredes de piedra esconden amatistas, ágatas y cuarzos que brillan a la luz. Con un guía recorrés los túneles y aprendés cómo se extraen y trabajan las gemas. Al final podés ver el taller y llevarte un recuerdo auténtico de la tierra colorada de Misiones.", desc: "Antiguas minas de piedras semipreciosas: amatista, ágata y cuarzo.", horario: "08:00 a 17:30 hs", llevar: ["Calzado cómodo", "Abrigo liviano para la mina", "Efectivo para compras"] },
   { id: 6, mapaImg: "/mapas/mapa-ciudad-este.jpg", entrada: { gratis: true }, nombre: "Compras en Ciudad del Este", lugar: "Paraguay", pais: "Paraguay", horas: 4, foto: "/fotos/ciudad-este.jpg", tags: ["🛍️ Compras / interior", "☔ Apto día de lluvia"], resumen: "Cruzás el Puente de la Amistad y te sumergís en uno de los centros comerciales más vibrantes de la región. Recorrés galerías con electrónica, perfumes, indumentaria y mucho más, con un ritmo intenso y lleno de ofertas. Con guía y chofer el día es más fácil, más seguro y mucho más rendidor.", desc: "Tiendas de electrónica, perfumes y mucho más a precios libres de impuestos.", horario: "07:00 a 17:00 hs", llevar: ["Efectivo (dólares o guaraníes)", "Mochila pequeña", "Calzado cómodo", "Agua"] },
-  { id: 7, mapaImg: "/mapas/mapa-hito.jpg", entrada: { gratis: true }, nombre: "Hito Tres Fronteras", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, foto: "/fotos/hito.jpg", tags: ["♿ Apto cochecito / silla", "☀️ Al aire libre"], resumen: "Un mirador privilegiado sobre la confluencia de los ríos Iguazú y Paraná, donde en una sola postal ves tres países: Argentina, Brasil y Paraguay. Cada orilla tiene su obelisco con los colores de su bandera, y el paseo costero es ideal para caminar sin apuro. Un clásico para el atardecer y para llevarte una foto muy especial.", desc: "Mirador donde se juntan los ríos Iguazú y Paraná y se ven los tres países.", horario: "08:00 a 20:00 hs", llevar: ["Cámara o celular", "Repelente", "Protector solar"] },
-  { id: 8, mapaImg: "/mapas/mapa-guiraoga.jpg", entrada: { moneda: "ARS", general: 35000 }, nombre: "GüiráOga", lugar: "Puerto Iguazú", pais: "Argentina", horas: 2, foto: "/fotos/guiraoga.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata suave", "☀️ Al aire libre"], resumen: "Un centro de rescate donde recorrés senderos de selva y conocés de cerca aves, monos, reptiles y otros animales rescatados que se están recuperando. Los guías te cuentan sus historias y cómo se trabaja para devolverlos a su hábitat. Una experiencia tranquila, educativa y muy emotiva.", desc: "Centro de rescate de fauna silvestre en plena selva misionera.", horario: "09:00 a 17:00 hs", llevar: ["Repelente", "Calzado cerrado", "Agua"] },
-  { id: 9, mapaImg: "/mapas/mapa-aripuca.jpg", entrada: { moneda: "ARS", general: 8000 }, nombre: "La Aripuca", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, foto: "/fotos/aripuca.jpg", tags: ["♿ Apto cochecito / silla", "☔ Apto día de lluvia"], resumen: "Una gran construcción hecha con troncos enormes de árboles nativos, inspirada en las trampas que usaban los guaraníes para cazar. Adentro descubrís la historia de la selva misionera, maderas de la región y un espacio de artesanías. Un paseo corto, sorprendente y perfecto para completar tu día en Puerto Iguazú.", desc: "Gran construcción de troncos de árboles nativos, inspirada en una trampa guaraní.", horario: "09:00 a 18:00 hs", llevar: ["Calzado cómodo", "Protector solar", "Efectivo para artesanías"] },
+  { id: 7, accesible: "Explanada amplia, totalmente plana y con rampas sobre la costanera; ideal para ir al atardecer con bancos para descansar.", mapaImg: "/mapas/mapa-hito.jpg", entrada: { gratis: true }, nombre: "Hito Tres Fronteras", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, foto: "/fotos/hito.jpg", tags: ["♿ Apto cochecito / silla", "☀️ Al aire libre"], resumen: "Un mirador privilegiado sobre la confluencia de los ríos Iguazú y Paraná, donde en una sola postal ves tres países: Argentina, Brasil y Paraguay. Cada orilla tiene su obelisco con los colores de su bandera, y el paseo costero es ideal para caminar sin apuro. Un clásico para el atardecer y para llevarte una foto muy especial.", desc: "Mirador donde se juntan los ríos Iguazú y Paraná y se ven los tres países.", horario: "08:00 a 20:00 hs", llevar: ["Cámara o celular", "Repelente", "Protector solar"] },
+  { id: 8, accesible: "Paseo guiado corto con traslado en carro dentro del predio y senderos planos entre recintos de selva.", mapaImg: "/mapas/mapa-guiraoga.jpg", entrada: { moneda: "ARS", general: 35000 }, nombre: "GüiráOga", lugar: "Puerto Iguazú", pais: "Argentina", horas: 2, foto: "/fotos/guiraoga.jpg", tags: ["♿ Apto cochecito / silla", "🥾 Caminata suave", "☀️ Al aire libre"], resumen: "Un centro de rescate donde recorrés senderos de selva y conocés de cerca aves, monos, reptiles y otros animales rescatados que se están recuperando. Los guías te cuentan sus historias y cómo se trabaja para devolverlos a su hábitat. Una experiencia tranquila, educativa y muy emotiva.", desc: "Centro de rescate de fauna silvestre en plena selva misionera.", horario: "09:00 a 17:00 hs", llevar: ["Repelente", "Calzado cerrado", "Agua"] },
+  { id: 9, accesible: "Predio compacto, nivelado y con rampas de acceso para recorrer cómodamente sin apuro.", mapaImg: "/mapas/mapa-aripuca.jpg", entrada: { moneda: "ARS", general: 8000 }, nombre: "La Aripuca", lugar: "Puerto Iguazú", pais: "Argentina", horas: 1.5, foto: "/fotos/aripuca.jpg", tags: ["♿ Apto cochecito / silla", "☔ Apto día de lluvia"], resumen: "Una gran construcción hecha con troncos enormes de árboles nativos, inspirada en las trampas que usaban los guaraníes para cazar. Adentro descubrís la historia de la selva misionera, maderas de la región y un espacio de artesanías. Un paseo corto, sorprendente y perfecto para completar tu día en Puerto Iguazú.", desc: "Gran construcción de troncos de árboles nativos, inspirada en una trampa guaraní.", horario: "09:00 a 18:00 hs", llevar: ["Calzado cómodo", "Protector solar", "Efectivo para artesanías"] },
   { id: 10, mapaImg: "/mapas/mapa-san-ignacio.jpg", entrada: { moneda: "ARS", general: 19000, etqGeneral: "Extranjeros", local: 8000, etqLocal: "Argentinos" }, nombre: "Ruinas de San Ignacio", lugar: "Misiones", pais: "Argentina", horas: 5, foto: "/fotos/san-ignacio.jpg", tags: ["🥾 Caminata moderada", "☀️ Al aire libre"], resumen: "Caminás entre las imponentes ruinas de arenisca roja de una de las misiones jesuítico-guaraníes mejor conservadas, Patrimonio de la Humanidad. Recorrés la plaza, la iglesia y los claustros mientras el guía te cuenta cómo vivían jesuitas y guaraníes. Un viaje en el tiempo en medio de la selva.", desc: "Misión jesuítico-guaraní de piedra roja, declarada Patrimonio de la Humanidad.", horario: "07:30 a 18:00 hs", llevar: ["Sombrero o gorra", "Protector solar", "Calzado cómodo", "Agua"] },
-  { id: 11, mapaImg: "/mapas/mapa-templo-budista.jpg", entrada: { gratis: true }, nombre: "Templo Budista Chen Tien", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 1.5, foto: "/fotos/templo-budista.jpg", tags: ["♿ Apto cochecito / silla", "☀️ Al aire libre"], resumen: "Un rincón de calma con arquitectura de inspiración china, jardines cuidados y esculturas que invitan a la contemplación. Es el lugar perfecto para hacer una pausa, caminar en silencio y tomar fotos distintas a todo lo que verás en el viaje. Corto, sereno y muy fotogénico.", desc: "Templo tranquilo con jardines y esculturas, ideal para una pausa.", horario: "09:00 a 17:00 hs", llevar: ["Ropa discreta y respetuosa", "Calzado fácil de quitar", "Agua"] },
+  { id: 11, accesible: "Jardines amplios y senderos tranquilos; la parte principal de la explanada es plana y muy serena para recorrer sin esfuerzo.", mapaImg: "/mapas/mapa-templo-budista.jpg", entrada: { gratis: true }, nombre: "Templo Budista Chen Tien", lugar: "Foz do Iguaçu", pais: "Brasil", horas: 1.5, foto: "/fotos/templo-budista.jpg", tags: ["♿ Apto cochecito / silla", "☀️ Al aire libre"], resumen: "Un rincón de calma con arquitectura de inspiración china, jardines cuidados y esculturas que invitan a la contemplación. Es el lugar perfecto para hacer una pausa, caminar en silencio y tomar fotos distintas a todo lo que verás en el viaje. Corto, sereno y muy fotogénico.", desc: "Templo tranquilo con jardines y esculturas, ideal para una pausa.", horario: "09:00 a 17:00 hs", llevar: ["Ropa discreta y respetuosa", "Calzado fácil de quitar", "Agua"] },
   { id: 12, mapaImg: "/mapas/mapa-saltos-monday.jpg", entrada: { moneda: "USD", general: 12, etqGeneral: "Extranjeros", local: 9, etqLocal: "Mercosur" }, nombre: "Saltos del Monday", lugar: "Presidente Franco", pais: "Paraguay", horas: 2.5, foto: "/fotos/saltos-monday.jpg", tags: ["🥾 Caminata moderada", "💦 Rocío / te mojás"], resumen: "Una caída de agua rodeada de selva sobre el río Monday, con pasarelas y miradores para verla desde varios ángulos. El sonido del agua y el verde intenso lo hacen un lugar ideal para desconectar y refrescarse. Una joya natural que casi nadie conoce, a pocos kilómetros de Ciudad del Este.", desc: "Cascada sobre el río Monday, a pocos kilómetros de Ciudad del Este.", horario: "08:00 a 17:00 hs", llevar: ["Calzado antideslizante", "Traje de baño y toalla", "Repelente", "Agua"] },
 ];
 
@@ -283,6 +296,91 @@ const MAPAS = [
   { id: "m12", nombre: "Saltos del Monday", pais: "Paraguay", img: "/mapas/mapa-saltos-monday.jpg", consulta: "Saltos del Monday, Presidente Franco, Paraguay" },
   { id: "m13", nombre: "Centro de Puerto Iguazú", pais: "Argentina", img: "/mapas/mapa-centro-iguazu.jpg", consulta: "Puerto Iguazú, Misiones, Argentina" },
 ];
+
+// ---------- PREGUNTAS FRECUENTES DEL CHAT CON CAPITÁN TANGARÁ ----------
+const FAQS_TANGARA = [
+  { id: "cenar", label: "🍽️ ¿Qué puedo cenar hoy?", pregunta: "¿Qué puedo cenar hoy?" },
+  { id: "centro", label: "🌙 Salida en el centro", pregunta: "¿Qué me recomendás para una salida en el centro de Puerto Iguazú?" },
+  { id: "lluvia", label: "☔ ¿Qué hacer con lluvia?", pregunta: "¿Qué puedo hacer hoy si llueve?" },
+  { id: "chicos", label: "👨‍👩‍👧‍👦 Planes con chicos", pregunta: "¿Qué puedo hacer con los chicos (familia con menores) hoy?" },
+  { id: "accesible", label: "♿ Turismo accesible / mayores", pregunta: "¿Qué paseos recomiendan para adultos mayores o silla de ruedas?" },
+  { id: "documentos", label: "🛂 Documentos frontera", pregunta: "¿Qué documentos necesito para cruzar a Brasil o Paraguay?" },
+  { id: "pagos", label: "💳 Cómo pagar (Pix/efectivo)", pregunta: "¿Cómo conviene pagar en Argentina, Brasil y Paraguay?" },
+  { id: "movilidad", label: "🚐 Moverme sin auto", pregunta: "¿Cómo me muevo si no tengo vehículo propio?" },
+  { id: "cataratas", label: "🎒 Qué llevar a Cataratas", pregunta: "¿Qué tengo que llevar para visitar las Cataratas?" },
+];
+
+function normalizarTxt(s) {
+  return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function responderTangara(pregunta, ctx) {
+  const q = normalizarTxt(pregunta);
+  const { primerNombre, personas, dias, movilidad, clima } = ctx;
+  const pref = primerNombre ? `${primerNombre}, ` : "";
+  const restColabs = COLABORADORES.filter((c) => c.tipo === "restaurantes");
+
+  if (/(accesib|silla|rueda|mayor|abuelo|anciano|movilidad reducida|caminar poco)/.test(q)) {
+    return `${pref}en la pestaña Destinos tenés el bloque "♿ Turismo Accesible" con todas las opciones recomendadas: Cataratas Argentinas (tren ecológico y pasarelas con rampas), Cataratas Brasileñas (bus adaptado y ascensor panorámico), Parque das Aves (sendero plano), Represa de Itaipú (en bus), Hito Tres Fronteras, GüiráOga, La Aripuca y Templo Budista.`;
+  }
+
+  if (/(cenar|comer|almorzar|restaurante|parrilla|pizza|comida|gastronomia)/.test(q)) {
+    const listaRest = restColabs.length
+      ? `Tengo estos lugares aliados para recomendarte: ${restColabs.map((r) => r.nombre).join(", ")}. `
+      : "";
+    return `${pref}en Puerto Iguazú tenés opciones para todos los gustos: por la zona de Av. Brasil y Av. Córdoba (pleno centro) encontrás parrillas, pescados de río (como surubí o dorado), pastas y cervecerías artesanales. Si querés algo distinto, la Feirinha (Av. Victoria Aguirre y Brasil) es ideal para picar empanadas, quesos y picadas al aire libre. ${listaRest}Si querés que te recomiende un lugar puntual para ${personas} ${personas === 1 ? "persona" : "personas"} según tu presupuesto, escribile a Alan por WhatsApp.`;
+  }
+
+  if (/(centro|noche|salida|pasear|caminar|tomar algo|bar|feirinha)/.test(q)) {
+    return `${pref}para una salida tranquila por el centro de Puerto Iguazú te recomiendo arrancar al atardecer en el Hito Tres Fronteras (gratis, con vista a los dos ríos y show de aguas danzantes), después caminar por la Av. Victoria Aguirre y la Av. Brasil donde están los bares, heladerías, chocolaterías y la famosa Feirinha. También podés mirar el mapa del "Centro de Puerto Iguazú" en la pestaña Mapas para ubicarte fácil.`;
+  }
+
+  if (/(lluvia|llueve|llover|tormenta|nublado|clima|tiempo|pronostico)/.test(q)) {
+    const hoy = clima?.[0];
+    const climaInfo = hoy ? `Hoy en Iguazú tenemos ${iconoClima(hoy.code)} entre ${hoy.min}° y ${hoy.max}°. ` : "";
+    return `${pref}${climaInfo}Si toca día de lluvia, ¡no se suspende el viaje! Te recomiendo opciones bajo techo o protegidas: Minas de Wanda (túneles y piedras semipreciosas), La Aripuca, Represa de Itaipú (visita en bus panorámico), el acuario AquaFoz, Dreamland (Museo de Cera) o tarde de compras en las galerías de Ciudad del Este.`;
+  }
+
+  if (/(chico|nino|menor|familia|bebe|cochecito|hijo)/.test(q)) {
+    return `${pref}para disfrutar en familia con chicos, los favoritos son: Parque das Aves (caminan entre tucanes y guacamayos en senderos planos), AquaFoz (acuario gigante), Dreamland (Museo de Cera), GüiráOga (centro de rescate de animales) y La Aripuca. Además, tanto Cataratas Argentinas como Brasileñas son aptas para cochecito (evitando solo Gran Aventura / Macuco si son muy chiquitos).`;
+  }
+
+  if (/(documento|dni|pasaporte|frontera|cruzar|aduana|migracion|autorizacion)/.test(q)) {
+    return `${pref}¡dato clave! Para cruzar a Brasil o Paraguay necesitás DNI físico vigente (Mercosur) o Pasaporte original en buen estado: NO aceptan fotos en el celu ni fotocopias. Si viajan menores sin ambos padres, es obligatorio llevar autorización de viaje legalizada. Tip: en el Puente Tancredo Neves conviene cruzar antes de las 08:00 hs o después de las 15:00 hs para evitar demoras.`;
+  }
+
+  if (/(pagar|pago|pix|efectivo|dolar|real|peso|tarjeta|cambio|moneda)/.test(q)) {
+    return `${pref}en Brasil aceptan Pix y tarjetas de débito/crédito en casi todos lados. En Argentina y Paraguay te conviene llevar algo de efectivo (pesos, reales o dólares billete azul en buen estado) para ferias, propinas y algunas boleterías. En la pestaña Destinos podés cambiar la moneda de referencia para calcular tus entradas.`;
+  }
+
+  if (/(auto|vehiculo|movilidad|traslado|chofer|colectivo|remis|taxi)/.test(q)) {
+    return movilidad === "si"
+      ? `${pref}como tenés vehículo propio podés moverte a tu ritmo, pero tené en cuenta que cruzar la frontera en auto particular a veces tiene filas largas en aduana y en Ciudad del Este el tránsito es intenso. Si algún día querés relajarte y evitar el estacionamiento o la aduana, podés pedirle traslado privado a Alan.`
+      : `${pref}si no tenés movilidad propia, lo más cómodo y rendidor es coordinar traslados privados con chofer y guía: te pasan a buscar por tu hotel, optimizan los cruces de frontera y no perdés horas esperando colectivos. En Destinos armás tu carrito y lo enviás directo por WhatsApp para cotizar.`;
+  }
+
+  if (/(llevar|mochila|ropa|calzado|repelente|piloto|cataratas)/.test(q)) {
+    return `${pref}para Cataratas llevá: calzado cerrado y antideslizante, ropa liviana, piloto de lluvia (en Garganta del Diablo y Salto Floriano te mojás con el rocío), repelente de insectos, protector solar, gorra y botella de agua. Si hacés Gran Aventura o Macuco Safari, sumá una muda de ropa seca.`;
+  }
+
+  if (/(hotel|hospedaje|alojamiento|dormir|ceibo)/.test(q)) {
+    return `${pref}en la pestaña Colaboradores → Hoteles tenés a nuestro aliado destacado: Complejo El Ceibo, rodeado de selva y con piscina, ideal para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}). Podés consultarles disponibilidad directo por WhatsApp desde ahí.`;
+  }
+
+  if (/(ciudad del este|paraguay|compras|electronica|perfume)/.test(q)) {
+    return `${pref}Ciudad del Este abre bien temprano (desde las 07:00 hs) y conviene ir por la mañana para aprovechar galerías de electrónica, perfumes e indumentaria. Se puede combinar perfecto con Saltos del Monday por la tarde. Llevá documento original y efectivo (dólares o guaraníes).`;
+  }
+
+  if (/(aventura|bici|kayak|aves|sunset|atardecer)/.test(q)) {
+    return `${pref}en la pestaña Destinos tenés el bloque "Turismo Aventura" con paseos privados a medida: bicicleta por la selva, kayak, bird watching y Sunset en la Selva. Tocá «Quiero saber más» en cualquiera de ellos para consultar disponibilidad según tu fecha.`;
+  }
+
+  if (/(reservar|sena|precio|entrada|boleteria|costo|cuanto sale)/.test(q)) {
+    return `${pref}armás tu itinerario día por día en la pestaña Destinos (recordá: 1 país por día) y tocás "Confirmar y Reservar por WhatsApp". La seña del 50% aplica solo a traslados y guías; las entradas a cada parque se pagan aparte en boletería o su web oficial.`;
+  }
+
+  return `${pref}¡buena pregunta! Para ese tema te puedo orientar sobre destinos, turismo accesible, clima, documentos, qué cenar, salidas por el centro o qué hacer con lluvia. Si necesitás una recomendación puntual para tu grupo (${personas} ${personas === 1 ? "persona" : "personas"}, ${dias} ${dias === 1 ? "día" : "días"}), tocá el botón de abajo y hablá directo con Alan por WhatsApp.`;
+}
 
 // ---------- CLIMA EN VIVO (OPEN-METEO) ----------
 function iconoClima(code) {
@@ -614,8 +712,104 @@ function BienvenidaTangara({ primerNombre, onElegir }) {
   );
 }
 
+// ---------- CHAT INTERACTIVO CON CAPITÁN TANGARÁ ----------
+function ChatTangara({ abierto, onCerrar, ctx, sonar }) {
+  const { primerNombre } = ctx;
+  const [mensajes, setMensajes] = useState([
+    {
+      id: 1,
+      de: "bot",
+      texto: `¡Hola${primerNombre ? ` ${primerNombre}` : ""}! Soy el Capitán Tangará 🦜. Elegí una pregunta rápida abajo o escribime lo que necesites sobre Iguazú y las Tres Fronteras.`,
+    },
+  ]);
+  const [entrada, setEntrada] = useState("");
+  const [pose, setPose] = useState("/fotos/asistente-posado.png");
+  const finRef = useRef(null);
+
+  useEffect(() => {
+    if (abierto) finRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [mensajes, abierto]);
+
+  if (!abierto) return null;
+
+  const preguntar = (textoPregunta) => {
+    const limpia = textoPregunta.trim();
+    if (!limpia) return;
+    const resp = responderTangara(limpia, ctx);
+    setMensajes((prev) => [
+      ...prev,
+      { id: Date.now(), de: "user", texto: limpia },
+      { id: Date.now() + 1, de: "bot", texto: resp },
+    ]);
+    setEntrada("");
+    sonar();
+    setPose("/fotos/asistente-hablando.png");
+    window.setTimeout(() => setPose("/fotos/asistente-sonriendo.png"), 450);
+    window.setTimeout(() => setPose("/fotos/asistente-posado.png"), 1100);
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    preguntar(entrada);
+  };
+
+  return (
+    <div className="chat-capa" role="dialog" aria-modal="true" aria-label="Chat con Capitán Tangará" onClick={onCerrar}>
+      <div className="chat-caja" onClick={(e) => e.stopPropagation()}>
+        <div className="chat-cab">
+          <div className="chat-cab-info">
+            <img src={pose} alt="Capitán Tangará" className="chat-avatar" />
+            <div>
+              <strong>Capitán Tangará</strong>
+              <small>Asistente turístico local · En línea</small>
+            </div>
+          </div>
+          <button type="button" className="chat-cerrar" onClick={onCerrar} aria-label="Cerrar chat">✕</button>
+        </div>
+
+        <div className="chat-mensajes">
+          {mensajes.map((m) => (
+            <div key={m.id} className={`chat-burbuja ${m.de}`}>
+              {m.texto}
+            </div>
+          ))}
+          <div ref={finRef} />
+        </div>
+
+        <div className="chat-faqs" aria-label="Preguntas frecuentes">
+          {FAQS_TANGARA.map((f) => (
+            <button key={f.id} type="button" className="chat-faq-btn" onClick={() => preguntar(f.pregunta)}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        <form className="chat-form" onSubmit={onSubmit}>
+          <input
+            type="text"
+            value={entrada}
+            onChange={(e) => setEntrada(e.target.value)}
+            placeholder="Escribí tu pregunta acá..."
+            aria-label="Escribí tu pregunta para Capitán Tangará"
+          />
+          <button type="submit" disabled={!entrada.trim()}>Enviar</button>
+        </form>
+
+        <a
+          className="chat-wa"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`¡Hola Alan!${primerNombre ? ` Soy ${primerNombre}.` : ""} Vengo del chat de Capitán Tangará en App Iguazú y quería consultarte:`)}`}
+        >
+          💬 Hablar directo con Alan por WhatsApp
+        </a>
+      </div>
+    </div>
+  );
+}
+
 // ---------- COMPONENTES AUXILIARES ----------
-function CapitanTangara({ modo, setModo, volando, mensaje, inline = false, botonesRapidos = null }) {
+function CapitanTangara({ modo, setModo, volando, mensaje, inline = false, botonesRapidos = null, onAbrirChat }) {
   const [cuadro, setCuadro] = useState(0);
   useEffect(() => {
     if (!volando) return;
@@ -626,10 +820,10 @@ function CapitanTangara({ modo, setModo, volando, mensaje, inline = false, boton
   if (modo === "libre") {
     if (!inline) {
       return (
-        <button type="button" className="tangara-mini" onClick={() => setModo("guiado")}
-          aria-label="Llamar al Capitán Tangará" title="Llamar al Capitán Tangará">
+        <button type="button" className="tangara-mini" onClick={onAbrirChat}
+          aria-label="Chatear con Capitán Tangará" title="Preguntarle al Capitán Tangará">
           <img src="/fotos/asistente-posado.png" alt="Capitán Tangará" />
-          <span>Tangará</span>
+          <span>💬 Preguntar</span>
         </button>
       );
     }
@@ -659,8 +853,13 @@ function CapitanTangara({ modo, setModo, volando, mensaje, inline = false, boton
             ))}
           </div>
         )}
+        <div className="tangara-acciones">
+          <button type="button" className="t-btn si" onClick={onAbrirChat}>
+            💬 Preguntarle al Capitán
+          </button>
+        </div>
       </div>
-      <img className="tangara-ave" src={imgActual} alt="Capitán Tangará" />
+      <img className="tangara-ave" src={imgActual} alt="Capitán Tangará" onClick={onAbrirChat} style={{ cursor: "pointer" }} />
     </aside>
   );
 }
@@ -827,10 +1026,14 @@ export default function App() {
   const [rafagaPlumas, setRafagaPlumas] = useState(null);
   const swipeTabRef = useRef({ x: 0, y: 0, ignorar: false });
   const [colabCat, setColabCat] = useState("hoteles");
+  const [busquedaColab, setBusquedaColab] = useState("");
+  const refColabLista = useRef(null);
   const [mapaAmpliado, setMapaAmpliado] = useState(null);
   const [zoomMapa, setZoomMapa] = useState(1);
+  const [scrollY, setScrollY] = useState(0);
   const [bienvenidaVista, setBienvenidaVista] = useState(Boolean(guardado.bienvenidaVista));
   const [modoTangara, setModoTangara] = useState(guardado.modoTangara || "guiado");
+  const [chatAbierto, setChatAbierto] = useState(false);
   const [volandoTangara, setVolandoTangara] = useState(false);
   const timerTangara = useRef(null);
   const volarTangara = () => {
@@ -841,6 +1044,8 @@ export default function App() {
 
   const [dias, setDias] = useState(guardado.dias || 3);
   const [personas, setPersonas] = useState(guardado.personas || 2);
+  const [conChicos, setConChicos] = useState(Boolean(guardado.conChicos));
+  const [conMayores, setConMayores] = useState(Boolean(guardado.conMayores));
   const [movilidad, setMovilidad] = useState(guardado.movilidad || "no");
   const [hotel, setHotel] = useState(guardado.hotel || "");
   const [nombreTurista, setNombreTurista] = useState(guardado.nombreTurista || "");
@@ -889,14 +1094,14 @@ export default function App() {
   };
 
   const onTouchStartTab = (e) => {
-    if (!bienvenidaVista || mapaAmpliado || e.touches.length !== 1) return;
-    const ignorar = Boolean(e.target.closest(".deslizable.puede, .carrusel, .mapa-scroll, input, select, textarea"));
+    if (!bienvenidaVista || chatAbierto || mapaAmpliado || e.touches.length !== 1) return;
+    const ignorar = Boolean(e.target.closest(".deslizable.puede, .carrusel, .mapa-scroll, .chat-capa, .bento-destacados, input, select, textarea"));
     swipeTabRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, ignorar };
   };
 
   const onTouchEndTab = (e) => {
     const { x, y, ignorar } = swipeTabRef.current;
-    if (!bienvenidaVista || ignorar || !e.changedTouches.length || mapaAmpliado) return;
+    if (!bienvenidaVista || chatAbierto || ignorar || !e.changedTouches.length || mapaAmpliado) return;
     const dx = e.changedTouches[0].clientX - x;
     const dy = e.changedTouches[0].clientY - y;
     if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
@@ -938,15 +1143,32 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        setScrollY(Math.min(480, window.scrollY || 0));
+        raf = 0;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  useEffect(() => {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara })
+        JSON.stringify({ dias, personas, conChicos, conMayores, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara })
       );
     } catch {
       // ignorar
     }
-  }, [dias, personas, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara]);
+  }, [dias, personas, conChicos, conMayores, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara]);
 
   useEffect(() => {
     const el = refCarrito.current;
@@ -970,6 +1192,8 @@ export default function App() {
     setCarrito([]);
     setDias(3);
     setPersonas(2);
+    setConChicos(false);
+    setConMayores(false);
     setMovilidad("no");
     setHotel("");
     setNombreTurista("");
@@ -981,7 +1205,7 @@ export default function App() {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias: 3, personas: 2, movilidad: "no", hotel: "", nombreTurista: "", origen: "", carrito: [], divisa, idioma, modoClaro, bienvenidaVista: true, modoTangara })
+        JSON.stringify({ dias: 3, personas: 2, conChicos: false, conMayores: false, movilidad: "no", hotel: "", nombreTurista: "", origen: "", carrito: [], divisa, idioma, modoClaro, bienvenidaVista: true, modoTangara })
       );
     } catch {
       // ignorar
@@ -1086,6 +1310,7 @@ export default function App() {
     const items = carrito.filter((x) => x.dia === dia);
     return { dia, items, pais: items[0]?.pais, horas: horasDe(items), limite: limiteDia(items) };
   });
+  const listaAccesible = ATRACTIVOS.filter((a) => a.accesible);
 
   // ---------- MENSAJE DE WHATSAPP ----------
   const detalle = porDia
@@ -1101,6 +1326,10 @@ export default function App() {
   const rawPrimer = nombre.split(/\s+/)[0] || "";
   const primerNombre = rawPrimer ? rawPrimer.charAt(0).toUpperCase() + rawPrimer.slice(1) : "";
   const origenTxt = origen.trim();
+  const grupoExtras = [
+    conChicos ? "con chicos/menores" : "",
+    conMayores ? "con adultos mayores / movilidad reducida" : "",
+  ].filter(Boolean).join(" y ");
 
   const saludo = nombre
     ? `¡Hola! Soy ${nombre} y me encantaría coordinar mi viaje por las Tres Fronteras con ustedes. Les comparto mi itinerario:`
@@ -1109,7 +1338,7 @@ export default function App() {
     `${saludo}\n\n` +
     `*Datos del viaje*\n` +
     (origenTxt ? `- De dónde vengo: ${origenTxt}\n` : "") +
-    `- Días de estadía: ${dias}\n- Cantidad de personas: ${personas}\n` +
+    `- Días de estadía: ${dias}\n- Cantidad de personas: ${personas}${grupoExtras ? ` (${grupoExtras})` : ""}\n` +
     `- Movilidad: ${movilidad === "si" ? "Tengo vehículo propio" : "No tengo, necesito traslado / chofer"}\n` +
     `- Alojamiento: ${hotel.trim() || "A confirmar"}\n\n*Itinerario*\n${detalle}\n\n` +
     `Total: ${horasTotales} hs de paseo.\n\n*Condiciones de reserva*\n- ${POLITICA_SENA}\n- ${POLITICA_ENTRADAS}\n\n` +
@@ -1149,8 +1378,21 @@ export default function App() {
     { id: "guia", etiqueta: t.tabs.guia, icono: "💬" },
   ];
 
-  const colabsDeCategoria = COLABORADORES.filter((c) => c.tipo === colabCat);
+  const qColab = normalizarTxt(busquedaColab.trim());
+  const colabsDeCategoria = qColab
+    ? COLABORADORES.filter((c) =>
+        normalizarTxt(`${c.nombre} ${c.categoria} ${c.descripcion} ${c.servicios.join(" ")}`).includes(qColab)
+      )
+    : COLABORADORES.filter((c) => c.tipo === colabCat);
+  const destacadosColab = COLABORADORES.filter((c) => c.destacado);
   const promosActivas = colabsDeCategoria.filter((c) => c.promo && c.promo.trim());
+
+  const seleccionarBento = (idCat) => {
+    setBusquedaColab("");
+    setColabCat(idCat);
+    if (modoTangara === "guiado") volarTangara();
+    window.setTimeout(() => refColabLista.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
+  };
 
   const tienePais = (p) => carrito.some((x) => x.pais === p);
   const consejoTangara = (() => {
@@ -1183,8 +1425,16 @@ export default function App() {
           ? `${pref}¿buscás chofer o traslado privado? Tenés disponible a: ${listaNombres}.${promoTexto}`
           : `${pref}¿necesitás chofer o traslado privado entre Argentina, Brasil y Paraguay? Pronto sumamos más choferes acá; consultanos por WhatsApp para reservar.`;
       }
+      if (colabCat === "actividades") {
+        return colabsDeCategoria.length
+          ? `${pref}¿buscando experiencias extras? Mirá estas opciones: ${listaNombres}.${promoTexto}`
+          : `${pref}muy pronto sumamos actividades y experiencias de aliados locales acá. Mientras tanto, consultale a Alan por WhatsApp.`;
+      }
     }
     if (pestana === "guia") return `${pref}¿tenés dudas antes de reservar? Escribinos directo por WhatsApp o mail.`;
+    if (paisAbierto === "accesible") {
+      return `${pref}en Turismo Accesible reunimos todos los paseos con senderos planos, rampas, tren o bus adaptado para que disfruten cómodos adultos mayores, usuarios de silla de ruedas y familias con cochecito.`;
+    }
     if (paisAbierto === "Argentina") {
       if (tienePais("Argentina")) {
         return `¡Circuito argentino listo${primerNombre ? `, ${primerNombre}` : ""}! Llevá DNI físico vigente, calzado cerrado, piloto de lluvia, repelente y agua.${dias >= 2 && dias <= 3 && !tienePais("Brasil") ? " Con " + dias + " días te recomiendo sumar Brasil mañana." : ""}`;
@@ -1208,6 +1458,12 @@ export default function App() {
     if (paisAbierto === "aventura") {
       return `${pref}son tours privados a medida (bici, kayak, aves o sunset). Tocá «Quiero saber más» y coordinamos según el clima.`;
     }
+    if (conMayores && carrito.length === 0) {
+      return `${hola}Como viajan con adultos mayores o movilidad reducida, te recomiendo abrir el bloque «♿ Turismo Accesible» abajo para ver las opciones más cómodas y sin esfuerzo.`;
+    }
+    if (conChicos && carrito.length === 0) {
+      return `${hola}Como viajan con chicos, abajo tenés Parque das Aves, AquaFoz, GüiráOga y ambos lados de Cataratas aptos para cochecito.`;
+    }
     if (carrito.length > 0) {
       return `¡Vas bárbaro${primerNombre ? `, ${primerNombre}` : ""}! Ya armaste ${carrito.length} actividad(es). Recordá que la seña del 50% es solo por traslados y guías; entradas en boletería.`;
     }
@@ -1220,8 +1476,8 @@ export default function App() {
     ? CATEGORIAS_COLAB.map((cat) => ({
         id: cat.id,
         label: cat.preguntaBtn,
-        activo: colabCat === cat.id,
-        onClick: () => { setColabCat(cat.id); volarTangara(); },
+        activo: colabCat === cat.id && !qColab,
+        onClick: () => seleccionarBento(cat.id),
       }))
     : null;
 
@@ -1231,6 +1487,8 @@ export default function App() {
     pestana !== "destinos" ? "pestana" :
     paisAbierto ? `pais-${paisAbierto}` :
     carrito.length > 0 ? "carrito" : "inicio";
+
+  const ctxChat = { primerNombre, personas, dias, movilidad, clima };
 
   return (
     <div
@@ -1242,10 +1500,18 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap');
         * { box-sizing: border-box; }
         body { margin: 0; display: block; }
-        .app { --tinta: #f4f4f5; --rio: #34d399; --niebla: #1c1c21; --papel: #141417; --suave: #a1a1aa;
-          color-scheme: dark; text-align: left; min-height: 100vh; background: #09090b; color: var(--tinta);
-          font-family: "Segoe UI", system-ui, sans-serif; padding: 24px 16px 48px; transition: background .25s, color .25s; touch-action: pan-y; }
-        .contenedor { max-width: 1100px; margin: 0 auto; transition: filter .35s ease; }
+        .app { --tinta: #f4f4f5; --rio: #34d399; --niebla: #1c1c21; --papel: #141417; --suave: #a1a1aa; --fondo: #09090b;
+          position: relative; color-scheme: dark; text-align: left; min-height: 100vh; background: var(--fondo); color: var(--tinta);
+          font-family: "Segoe UI", system-ui, sans-serif; padding: 16px 16px 48px; transition: background .25s, color .25s; touch-action: pan-y; }
+        .fondo-portada { position: absolute; top: 0; left: 0; right: 0; height: clamp(340px, 62vw, 480px); overflow: hidden; pointer-events: none; z-index: 0;
+          -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 42%, rgba(0,0,0,0) 100%);
+          mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 42%, rgba(0,0,0,0) 100%); }
+        .fondo-portada.difuminado { filter: blur(8px) brightness(.72); }
+        .fondo-portada-img { position: absolute; inset: -16px 0 -40px; width: 100%; height: calc(100% + 56px); object-fit: cover; object-position: center 35%;
+          will-change: transform; opacity: .88; }
+        .fondo-portada-velo { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,16,26,.48) 0%, rgba(9,9,11,.28) 55%, var(--fondo) 100%); }
+        .app.claro .fondo-portada-velo { background: linear-gradient(180deg, rgba(10,25,35,.42) 0%, rgba(228,228,231,.22) 55%, var(--fondo) 100%); }
+        .contenedor { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; transition: filter .35s ease; }
         .contenedor.difuminado { filter: blur(8px) brightness(.72); pointer-events: none; user-select: none; -webkit-user-select: none; }
         .app h1, .app h2, .app h3 { color: var(--tinta); }
         @keyframes entrarVista { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -1271,13 +1537,73 @@ export default function App() {
         .b-btn:active { transform: scale(.98); }
         .b-btn.si { background: linear-gradient(135deg, #34d399, #10b981); color: #04261a; }
         .b-btn.no { background: #27272a; color: #e4e4e7; border: 1px solid #3f3f46; }
+        .chat-capa { position: fixed; inset: 0; z-index: 980; display: flex; align-items: flex-end; justify-content: center; padding: 12px;
+          background: rgba(9,9,11,.65); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: lbEntrada .2s ease; }
+        @media (min-width: 640px) { .chat-capa { align-items: center; } }
+        .chat-caja { width: 100%; max-width: 480px; max-height: 88vh; display: flex; flex-direction: column; background: var(--papel);
+          border: 1.5px solid #34d399; border-radius: 22px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.7); animation: entrarVista .25s ease; }
+        .chat-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; background: rgba(16,185,129,.1); border-bottom: 1px solid #27272a; }
+        .chat-cab-info { display: flex; align-items: center; gap: 10px; }
+        .chat-avatar { width: 44px; height: 44px; object-fit: contain; }
+        .chat-cab-info strong { display: block; font-size: .98rem; color: #34d399; }
+        .chat-cab-info small { display: block; font-size: .75rem; color: var(--suave); }
+        .chat-cerrar { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #3f3f46; background: #27272a; color: #f4f4f5; font-size: 1rem; cursor: pointer; }
+        .chat-mensajes { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 160px; max-height: 42vh; }
+        .chat-burbuja { max-width: 88%; padding: 10px 13px; border-radius: 16px; font-size: .88rem; line-height: 1.45; }
+        .chat-burbuja.bot { align-self: flex-start; background: var(--niebla); border: 1px solid #27272a; color: var(--tinta); border-bottom-left-radius: 4px; }
+        .chat-burbuja.user { align-self: flex-end; background: linear-gradient(135deg, #34d399, #10b981); color: #04261a; font-weight: 600; border-bottom-right-radius: 4px; }
+        .chat-faqs { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; border-top: 1px solid #27272a; background: rgba(255,255,255,.02); }
+        .chat-faq-btn { flex: none; border: 1px solid #3f3f46; background: var(--niebla); color: var(--tinta); border-radius: 999px; padding: 6px 11px; font-size: .76rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .chat-faq-btn:hover { border-color: #34d399; }
+        .chat-form { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid #27272a; }
+        .chat-form input { flex: 1; padding: 10px 12px; border-radius: 12px; border: 1.5px solid #3f3f46; background: var(--niebla); color: var(--tinta); font-size: .92rem; }
+        .chat-form button { border: none; border-radius: 12px; padding: 0 16px; background: linear-gradient(135deg, #34d399, #10b981); color: #04261a; font-weight: 800; cursor: pointer; }
+        .chat-form button:disabled { background: #27272a; color: #71717a; cursor: default; }
+        .chat-wa { display: block; text-align: center; text-decoration: none; padding: 9px 12px; font-size: .8rem; font-weight: 700; color: #6ee7b7; background: rgba(16,185,129,.08); border-top: 1px solid #27272a; }
+        .grupo-checks { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .check-pill { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 10px; border: 1px solid #27272a; background: var(--niebla); font-size: .82rem; font-weight: 600; cursor: pointer; user-select: none; }
+        .check-pill input { width: 16px; height: 16px; margin: 0; accent-color: #10b981; cursor: pointer; flex: none; }
+        .check-pill.activo { border-color: #10b981; background: rgba(16,185,129,.12); color: #6ee7b7; }
+        .acc-nota { margin: 0; padding: 8px 10px; border-radius: 8px; background: rgba(2,132,199,.14); border-left: 3px solid #38bdf8; font-size: .83rem; line-height: 1.4; color: var(--tinta); }
+
+        /* ---------- BENTO GRID MODERNO EN COLABORADORES (OPCIÓN 1) ---------- */
+        .bento-buscador { display: flex; align-items: center; gap: 8px; margin: 14px 0 14px; padding: 4px 12px; border-radius: 14px; background: var(--papel); border: 1.5px solid #27272a; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+        .bento-buscador:focus-within { border-color: #10b981; }
+        .bento-buscador input { flex: 1; border: none; background: transparent; color: var(--tinta); font-size: .95rem; padding: 10px 4px; outline: none; }
+        .bento-buscador input::placeholder { color: var(--suave); }
+        .bento-limpiar { border: none; background: #27272a; color: #f4f4f5; width: 26px; height: 26px; border-radius: 50%; font-size: .8rem; cursor: pointer; }
+        .bento-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+        @media (min-width: 720px) { .bento-grid { grid-template-columns: 1.25fr 1fr 1fr; } }
+        .bento-card { position: relative; min-height: 104px; border-radius: 18px; overflow: hidden; border: 1.5px solid #27272a; background-color: #141417; background-size: cover; background-position: center;
+          padding: 14px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; text-align: left; color: #fff; font-family: inherit; cursor: pointer; transition: transform .18s, border-color .2s, box-shadow .2s; }
+        .bento-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(9,9,11,.5) 0%, rgba(9,9,11,.84) 100%); transition: opacity .2s; }
+        .bento-card > * { position: relative; z-index: 1; }
+        .bento-card:hover { transform: translateY(-2px); border-color: #34d399; }
+        .bento-card.activa { border-color: #34d399; box-shadow: 0 0 0 2px rgba(52,211,153,.35), 0 12px 28px rgba(0,0,0,.5); }
+        .bento-card.grande { grid-row: span 2; min-height: 218px; }
+        .bento-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+        .bento-ico { width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(16,185,129,.22); border: 1px solid rgba(52,211,153,.45); font-size: 1.1rem; }
+        .bento-badge { font-size: .68rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: #fbbf24; color: #1c0b00; }
+        .bento-cant { font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.14); color: #f4f4f5; }
+        .bento-titulo { font-family: Georgia, serif; font-size: clamp(1rem, 3.2vw, 1.18rem); font-weight: 700; line-height: 1.15; margin: 0; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+        .bento-sub { font-size: .76rem; color: #d4d4d8; margin-top: 2px; }
+        .bento-destacados { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; scroll-snap-type: x mandatory; }
+        .bento-mini-card { flex: 0 0 min(330px, 88%); scroll-snap-align: start; display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: 18px; background: var(--papel); border: 1px solid #27272a; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+        .bento-mini-foto { width: 96px; height: 84px; border-radius: 12px; object-fit: cover; flex: none; background: #27272a; }
+        .bento-mini-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+        .bento-mini-info strong { font-size: .95rem; line-height: 1.15; display: block; color: var(--tinta); }
+        .bento-mini-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+        .bento-mini-btns a { text-decoration: none; font-size: .74rem; font-weight: 800; padding: 5px 10px; border-radius: 999px; }
+        .bento-mini-wa { background: #10b981; color: #04261a; }
+        .bento-mini-map { background: #27272a; color: #f4f4f5; border: 1px solid #3f3f46; }
+        .colab-sec-titulo { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 6px 0 14px; font-family: Georgia, serif; font-size: 1.2rem; }
+
         @media (prefers-reduced-motion: reduce) {
-          .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der, .bienvenida-capa, .bienvenida-card, .bienvenida-ave { animation: none; }
+          .vista-animada, .vista-animada.dir-izq, .vista-animada.dir-der, .bienvenida-capa, .bienvenida-card, .bienvenida-ave, .chat-capa, .chat-caja { animation: none; }
           .plumas-capa { display: none; }
         }
-        .app .portada { border-radius: 16px; padding: clamp(40px, 9vw, 96px) clamp(20px, 5vw, 48px); margin-bottom: 20px;
-          background-color: #1b3a4b; background-image: linear-gradient(rgba(5,20,32,.55), rgba(5,20,32,.55)), url('/fotos/portada.jpg');
-          background-size: cover; background-position: center; position: relative; border: 1px solid #27272a; }
+        .app .portada { border-radius: 0; padding: clamp(62px, 10vw, 96px) clamp(8px, 3vw, 24px) clamp(26px, 5vw, 42px); margin-bottom: 10px;
+          background: transparent; position: relative; border: none; }
         .app .portada .titulo { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.4); margin: 0 0 8px; font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.1; }
         .app .portada .subtitulo { color: #fff; margin: 0; font-size: 1.05rem; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
         .controles-top { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
@@ -1297,7 +1623,7 @@ export default function App() {
         .caja h2 { margin: 0 0 14px; font-family: Georgia, serif; font-size: 1.35rem; }
         .form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
         .campo label { display: block; font-weight: 700; margin-bottom: 6px; font-size: .92rem; }
-        .campo select, .campo input { width: 100%; font-size: 1rem; padding: 10px 12px; border-radius: 8px; border: 2px solid var(--rio); background: var(--papel); color: var(--tinta); }
+        .campo select, .campo input[type="text"], .campo input[type="number"] { width: 100%; font-size: 1rem; padding: 10px 12px; border-radius: 8px; border: 2px solid var(--rio); background: var(--papel); color: var(--tinta); }
         .layout { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; }
         @media (min-width: 900px) { .layout { grid-template-columns: 3fr 2fr; } .carrito { position: sticky; top: 16px; } }
         .paises { display: flex; flex-direction: column; gap: 14px; }
@@ -1369,10 +1695,6 @@ export default function App() {
         .guia-botones { display: flex; flex-wrap: wrap; gap: 10px; }
         .guia-botones .btn-whatsapp, .guia-botones .btn-mail { width: auto; flex: 1 1 170px; }
         .btn-mail { display: block; text-align: center; text-decoration: none; background: #27272a; color: #f4f4f5 !important; border: 1px solid #3f3f46; padding: 14px; border-radius: 12px; font-size: 1.02rem; font-weight: 700; }
-        .colab-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0 20px; }
-        .colab-tab { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 14px; border-radius: 14px; border: 1px solid #27272a; background: var(--papel); color: var(--tinta); font-family: inherit; font-weight: 700; font-size: .9rem; cursor: pointer; transition: border-color .2s, transform .15s; }
-        .colab-tab:hover { border-color: #10b981; transform: translateY(-1px); }
-        .colab-tab.activa { background: linear-gradient(135deg, #34d399, #10b981); color: #04261a; border-color: #10b981; }
         .colab-vacio { background: var(--papel); border: 1px dashed #3f3f46; border-radius: 20px; padding: 28px 20px; text-align: center; margin-bottom: 18px; }
         .colab-vacio h3 { margin: 0 0 8px; font-family: Georgia, serif; }
         .colab-vacio p { margin: 0 auto 16px; max-width: 520px; color: var(--suave); line-height: 1.45; }
@@ -1439,7 +1761,7 @@ export default function App() {
         .caja, .pais-bloque, .mapa-tarjeta, .colab-card { box-shadow: 0 0 0 1px #27272a, 0 12px 32px rgba(0,0,0,.55); }
         .tarjeta, .combo { border: 1px solid #27272a; }
         .tarjeta-foto { background: #27272a; }
-        .campo select, .campo input, .asignar select { background: #1c1c21; border: 2px solid #27272a; color: #f4f4f5; }
+        .campo select, .campo input[type="text"], .campo input[type="number"], .asignar select { background: #1c1c21; border: 2px solid #27272a; color: #f4f4f5; }
         .campo select:focus, .campo input:focus, .asignar select:focus { border-color: #10b981; }
         .campo input::placeholder { color: #71717a; }
         .btn-info { border-color: #3f3f46; color: #6ee7b7; }
@@ -1568,17 +1890,27 @@ export default function App() {
         .carrito-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
         .carrito-cab h2 { margin: 0; }
         .btn-limpiar { border: 1px solid #7f1d1d; background: rgba(127,29,29,.22); color: #fca5a5; border-radius: 999px; padding: 6px 12px; font-size: .78rem; font-weight: 700; cursor: pointer; }
-        .app.claro { --tinta: #18181b; --rio: #059669; --niebla: #f4f4f5; --papel: #ffffff; --suave: #52525b; color-scheme: light; background: #e4e4e7; color: #18181b; }
+        .app.claro { --tinta: #18181b; --rio: #059669; --niebla: #f4f4f5; --papel: #ffffff; --suave: #52525b; --fondo: #e4e4e7; color-scheme: light; background: #e4e4e7; color: #18181b; }
         .app.claro .bienvenida-capa { background: rgba(228,228,231,.65); }
         .app.claro .bienvenida-card { background: rgba(255,255,255,.97); border-color: #059669; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
         .app.claro .bienvenida-card p { color: #3f3f46; }
         .app.claro .bienvenida-preg { color: #18181b !important; }
         .app.claro .bienvenida-sello { color: #059669; background: rgba(16,185,129,.12); border-color: #a7f3d0; }
         .app.claro .b-btn.no { background: #f4f4f5; color: #18181b; border-color: #d4d4d8; }
+        .app.claro .chat-caja { border-color: #059669; box-shadow: 0 20px 50px rgba(0,0,0,.22); }
+        .app.claro .chat-cab, .app.claro .chat-faqs, .app.claro .chat-form, .app.claro .chat-wa, .app.claro .chat-burbuja.bot { border-color: #d4d4d8; }
+        .app.claro .chat-cerrar { background: #f4f4f5; color: #18181b; border-color: #d4d4d8; }
+        .app.claro .chat-faq-btn, .app.claro .chat-form input { border-color: #cbd5e1; }
+        .app.claro .chat-wa { color: #059669; }
+        .app.claro .check-pill { border-color: #cbd5e1; background: #f8fafc; }
+        .app.claro .check-pill.activo { border-color: #059669; background: rgba(16,185,129,.12); color: #065f46; }
+        .app.claro .acc-nota { background: rgba(2,132,199,.08); }
+        .app.claro .bento-buscador, .app.claro .bento-mini-card { border-color: #d4d4d8; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+        .app.claro .bento-limpiar, .app.claro .bento-mini-map { background: #e4e4e7; color: #18181b; border-color: #cbd5e1; }
         .app.claro .portada { border-color: #d4d4d8; }
         .app.claro .clima-tira, .app.claro .clima-chip { border-color: #d4d4d8; }
-        .app.claro .caja, .app.claro .pais-bloque, .app.claro .mapa-tarjeta, .app.claro .colab-card, .app.claro .tips-card, .app.claro .colab-tab, .app.claro .colab-vacio { box-shadow: 0 0 0 1px #d4d4d8, 0 8px 24px rgba(0,0,0,.08); border-color: #d4d4d8; }
-        .app.claro .campo select, .app.claro .campo input, .app.claro .asignar select { background: #ffffff; border-color: #cbd5e1; color: #18181b; }
+        .app.claro .caja, .app.claro .pais-bloque, .app.claro .mapa-tarjeta, .app.claro .colab-card, .app.claro .tips-card, .app.claro .colab-vacio { box-shadow: 0 0 0 1px #d4d4d8, 0 8px 24px rgba(0,0,0,.08); border-color: #d4d4d8; }
+        .app.claro .campo select, .app.claro .campo input[type="text"], .app.claro .campo input[type="number"], .app.claro .asignar select { background: #ffffff; border-color: #cbd5e1; color: #18181b; }
         .app.claro option { background: #ffffff; color: #18181b; }
         .app.claro .planes { background: #ffffff; border-color: #cbd5e1; }
         .app.claro .plan { background: #f8fafc; border-color: #cbd5e1; color: #18181b; }
@@ -1604,6 +1936,23 @@ export default function App() {
       <PlumasTransicion rafaga={rafagaPlumas} onFin={() => setRafagaPlumas(null)} />
 
       {!bienvenidaVista && <BienvenidaTangara primerNombre={primerNombre} onElegir={elegirBienvenida} />}
+
+      <ChatTangara
+        abierto={chatAbierto}
+        onCerrar={() => setChatAbierto(false)}
+        ctx={ctxChat}
+        sonar={sonar}
+      />
+
+      <div className={`fondo-portada ${!bienvenidaVista ? "difuminado" : ""}`} aria-hidden="true">
+        <img
+          src="/fotos/portada.jpg"
+          alt=""
+          className="fondo-portada-img"
+          style={{ transform: `translate3d(0, ${(scrollY * 0.28).toFixed(1)}px, 0) scale(${(1.03 + Math.min(0.07, scrollY * 0.00018)).toFixed(3)})` }}
+        />
+        <div className="fondo-portada-velo" />
+      </div>
 
       <div className={`contenedor ${!bienvenidaVista ? "difuminado" : ""}`}>
         <header className="portada">
@@ -1680,7 +2029,7 @@ export default function App() {
         {/* ---------- PESTAÑA 1: Destinos y Carrito ---------- */}
         {pestana === "destinos" && (
           <div key="destinos" className={`vista-animada dir-${dirVista}`}>
-            {bienvenidaVista && dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+            {bienvenidaVista && dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
             <section className="caja" style={{ marginBottom: 24 }}>
               <h2>{t.datosViajero}</h2>
               <div className="form" style={{ marginBottom: 0 }}>
@@ -1705,6 +2054,16 @@ export default function App() {
                   <label htmlFor="personas">{t.personas}</label>
                   <input id="personas" type="number" min="1" max="50" value={personas}
                     onChange={(e) => setPersonas(Math.min(50, Math.max(1, Math.floor(Number(e.target.value)) || 1)))} />
+                  <div className="grupo-checks">
+                    <label className={`check-pill ${conChicos ? "activo" : ""}`}>
+                      <input type="checkbox" checked={conChicos} onChange={(e) => setConChicos(e.target.checked)} />
+                      <span>{t.conChicos}</span>
+                    </label>
+                    <label className={`check-pill ${conMayores ? "activo" : ""}`}>
+                      <input type="checkbox" checked={conMayores} onChange={(e) => setConMayores(e.target.checked)} />
+                      <span>{t.conMayores}</span>
+                    </label>
+                  </div>
                 </div>
                 <div className="campo">
                   <label htmlFor="movilidad">{t.movilidad}</label>
@@ -1771,7 +2130,7 @@ export default function App() {
                   const abierto = paisAbierto === pais;
                   return (
                     <Fragment key={pais}>
-                      {bienvenidaVista && dondeSePosa === `pais-${pais}` && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+                      {bienvenidaVista && dondeSePosa === `pais-${pais}` && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
                       <div className="pais-bloque" style={{ "--c": datos.color }}>
                         <button className="pais-cab" aria-expanded={abierto} onClick={() => { setPaisAbierto(abierto ? null : pais); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
                           <span className="pais-bandera" aria-hidden="true">{datos.bandera}</span>
@@ -1887,7 +2246,61 @@ export default function App() {
                   );
                 })}
 
-                {bienvenidaVista && dondeSePosa === "pais-aventura" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+                {bienvenidaVista && dondeSePosa === "pais-accesible" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
+                <div className="pais-bloque" style={{ "--c": "#0284c7" }}>
+                  <button className="pais-cab" aria-expanded={paisAbierto === "accesible"} onClick={() => { setPaisAbierto(paisAbierto === "accesible" ? null : "accesible"); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
+                    <span className="pais-bandera" aria-hidden="true">♿</span>
+                    <span>
+                      <span className="pais-nombre">{t.accesibleTitulo}</span>
+                      <span className="pais-cant">{listaAccesible.length} opciones · {t.accesibleSub}</span>
+                    </span>
+                    <span className={`pais-flecha ${paisAbierto === "accesible" ? "abierta" : ""}`} aria-hidden="true">▼</span>
+                  </button>
+
+                  {paisAbierto === "accesible" && (
+                    <div className="pais-cuerpo">
+                      {listaAccesible.map((a) => {
+                        const keyAcc = `acc-${a.id}`;
+                        const agregado = carrito.some((x) => x.id === a.id);
+                        const abierta = !!expandidas[keyAcc];
+                        return (
+                          <div key={keyAcc} className={`act ${abierta ? "abierta" : ""} ${agregado ? "conectada" : ""}`}>
+                            <BarraResumen
+                              foto={a.foto}
+                              nombre={`${PAISES[a.pais]?.bandera || ""} ${a.nombre}`}
+                              meta={`${a.pais} · ⏱ ${a.horas} hs · 🎟️ ${textoEntrada(a.entrada, divisa)}`}
+                              tags={a.tags}
+                              conectado={agregado}
+                              abierto={abierta}
+                              onClick={() => setExpandidas({ ...expandidas, [keyAcc]: !abierta })}
+                            />
+                            {abierta && (
+                              <div className="tarjeta">
+                                <Foto className="tarjeta-foto" src={a.foto} alt={a.nombre} />
+                                <div className="tarjeta-cuerpo">
+                                  <p className="acc-nota"><strong>♿ Accesibilidad:</strong> {a.accesible}</p>
+                                  <p className="desc">{a.desc}</p>
+                                  <div className="asignar">
+                                    <select aria-label={`Día para ${a.nombre}`} value={diaDe(a.id)} disabled={agregado}
+                                      onChange={(e) => setDiaSel({ ...diaSel, [a.id]: Number(e.target.value) })}>
+                                      {Array.from({ length: dias }, (_, i) => <option key={i + 1} value={i + 1}>Día {i + 1}</option>)}
+                                    </select>
+                                    <button className="btn-agregar" onClick={() => agregar(a)} disabled={agregado}>
+                                      {agregado ? "Conectada ✓" : "+ Conectar"}
+                                    </button>
+                                  </div>
+                                  {aviso?.id === a.id && <p className="alerta" role="alert">{aviso.texto}</p>}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {bienvenidaVista && dondeSePosa === "pais-aventura" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
                 <div className="pais-bloque" style={{ "--c": "#d97706" }}>
                   <button className="pais-cab" aria-expanded={paisAbierto === "aventura"} onClick={() => { setPaisAbierto(paisAbierto === "aventura" ? null : "aventura"); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
                     <span className="pais-bandera" aria-hidden="true">🌿</span>
@@ -1906,7 +2319,7 @@ export default function App() {
                           `${nombre ? `¡Hola! Soy ${nombre} y me` : "¡Hola! Me"} gustaría saber más y consultar disponibilidad para la actividad privada *${av.nombre}* (Turismo Aventura).` +
                           `\n\n*Datos del viaje*` +
                           (origenTxt ? `\n- De dónde vengo: ${origenTxt}` : "") +
-                          `\n- Días de estadía: ${dias}\n- Personas: ${personas}` +
+                          `\n- Días de estadía: ${dias}\n- Personas: ${personas}${grupoExtras ? ` (${grupoExtras})` : ""}` +
                           `\n- Movilidad: ${movilidad === "si" ? "Tengo vehículo propio" : "No tengo, necesito traslado / chofer"}` +
                           (hotel.trim() ? `\n- Alojamiento: ${hotel.trim()}` : "") +
                           (carrito.length > 0 ? `\n\n*Mi itinerario actual en el carrito*\n${detalle}\n(Total actual: ${horasTotales} hs)` : "");
@@ -1941,7 +2354,7 @@ export default function App() {
               </section>
 
               <div>
-                {bienvenidaVista && dondeSePosa === "carrito" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline />}
+                {bienvenidaVista && dondeSePosa === "carrito" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
                 <aside className="caja carrito" ref={refCarrito}>
                   <div className="carrito-cab">
                     <h2>{t.carritoTitulo}</h2>
@@ -2016,6 +2429,7 @@ export default function App() {
                 setModo={setModoTangara}
                 volando={volandoTangara}
                 mensaje={consejoTangara}
+                onAbrirChat={() => setChatAbierto(true)}
                 inline
               />
             )}
@@ -2044,7 +2458,7 @@ export default function App() {
           </section>
         )}
 
-        {/* ---------- PESTAÑA 3: Colaboradores en 4 secciones ---------- */}
+        {/* ---------- PESTAÑA 3: Colaboradores (Bento Grid Opción 1) ---------- */}
         {pestana === "colab" && (
           <section key="colab" className={`vista-animada dir-${dirVista}`}>
             {bienvenidaVista && (
@@ -2054,41 +2468,116 @@ export default function App() {
                 volando={volandoTangara}
                 mensaje={consejoTangara}
                 botonesRapidos={botonesColabTangara}
+                onAbrirChat={() => setChatAbierto(true)}
                 inline
               />
             )}
 
-            <div className="colab-tabs" role="tablist" aria-label="Categorías de colaboradores">
-              {CATEGORIAS_COLAB.map((cat) => {
-                const cant = COLABORADORES.filter((c) => c.tipo === cat.id).length;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={colabCat === cat.id}
-                    className={`colab-tab ${colabCat === cat.id ? "activa" : ""}`}
-                    onClick={() => { setColabCat(cat.id); volarTangara(); }}
-                  >
-                    <span>{cat.icono}</span>
-                    <span>{cat.titulo} {cant > 0 ? `(${cant})` : ""}</span>
-                  </button>
-                );
-              })}
+            <div className="bento-buscador">
+              <span aria-hidden="true">🔍</span>
+              <input
+                type="text"
+                value={busquedaColab}
+                onChange={(e) => setBusquedaColab(e.target.value)}
+                placeholder="Buscar hotel, restaurante o actividad..."
+                aria-label="Buscar colaboradores"
+              />
+              {busquedaColab && (
+                <button type="button" className="bento-limpiar" onClick={() => setBusquedaColab("")} aria-label="Limpiar búsqueda">✕</button>
+              )}
             </div>
 
-            <div key={colabCat} className="vista-animada">
+            {!qColab && (
+              <div className="bento-grid" role="tablist" aria-label="Categorías de colaboradores">
+                {CATEGORIAS_COLAB.map((cat) => {
+                  const listaCat = COLABORADORES.filter((c) => c.tipo === cat.id);
+                  const tienePromo = listaCat.some((c) => c.promo && c.promo.trim());
+                  const primero = listaCat[0];
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={colabCat === cat.id}
+                      className={`bento-card ${cat.grande ? "grande" : ""} ${colabCat === cat.id ? "activa" : ""}`}
+                      style={{ backgroundImage: `url('${cat.foto}')` }}
+                      onClick={() => seleccionarBento(cat.id)}
+                    >
+                      <div className="bento-top">
+                        <span className="bento-ico" aria-hidden="true">{cat.icono}</span>
+                        {tienePromo ? (
+                          <span className="bento-badge">Promo activa</span>
+                        ) : (
+                          <span className="bento-cant">{listaCat.length > 0 ? `${listaCat.length} aliado${listaCat.length > 1 ? "s" : ""}` : "Pronto"}</span>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="bento-titulo">{cat.titulo}</h3>
+                        {cat.grande && primero && <span className="bento-sub">{primero.nombre}</span>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {!qColab && destacadosColab.length > 0 && (
+              <div className="bento-destacados" aria-label="Aliados destacados">
+                {destacadosColab.map((d) => (
+                  <div key={`dest-${d.id}`} className="bento-mini-card">
+                    <Foto className="bento-mini-foto" src={d.fotos[0]} alt={d.nombre} />
+                    <div className="bento-mini-info">
+                      <strong>{d.nombre}</strong>
+                      <div className="bento-mini-btns">
+                        <a
+                          className="bento-mini-wa"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`https://wa.me/${d.whatsapp}?text=${encodeURIComponent(`Hola!${primerNombre ? ` Soy ${primerNombre},` : ""} los contacto desde la web de ${GUIA.nombre}. Quiero consultar disponibilidad en ${d.nombre} para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}).`)}`}
+                        >
+                          💬 WhatsApp
+                        </a>
+                        <a
+                          className="bento-mini-map"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.mapa)}`}
+                        >
+                          📍 Ubicación
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div ref={refColabLista} key={qColab ? `busq-${qColab}` : colabCat} className="vista-animada">
+              <div className="colab-sec-titulo">
+                <span>
+                  {qColab
+                    ? `🔎 Resultados para «${busquedaColab}»`
+                    : `${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.icono} ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo}`}
+                </span>
+              </div>
+
               {colabsDeCategoria.length === 0 ? (
                 <div className="colab-vacio">
-                  <h3>{CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.icono} {CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo}</h3>
+                  <h3>
+                    {qColab
+                      ? "No encontramos coincidencias"
+                      : `${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.icono} ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo}`}
+                  </h3>
                   <p>
-                    Muy pronto vamos a ir sumando aliados verificados en esta sección. Mientras tanto, escribinos por WhatsApp y te recomendamos opciones de confianza según tu estadía.
+                    {qColab
+                      ? "Probá con otra palabra o escribinos por WhatsApp para que te recomendemos opciones de confianza según tu estadía."
+                      : "Muy pronto vamos a ir sumando aliados verificados en esta sección. Mientras tanto, escribinos por WhatsApp y te recomendamos opciones de confianza según tu estadía."}
                   </p>
                   <a
                     className="btn-whatsapp"
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan!${primerNombre ? ` Soy ${primerNombre}.` : ""} Estoy viendo la sección de ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo} en App Iguazú y quería pedirte recomendaciones para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}).`)}`}
+                    href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan!${primerNombre ? ` Soy ${primerNombre}.` : ""} Estoy viendo la sección de ${CATEGORIAS_COLAB.find((c) => c.id === colabCat)?.titulo || "Colaboradores"} en App Iguazú y quería pedirte recomendaciones para ${personas} ${personas === 1 ? "persona" : "personas"} (${dias} ${dias === 1 ? "día" : "días"}).`)}`}
                   >
                     Consultar recomendaciones por WhatsApp
                   </a>
@@ -2195,7 +2684,7 @@ export default function App() {
         </div>
       )}
       {bienvenidaVista && (dondeSePosa === "pestana" || (modoTangara === "libre" && pestana !== "mapas" && pestana !== "colab")) && (
-        <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} inline={false} />
+        <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline={false} />
       )}
     </div>
   );
