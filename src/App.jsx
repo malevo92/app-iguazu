@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 
 const STORAGE_KEY = "app_iguazu_v1";
-const ORDEN_PESTANAS = ["destinos", "mapas", "colab", "guia"];
+const ORDEN_PESTANAS = ["destinos", "mapas", "colab", "agenda", "guia"];
 
 // ---------- TASAS DE CAMBIO (EDITAR ACÁ) ----------
 // Cuántas unidades de cada moneda equivalen a 1 dólar (USD). Actualizalas cuando cambie el valor.
@@ -18,7 +18,7 @@ const MONEDAS = {
 const TEXTOS = {
   es: {
     subtitulo: "Armá tu itinerario por Argentina, Brasil y Paraguay.",
-    tabs: { destinos: "Destinos", mapas: "Mapas", colab: "Colaboradores", guia: "Contactos" },
+    tabs: { destinos: "Destinos", mapas: "Mapas", colab: "Colaboradores", agenda: "Agenda", guia: "Contactos" },
     climaTitulo: "Clima en Iguazú",
     climaHoy: "Hoy",
     climaManana: "Mañana",
@@ -56,7 +56,7 @@ const TEXTOS = {
   },
   pt: {
     subtitulo: "Monte seu roteiro pela Argentina, Brasil e Paraguai.",
-    tabs: { destinos: "Destinos", mapas: "Mapas", colab: "Parceiros", guia: "Contatos" },
+    tabs: { destinos: "Destinos", mapas: "Mapas", colab: "Parceiros", agenda: "Agenda", guia: "Contatos" },
     climaTitulo: "Clima em Iguaçu",
     climaHoy: "Hoje",
     climaManana: "Amanhã",
@@ -94,7 +94,7 @@ const TEXTOS = {
   },
   en: {
     subtitulo: "Build your itinerary across Argentina, Brazil and Paraguay.",
-    tabs: { destinos: "Destinations", mapas: "Maps", colab: "Partners", guia: "Contacts" },
+    tabs: { destinos: "Destinations", mapas: "Maps", colab: "Partners", agenda: "Events", guia: "Contacts" },
     climaTitulo: "Iguazú Weather",
     climaHoy: "Today",
     climaManana: "Tomorrow",
@@ -179,6 +179,33 @@ const COLABORADORES = [
   // Sumar acá nuevos guías (tipo: "guias"), choferes (tipo: "choferes"), restaurantes (tipo: "restaurantes") y actividades (tipo: "actividades")
 ];
 
+// ---------- AGENDA CULTURAL (EVENTOS, FERIAS, MÚSICA, MARATONES) ----------
+const CATEGORIAS_AGENDA = [
+  { id: "todos", label: "✨ Todos" },
+  { id: "ferias", label: "🎪 Ferias" },
+  { id: "musica", label: "🎶 Música en vivo" },
+  { id: "muestras", label: "🎨 Muestras" },
+  { id: "deportes", label: "🏃 Maratones" },
+  { id: "eventos", label: "🎭 Eventos" },
+];
+
+const AGENDA_CULTURAL = [
+  /* Ejemplo para sumar eventos que envíen los colaboradores o la municipalidad:
+  {
+    id: "ev-1",
+    categoria: "ferias",
+    titulo: "Feria de Emprendedores y Artesanos",
+    fecha: "Sábado 18:00 a 22:00 hs",
+    lugar: "Plaza San Martín, Puerto Iguazú",
+    mapa: "Plaza San Martín, Puerto Iguazú, Misiones, Argentina",
+    entrada: "Entrada libre y gratuita",
+    foto: "/fotos/portada.jpg",
+    organiza: "Municipalidad de Puerto Iguazú",
+    descripcion: "Puestos de artesanías regionales, gastronomía local y música en vivo para toda la familia.",
+  },
+  */
+];
+
 const POLITICA_SENA = "El 50% de seña previa corresponde exclusivamente a los servicios de traslados y guías para confirmar tu reserva (el 50% restante se abona en persona al encontrarse en destino).";
 const POLITICA_ENTRADAS = "Importante: Los tickets/entradas a cada parque o atractivo NO están incluidos en el traslado y se abonan directamente en la boletería de cada lugar (o en su web oficial).";
 const HORAS_POR_DIA = 8;
@@ -188,14 +215,14 @@ const MAX_COMBOS = 3;
 // ---------- DATOS POR PAÍS ----------
 const PAISES = {
   Argentina: {
-    bandera: "🇦🇷", color: "#2b86c5",
+    bandera: "🇦🇷", icono: "/fotos/icono-ar.jpg", iconoRespaldo: "/fotos/icono-ar.png", color: "#2b86c5",
     documentos: [
       "DNI físico vigente (argentinos y residentes) o pasaporte vigente (extranjeros).",
       "Menores: documento propio y autorización de viaje si no van con ambos padres.",
     ],
   },
   Brasil: {
-    bandera: "🇧🇷", color: "#1f8a4c",
+    bandera: "🇧🇷", icono: "/fotos/icono-br.jpg", iconoRespaldo: "/fotos/icono-br.png", color: "#1f8a4c",
     documentos: [
       "Pasaporte vigente o DNI físico en buen estado (ciudadanos del Mercosur). Otras nacionalidades: pasaporte y, según el país, visa.",
       "Menores: documento propio y autorización de viaje de ambos padres si no viajan con los dos.",
@@ -203,7 +230,7 @@ const PAISES = {
     ],
   },
   Paraguay: {
-    bandera: "🇵🇾", color: "#c93a30",
+    bandera: "🇵🇾", icono: "/fotos/icono-py.jpg", iconoRespaldo: "/fotos/icono-py.png", color: "#c93a30",
     documentos: [
       "Pasaporte vigente o DNI físico en buen estado (ciudadanos del Mercosur). Otras nacionalidades: pasaporte y, según el país, visa.",
       "Menores: documento propio y autorización de viaje de ambos padres si no viajan con los dos.",
@@ -299,6 +326,7 @@ const MAPAS = [
 
 // ---------- PREGUNTAS FRECUENTES DEL CHAT CON CAPITÁN TANGARÁ ----------
 const FAQS_TANGARA = [
+  { id: "clima", label: "🌤️ Plan según el clima", pregunta: "¿Qué me recomendás hacer según el clima de estos días?" },
   { id: "cenar", label: "🍽️ ¿Qué puedo cenar hoy?", pregunta: "¿Qué puedo cenar hoy?" },
   { id: "centro", label: "🌙 Salida en el centro", pregunta: "¿Qué me recomendás para una salida en el centro de Puerto Iguazú?" },
   { id: "lluvia", label: "☔ ¿Qué hacer con lluvia?", pregunta: "¿Qué puedo hacer hoy si llueve?" },
@@ -312,6 +340,48 @@ const FAQS_TANGARA = [
 
 function normalizarTxt(s) {
   return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function esLluvia(code) {
+  return code >= 51;
+}
+
+function consejoClimaInteligente(clima, dias, primerNombre, conChicos, conMayores) {
+  if (!clima || !clima.length) return "";
+  const pref = primerNombre ? `${primerNombre}, ` : "";
+  const ventana = clima.slice(0, Math.min(dias, clima.length));
+  const lluviosos = ventana.filter((d) => esLluvia(d.code));
+  const lindos = ventana.filter((d) => !esLluvia(d.code));
+  const maxTemp = Math.max(...ventana.map((d) => d.max));
+  const maxLindos = lindos.length ? Math.max(...lindos.map((d) => d.max)) : 0;
+
+  let base = "";
+  if (lluviosos.length === 0) {
+    base = `¡excelente pronóstico para tus ${dias} ${dias === 1 ? "día" : "días"}! Los próximos ${ventana.length} días vienen sin lluvia (máximas de hasta ${maxTemp}°). Ideal para hacer Cataratas Argentinas, Brasileñas y Parque das Aves al aire libre.`;
+    if (maxTemp >= 32) {
+      base += " Como va a hacer calor, arrancá temprano (08:00 hs) con agua, gorra y protector solar.";
+    }
+  } else if (lluviosos.length === ventana.length) {
+    base = `se anuncian lluvias en estos ${ventana.length} días (entre ${ventana[0].min}° y ${maxTemp}°). Te sugiero priorizar paseos bajo techo o en bus: Represa de Itaipú, AquaFoz, Dreamland, Minas de Wanda, La Aripuca o compras en Ciudad del Este, y llevar piloto por si vas a los saltos.`;
+  } else if (esLluvia(ventana[0].code) && lindos.length > 0) {
+    base = `hoy está inestable (${ventana[0].min}°/${ventana[0].max}°), pero en los próximos días mejora. Aprovechá hoy con piloto para Itaipú, AquaFoz, La Aripuca o Wanda, y dejá Cataratas para el día despejado.`;
+    if (maxLindos >= 32) {
+      base += ` Para ese día de sol (hasta ${maxLindos}°), sumá agua y gorra.`;
+    }
+  } else {
+    base = `vas a tener días variados en tu estadía (algún chaparrón y días lindos hasta ${maxTemp}°). Reservá los días despejados para Cataratas y guardá Itaipú, AquaFoz o Wanda para cuando llueva.`;
+    if (maxLindos >= 32) {
+      base += " En los días sin lluvia salí temprano con agua y gorra.";
+    }
+  }
+
+  if (conMayores) {
+    base += " Como viajan con adultos mayores o movilidad reducida, mirá «♿ Turismo Accesible» abajo (bus adaptado, tren y senderos planos).";
+  } else if (conChicos) {
+    base += " Con chicos, sumá Parque das Aves y AquaFoz.";
+  }
+  const texto = `${pref}${base}`;
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 function responderTangara(pregunta, ctx) {
@@ -335,10 +405,10 @@ function responderTangara(pregunta, ctx) {
     return `${pref}para una salida tranquila por el centro de Puerto Iguazú te recomiendo arrancar al atardecer en el Hito Tres Fronteras (gratis, con vista a los dos ríos y show de aguas danzantes), después caminar por la Av. Victoria Aguirre y la Av. Brasil donde están los bares, heladerías, chocolaterías y la famosa Feirinha. También podés mirar el mapa del "Centro de Puerto Iguazú" en la pestaña Mapas para ubicarte fácil.`;
   }
 
-  if (/(lluvia|llueve|llover|tormenta|nublado|clima|tiempo|pronostico)/.test(q)) {
-    const hoy = clima?.[0];
-    const climaInfo = hoy ? `Hoy en Iguazú tenemos ${iconoClima(hoy.code)} entre ${hoy.min}° y ${hoy.max}°. ` : "";
-    return `${pref}${climaInfo}Si toca día de lluvia, ¡no se suspende el viaje! Te recomiendo opciones bajo techo o protegidas: Minas de Wanda (túneles y piedras semipreciosas), La Aripuca, Represa de Itaipú (visita en bus panorámico), el acuario AquaFoz, Dreamland (Museo de Cera) o tarde de compras en las galerías de Ciudad del Este.`;
+  if (/(lluvia|llueve|llover|tormenta|nublado|clima|tiempo|pronostico|segun el clima)/.test(q)) {
+    const recClima = consejoClimaInteligente(clima, dias, primerNombre, ctx.conChicos, ctx.conMayores);
+    if (recClima) return recClima;
+    return `${pref}si toca día de lluvia, ¡no se suspende el viaje! Te recomiendo opciones bajo techo o protegidas: Minas de Wanda (túneles y piedras semipreciosas), La Aripuca, Represa de Itaipú (visita en bus panorámico), el acuario AquaFoz, Dreamland (Museo de Cera) o tarde de compras en las galerías de Ciudad del Este.`;
   }
 
   if (/(chico|nino|menor|familia|bebe|cochecito|hijo)/.test(q)) {
@@ -1026,6 +1096,8 @@ export default function App() {
   const [rafagaPlumas, setRafagaPlumas] = useState(null);
   const swipeTabRef = useRef({ x: 0, y: 0, ignorar: false });
   const [colabCat, setColabCat] = useState("hoteles");
+  const [agendaCat, setAgendaCat] = useState("todos");
+  const [diaClimaTip, setDiaClimaTip] = useState(null);
   const [busquedaColab, setBusquedaColab] = useState("");
   const refColabLista = useRef(null);
   const [mapaAmpliado, setMapaAmpliado] = useState(null);
@@ -1375,6 +1447,7 @@ export default function App() {
     { id: "destinos", etiqueta: t.tabs.destinos, icono: "🏞️" },
     { id: "mapas", etiqueta: t.tabs.mapas, icono: "🗺️" },
     { id: "colab", etiqueta: t.tabs.colab, icono: "🏨" },
+    { id: "agenda", etiqueta: t.tabs.agenda, icono: "🎭" },
     { id: "guia", etiqueta: t.tabs.guia, icono: "💬" },
   ];
 
@@ -1431,6 +1504,11 @@ export default function App() {
           : `${pref}muy pronto sumamos actividades y experiencias de aliados locales acá. Mientras tanto, consultale a Alan por WhatsApp.`;
       }
     }
+    if (pestana === "agenda") {
+      return AGENDA_CULTURAL.length
+        ? `${pref}mirá la Agenda Cultural de Iguazú y las Tres Fronteras: ferias, música en vivo, muestras y eventos locales para sumar a tu viaje.`
+        : `${pref}acá vamos a publicar ferias municipales, recitales, muestras y maratones que nos envíen nuestros colaboradores. Podés consultarle a Alan qué hay esta semana por WhatsApp.`;
+    }
     if (pestana === "guia") return `${pref}¿tenés dudas antes de reservar? Escribinos directo por WhatsApp o mail.`;
     if (paisAbierto === "accesible") {
       return `${pref}en Turismo Accesible reunimos todos los paseos con senderos planos, rampas, tren o bus adaptado para que disfruten cómodos adultos mayores, usuarios de silla de ruedas y familias con cochecito.`;
@@ -1458,11 +1536,28 @@ export default function App() {
     if (paisAbierto === "aventura") {
       return `${pref}son tours privados a medida (bici, kayak, aves o sunset). Tocá «Quiero saber más» y coordinamos según el clima.`;
     }
-    if (conMayores && carrito.length === 0) {
-      return `${hola}Como viajan con adultos mayores o movilidad reducida, te recomiendo abrir el bloque «♿ Turismo Accesible» abajo para ver las opciones más cómodas y sin esfuerzo.`;
+    if (diaClimaTip !== null && clima?.[diaClimaTip]) {
+      const d = clima[diaClimaTip];
+      const etq = etiquetaDiaClima(d.fecha, diaClimaTip, t, idioma);
+      if (esLluvia(d.code)) {
+        return `${pref}para ${etq} se esperan lluvias (${d.min}°/${d.max}°). Te recomiendo Itaipú (en bus), AquaFoz, Dreamland, Minas de Wanda o La Aripuca para disfrutar sin mojarte.`;
+      }
+      if (d.max >= 32) {
+        return `${pref}para ${etq} hace calor (${d.min}°/${d.max}°). Ideal para Cataratas temprano, Parque das Aves con sombra o Saltos del Monday; llevá agua, gorra y protector.`;
+      }
+      return `${pref}para ${etq} pinta un día ideal (${d.min}°/${d.max}°). Excelente para Cataratas Argentinas, Brasileñas, Parque das Aves o Hito Tres Fronteras.`;
     }
-    if (conChicos && carrito.length === 0) {
-      return `${hola}Como viajan con chicos, abajo tenés Parque das Aves, AquaFoz, GüiráOga y ambos lados de Cataratas aptos para cochecito.`;
+    if (conMayores && conChicos) {
+      return `${pref}como viajan con chicos y adultos mayores, lo más cómodo son paseos planos y con transporte interno: Parque das Aves, Cataratas Brasileñas (bus + ascensor), Itaipú en bus, AquaFoz y Cataratas Argentinas (tren + Circuito Superior). Mirá «♿ Turismo Accesible» abajo.`;
+    }
+    if (conMayores) {
+      return `${pref}como viajan con adultos mayores o movilidad reducida, abrí «♿ Turismo Accesible» abajo: tenés Cataratas Argentinas (tren + rampas), Brasileñas (bus + ascensor), Itaipú en bus, Parque das Aves y Hito Tres Fronteras con bancos para descansar.`;
+    }
+    if (conChicos) {
+      return `${pref}como viajan con chicos, los imperdibles son Parque das Aves (aves libres y sendero plano), AquaFoz, Dreamland, GüiráOga y ambos lados de Cataratas (aptos para cochecito).`;
+    }
+    if (clima && clima.length > 0 && carrito.length === 0) {
+      return consejoClimaInteligente(clima, dias, primerNombre, conChicos, conMayores);
     }
     if (carrito.length > 0) {
       return `¡Vas bárbaro${primerNombre ? `, ${primerNombre}` : ""}! Ya armaste ${carrito.length} actividad(es). Recordá que la seña del 50% es solo por traslados y guías; entradas en boletería.`;
@@ -1488,7 +1583,7 @@ export default function App() {
     paisAbierto ? `pais-${paisAbierto}` :
     carrito.length > 0 ? "carrito" : "inicio";
 
-  const ctxChat = { primerNombre, personas, dias, movilidad, clima };
+  const ctxChat = { primerNombre, personas, dias, movilidad, clima, conChicos, conMayores };
 
   return (
     <div
@@ -1615,7 +1710,8 @@ export default function App() {
           padding: 8px 14px; margin: 0 auto 18px; border-radius: 12px; background: var(--papel); border: 1px solid #27272a; font-size: .8rem; }
         .clima-etiq { font-weight: 700; color: var(--suave); white-space: nowrap; }
         .clima-dias { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .clima-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: var(--niebla); border: 1px solid #27272a; color: var(--tinta); white-space: nowrap; }
+        .clima-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: var(--niebla); border: 1px solid #27272a; color: var(--tinta); white-space: nowrap; font-family: inherit; font-size: inherit; cursor: pointer; transition: border-color .2s; }
+        .clima-chip:hover, .clima-chip.activo { border-color: #34d399; background: rgba(16,185,129,.14); }
         .clima-chip strong { font-weight: 700; color: var(--suave); font-size: .76rem; }
         .clima-chip span { font-weight: 700; }
         .clima-reintentar { border: 1px solid #3f3f46; background: transparent; color: var(--rio); border-radius: 999px; padding: 2px 9px; font-size: .76rem; font-weight: 700; cursor: pointer; }
@@ -1630,6 +1726,7 @@ export default function App() {
         .pais-bloque { background: var(--papel); border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(11,37,64,.12); border-left: 8px solid var(--c); }
         .pais-cab { width: 100%; display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: none; background: transparent; color: var(--tinta); cursor: pointer; text-align: left; font-family: inherit; }
         .pais-bandera { font-size: 2.2rem; line-height: 1; }
+        .medallon-icono { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 1.5px solid rgba(251, 191, 36, 0.38); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4); background: #09090b; }
         .pais-nombre { font-family: Georgia, serif; font-size: 1.35rem; font-weight: 700; display: block; }
         .pais-cant { font-size: .9rem; color: var(--suave); }
         .pais-flecha { margin-left: auto; font-size: 1.2rem; transition: transform .2s; }
@@ -1749,15 +1846,31 @@ export default function App() {
         .firma-logo { height: 40px; width: auto; display: block; }
         .firma span { font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive; font-size: 1.6rem; color: var(--tinta); opacity: .85; }
         .app option { background: #1c1c21; color: #f4f4f5; }
-        .historias { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 460px; margin: 4px auto 22px; }
-        .historia { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; padding: 0; border: none; background: transparent; color: #a1a1aa; font-family: inherit; cursor: pointer; }
+        .historias { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; max-width: 540px; margin: 4px auto 22px; }
+        .historia { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; padding: 0; border: none; background: transparent; color: #a1a1aa; font-family: inherit; cursor: pointer; }
         .historia.activa { color: var(--tinta); }
-        .aro { position: relative; width: min(72px, 17vw); height: min(72px, 17vw); padding: 3px; border-radius: 50%; background: #3f3f46; transition: transform .2s; }
+        .aro { position: relative; width: min(64px, 14.8vw); height: min(64px, 14.8vw); padding: 3px; border-radius: 50%; background: #3f3f46; transition: transform .2s; }
         .historia:hover .aro { transform: scale(1.06); }
         .historia.activa .aro { background: linear-gradient(45deg, #f9ce34, #ee2a7b 55%, #6228d7); box-shadow: 0 0 18px rgba(238,42,123,.45); }
-        .aro-interior { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid #09090b; background: radial-gradient(circle at 30% 25%, #2e2e35, #141417); font-size: clamp(1.4rem, 6vw, 1.9rem); }
-        .aro-cont { position: absolute; top: -3px; right: -3px; min-width: 22px; height: 22px; padding: 0 6px; display: flex; align-items: center; justify-content: center; border-radius: 999px; border: 2px solid #09090b; background: #10b981; color: #04261a; font-size: .75rem; font-weight: 800; }
-        .historia-titulo { font-size: clamp(.62rem, 2.9vw, .8rem); font-weight: 700; white-space: nowrap; }
+        .aro-interior { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid #09090b; background: radial-gradient(circle at 30% 25%, #2e2e35, #141417); font-size: clamp(1.2rem, 4.8vw, 1.7rem); }
+        .aro-cont { position: absolute; top: -3px; right: -3px; min-width: 20px; height: 20px; padding: 0 5px; display: flex; align-items: center; justify-content: center; border-radius: 999px; border: 2px solid #09090b; background: #10b981; color: #04261a; font-size: .72rem; font-weight: 800; }
+        .historia-titulo { font-size: clamp(.56rem, 2.35vw, .76rem); font-weight: 700; white-space: nowrap; }
+        .agenda-cab { margin-bottom: 14px; }
+        .agenda-cab h2 { margin: 0 0 4px; font-family: Georgia, serif; font-size: clamp(1.4rem, 4vw, 1.8rem); }
+        .agenda-cab p { margin: 0; color: var(--suave); font-size: .92rem; }
+        .agenda-filtros { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; }
+        .agenda-pill { flex: none; border: 1px solid #27272a; background: var(--papel); color: var(--tinta); border-radius: 999px; padding: 8px 14px; font-family: inherit; font-weight: 700; font-size: .84rem; cursor: pointer; white-space: nowrap; }
+        .agenda-pill.activa { background: linear-gradient(135deg, #34d399, #10b981); color: #04261a; border-color: #10b981; }
+        .agenda-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 18px; }
+        .agenda-card { background: var(--papel); border: 1px solid #27272a; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+        .agenda-foto { width: 100%; height: 170px; object-fit: cover; display: block; background: #1c1c21; }
+        .agenda-cuerpo { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .agenda-badge { align-self: flex-start; font-size: .74rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: rgba(16,185,129,.16); color: #6ee7b7; border: 1px solid #065f46; }
+        .agenda-cuerpo h3 { margin: 0; font-family: Georgia, serif; font-size: 1.15rem; }
+        .agenda-meta { font-size: .84rem; color: var(--suave); display: grid; gap: 3px; }
+        .agenda-desc { margin: 2px 0 6px; font-size: .9rem; line-height: 1.45; }
+        .app.claro .agenda-pill, .app.claro .agenda-card { border-color: #d4d4d8; box-shadow: 0 6px 20px rgba(0,0,0,.07); }
+        .app.claro .agenda-badge { color: #059669; border-color: #a7f3d0; }
         .caja, .pais-bloque, .mapa-tarjeta, .colab-card { box-shadow: 0 0 0 1px #27272a, 0 12px 32px rgba(0,0,0,.55); }
         .tarjeta, .combo { border: 1px solid #27272a; }
         .tarjeta-foto { background: #27272a; }
@@ -2009,11 +2122,21 @@ export default function App() {
           <div className="clima-dias">
             {climaEstado === "listo" && clima ? (
               clima.map((d, i) => (
-                <span key={d.fecha} className="clima-chip">
+                <button
+                  key={d.fecha}
+                  type="button"
+                  className={`clima-chip ${diaClimaTip === i ? "activo" : ""}`}
+                  title="Ver recomendación del Capitán Tangará para este día"
+                  onClick={() => {
+                    setDiaClimaTip(diaClimaTip === i ? null : i);
+                    setModoTangara("guiado");
+                    volarTangara();
+                  }}
+                >
                   <strong>{etiquetaDiaClima(d.fecha, i, t, idioma)}</strong>
                   <span aria-hidden="true">{iconoClima(d.code)}</span>
                   <span>{d.min}° / {d.max}°</span>
-                </span>
+                </button>
               ))
             ) : climaEstado === "error" ? (
               <>
@@ -2056,11 +2179,21 @@ export default function App() {
                     onChange={(e) => setPersonas(Math.min(50, Math.max(1, Math.floor(Number(e.target.value)) || 1)))} />
                   <div className="grupo-checks">
                     <label className={`check-pill ${conChicos ? "activo" : ""}`}>
-                      <input type="checkbox" checked={conChicos} onChange={(e) => setConChicos(e.target.checked)} />
+                      <input type="checkbox" checked={conChicos} onChange={(e) => {
+                        const v = e.target.checked;
+                        setConChicos(v);
+                        setDiaClimaTip(null);
+                        if (v) { setModoTangara("guiado"); volarTangara(); }
+                      }} />
                       <span>{t.conChicos}</span>
                     </label>
                     <label className={`check-pill ${conMayores ? "activo" : ""}`}>
-                      <input type="checkbox" checked={conMayores} onChange={(e) => setConMayores(e.target.checked)} />
+                      <input type="checkbox" checked={conMayores} onChange={(e) => {
+                        const v = e.target.checked;
+                        setConMayores(v);
+                        setDiaClimaTip(null);
+                        if (v) { setModoTangara("guiado"); volarTangara(); }
+                      }} />
                       <span>{t.conMayores}</span>
                     </label>
                   </div>
@@ -2133,7 +2266,7 @@ export default function App() {
                       {bienvenidaVista && dondeSePosa === `pais-${pais}` && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
                       <div className="pais-bloque" style={{ "--c": datos.color }}>
                         <button className="pais-cab" aria-expanded={abierto} onClick={() => { setPaisAbierto(abierto ? null : pais); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
-                          <span className="pais-bandera" aria-hidden="true">{datos.bandera}</span>
+                          <ImagenRespaldo src={datos.icono} respaldo={datos.iconoRespaldo} alt={pais} className="medallon-icono" fallback={<span className="pais-bandera" aria-hidden="true">{datos.bandera}</span>} />
                           <span>
                             <span className="pais-nombre">{pais}</span>
                             <span className="pais-cant">{lista.length} atractivos</span>
@@ -2249,7 +2382,7 @@ export default function App() {
                 {bienvenidaVista && dondeSePosa === "pais-accesible" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
                 <div className="pais-bloque" style={{ "--c": "#0284c7" }}>
                   <button className="pais-cab" aria-expanded={paisAbierto === "accesible"} onClick={() => { setPaisAbierto(paisAbierto === "accesible" ? null : "accesible"); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
-                    <span className="pais-bandera" aria-hidden="true">♿</span>
+                    <ImagenRespaldo src="/fotos/icono-accesible.jpg" respaldo="/fotos/icono-accesible.png" alt={t.accesibleTitulo} className="medallon-icono" fallback={<span className="pais-bandera" aria-hidden="true">♿</span>} />
                     <span>
                       <span className="pais-nombre">{t.accesibleTitulo}</span>
                       <span className="pais-cant">{listaAccesible.length} opciones · {t.accesibleSub}</span>
@@ -2303,7 +2436,7 @@ export default function App() {
                 {bienvenidaVista && dondeSePosa === "pais-aventura" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
                 <div className="pais-bloque" style={{ "--c": "#d97706" }}>
                   <button className="pais-cab" aria-expanded={paisAbierto === "aventura"} onClick={() => { setPaisAbierto(paisAbierto === "aventura" ? null : "aventura"); setExpandidas({}); setCombosExpandidos({}); if (modoTangara === "guiado") volarTangara(); }}>
-                    <span className="pais-bandera" aria-hidden="true">🌿</span>
+                    <ImagenRespaldo src="/fotos/icono-aventura.jpg" respaldo="/fotos/icono-aventura.png" alt="Turismo Aventura" className="medallon-icono" fallback={<span className="pais-bandera" aria-hidden="true">🌿</span>} />
                     <span>
                       <span className="pais-nombre">Turismo Aventura</span>
                       <span className="pais-cant">{AVENTURA.length} experiencias privadas a medida</span>
@@ -2628,7 +2761,108 @@ export default function App() {
           </section>
         )}
 
-        {/* ---------- PESTAÑA 4: Contacto del Guía ---------- */}
+        {/* ---------- PESTAÑA 4: Agenda Cultural ---------- */}
+        {pestana === "agenda" && (
+          <section key="agenda" className={`vista-animada dir-${dirVista}`}>
+            {bienvenidaVista && (
+              <CapitanTangara
+                modo={modoTangara === "libre" ? "guiado" : modoTangara}
+                setModo={setModoTangara}
+                volando={volandoTangara}
+                mensaje={consejoTangara}
+                onAbrirChat={() => setChatAbierto(true)}
+                inline
+              />
+            )}
+
+            <div className="agenda-cab">
+              <h2>🎭 Agenda Cultural</h2>
+              <p>Eventos, ferias municipales, música en vivo, muestras y maratones compartidos por nuestros colaboradores.</p>
+            </div>
+
+            <div className="agenda-filtros" role="tablist" aria-label="Categorías de Agenda Cultural">
+              {CATEGORIAS_AGENDA.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={agendaCat === cat.id}
+                  className={`agenda-pill ${agendaCat === cat.id ? "activa" : ""}`}
+                  onClick={() => setAgendaCat(cat.id)}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {(() => {
+              const eventos = AGENDA_CULTURAL.filter((ev) => agendaCat === "todos" || ev.categoria === agendaCat);
+              if (eventos.length === 0) {
+                return (
+                  <div className="colab-vacio">
+                    <h3>🎭 Agenda Cultural de las Tres Fronteras</h3>
+                    <p>
+                      Muy pronto vas a encontrar acá las ferias municipales, fechas de música en vivo, muestras de arte, maratones y eventos locales que nos envían nuestros colaboradores.
+                    </p>
+                    <a
+                      className="btn-whatsapp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan!${primerNombre ? ` Soy ${primerNombre}.` : ""} Quería consultar qué eventos o ferias hay esta semana en Puerto Iguazú (o enviar un evento para la Agenda Cultural).`)}`}
+                    >
+                      Consultar agenda de esta semana por WhatsApp
+                    </a>
+                  </div>
+                );
+              }
+              return (
+                <div className="agenda-grid">
+                  {eventos.map((ev) => (
+                    <article key={ev.id} className="agenda-card">
+                      {ev.foto && <Foto className="agenda-foto" src={ev.foto} alt={ev.titulo} />}
+                      <div className="agenda-cuerpo">
+                        <span className="agenda-badge">
+                          {CATEGORIAS_AGENDA.find((c) => c.id === ev.categoria)?.label || "🎭 Evento"}
+                        </span>
+                        <h3>{ev.titulo}</h3>
+                        <div className="agenda-meta">
+                          <span>📅 {ev.fecha}</span>
+                          <span>📍 {ev.lugar}</span>
+                          {ev.entrada && <span>🎟️ {ev.entrada}</span>}
+                          {ev.organiza && <span>🤝 Invita: {ev.organiza}</span>}
+                        </div>
+                        <p className="agenda-desc">{ev.descripcion}</p>
+                        <div className="mapa-botones">
+                          {ev.mapa && (
+                            <a
+                              className="btn-link"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.mapa)}`}
+                            >
+                              📍 Cómo llegar
+                            </a>
+                          )}
+                          <a
+                            className="btn-whatsapp"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={`https://wa.me/${GUIA.whatsapp}?text=${encodeURIComponent(`Hola Alan!${primerNombre ? ` Soy ${primerNombre}.` : ""} Quería consultar por el evento "${ev.titulo}" de la Agenda Cultural.`)}`}
+                          >
+                            Consultar
+                          </a>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              );
+            })()}
+            <p className="nota">¿Sos colaborador, organizás un evento, feria o show y querés difundirlo acá? Envianos la info por WhatsApp desde Contactos.</p>
+          </section>
+        )}
+
+        {/* ---------- PESTAÑA 5: Contacto del Guía ---------- */}
         {pestana === "guia" && (
           <section key="guia" className={`guia-card vista-animada dir-${dirVista}`}>
             <div className="guia-capa">
@@ -2683,7 +2917,7 @@ export default function App() {
           </div>
         </div>
       )}
-      {bienvenidaVista && (dondeSePosa === "pestana" || (modoTangara === "libre" && pestana !== "mapas" && pestana !== "colab")) && (
+      {bienvenidaVista && (dondeSePosa === "pestana" || (modoTangara === "libre" && pestana !== "mapas" && pestana !== "colab" && pestana !== "agenda")) && (
         <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline={false} />
       )}
     </div>
