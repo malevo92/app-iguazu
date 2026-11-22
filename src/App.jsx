@@ -1137,7 +1137,10 @@ export default function App() {
   const [dias, setDias] = useState(guardado.dias || 3);
   const [personas, setPersonas] = useState(guardado.personas || 2);
   const [conChicos, setConChicos] = useState(Boolean(guardado.conChicos));
+  const [adultos, setAdultos] = useState(() => guardado.adultos ?? Math.max(1, (guardado.personas || 2) - (guardado.conChicos ? 1 : 0)));
+  const [ninos, setNinos] = useState(() => guardado.ninos ?? (guardado.conChicos ? 1 : 0));
   const [conMayores, setConMayores] = useState(Boolean(guardado.conMayores));
+  const [datosMinimizados, setDatosMinimizados] = useState(Boolean(guardado.datosMinimizados));
   const [movilidad, setMovilidad] = useState(guardado.movilidad || "no");
   const [hotel, setHotel] = useState(guardado.hotel || "");
   const [nombreTurista, setNombreTurista] = useState(guardado.nombreTurista || "");
@@ -1255,12 +1258,12 @@ export default function App() {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias, personas, conChicos, conMayores, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara })
+        JSON.stringify({ dias, personas, conChicos, adultos, ninos, conMayores, datosMinimizados, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara })
       );
     } catch {
       // ignorar
     }
-  }, [dias, personas, conChicos, conMayores, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara]);
+  }, [dias, personas, conChicos, adultos, ninos, conMayores, datosMinimizados, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, modoTangara]);
 
   useEffect(() => {
     const el = refCarrito.current;
@@ -1285,7 +1288,10 @@ export default function App() {
     setDias(3);
     setPersonas(2);
     setConChicos(false);
+    setAdultos(2);
+    setNinos(0);
     setConMayores(false);
+    setDatosMinimizados(false);
     setMovilidad("no");
     setHotel("");
     setNombreTurista("");
@@ -1297,7 +1303,7 @@ export default function App() {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias: 3, personas: 2, conChicos: false, conMayores: false, movilidad: "no", hotel: "", nombreTurista: "", origen: "", carrito: [], divisa, idioma, modoClaro, bienvenidaVista: true, modoTangara })
+        JSON.stringify({ dias: 3, personas: 2, conChicos: false, adultos: 2, ninos: 0, conMayores: false, datosMinimizados: false, movilidad: "no", hotel: "", nombreTurista: "", origen: "", carrito: [], divisa, idioma, modoClaro, bienvenidaVista: true, modoTangara })
       );
     } catch {
       // ignorar
@@ -1419,9 +1425,9 @@ export default function App() {
   const primerNombre = rawPrimer ? rawPrimer.charAt(0).toUpperCase() + rawPrimer.slice(1) : "";
   const origenTxt = origen.trim();
   const grupoExtras = [
-    conChicos ? "con chicos/menores" : "",
+    conChicos ? `${adultos} ${adultos === 1 ? "adulto" : "adultos"} y ${ninos} ${ninos === 1 ? "niño" : "niños"}` : "",
     conMayores ? "con adultos mayores / movilidad reducida" : "",
-  ].filter(Boolean).join(" y ");
+  ].filter(Boolean).join(" · ");
 
   const saludo = nombre
     ? `¡Hola! Soy ${nombre} y me encantaría coordinar mi viaje por las Tres Fronteras con ustedes. Les comparto mi itinerario:`
@@ -1441,6 +1447,7 @@ export default function App() {
   const confirmarReserva = (e) => {
     if (nombre) return;
     e.preventDefault();
+    setDatosMinimizados(false);
     setFaltaNombre(true);
     refNombre.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     window.setTimeout(() => refNombre.current?.focus({ preventScroll: true }), 500);
@@ -1679,6 +1686,17 @@ export default function App() {
         .check-pill { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 10px; border: 1px solid #27272a; background: var(--niebla); font-size: .82rem; font-weight: 600; cursor: pointer; user-select: none; }
         .check-pill input { width: 16px; height: 16px; margin: 0; accent-color: #10b981; cursor: pointer; flex: none; }
         .check-pill.activo { border-color: #10b981; background: rgba(16,185,129,.12); color: #6ee7b7; }
+        .caja-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+        .caja-cab h2 { margin: 0; }
+        .btn-minimizar { border: 1px solid #3f3f46; background: var(--niebla); color: var(--tinta); border-radius: 999px; padding: 6px 12px; font-size: .8rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .btn-minimizar:hover { border-color: #34d399; }
+        .datos-resumen { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: .86rem; color: var(--suave); line-height: 1.4; background: var(--niebla); padding: 10px 12px; border-radius: 10px; border: 1px solid #27272a; }
+        .datos-resumen strong { color: var(--tinta); }
+        .btn-listo-datos { margin-top: 14px; width: 100%; border: 1.5px solid #10b981; background: rgba(16,185,129,.12); color: #6ee7b7; border-radius: 10px; padding: 10px 14px; font-size: .92rem; font-weight: 800; cursor: pointer; font-family: inherit; }
+        .app.claro .btn-listo-datos { color: #065f46; }
+        .desglose-chicos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.35); }
+        .desglose-chicos label { margin: 0 0 4px; font-size: .78rem; font-weight: 700; color: var(--tinta); }
+        .desglose-chicos input { padding: 6px 8px; font-size: .92rem; }
         .acc-nota { margin: 0; padding: 8px 10px; border-radius: 8px; background: rgba(2,132,199,.14); border-left: 3px solid #38bdf8; font-size: .83rem; line-height: 1.4; color: var(--tinta); }
 
         /* ---------- BENTO GRID MODERNO EN COLABORADORES (OPCIÓN 1) ---------- */
@@ -2175,7 +2193,25 @@ export default function App() {
           <div key="destinos" className={`vista-animada dir-${dirVista}`}>
             {bienvenidaVista && dondeSePosa === "inicio" && <CapitanTangara modo={modoTangara} setModo={setModoTangara} volando={volandoTangara} mensaje={consejoTangara} onAbrirChat={() => setChatAbierto(true)} inline />}
             <section className="caja" style={{ marginBottom: 24 }}>
-              <h2>{t.datosViajero}</h2>
+              <div className="caja-cab" style={{ marginBottom: datosMinimizados ? 10 : 14 }}>
+                <h2>{t.datosViajero}</h2>
+                <button type="button" className="btn-minimizar" onClick={() => setDatosMinimizados((v) => !v)}>
+                  {datosMinimizados ? "✏️ Editar datos" : "▲ Minimizar"}
+                </button>
+              </div>
+              {datosMinimizados ? (
+                <div className="datos-resumen" onClick={() => setDatosMinimizados(false)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setDatosMinimizados(false); }}>
+                  <span>👤 <strong>{nombre || "Viajero"}</strong>{origenTxt ? ` (${origenTxt})` : ""}</span>
+                  <span>·</span>
+                  <span>🗓️ {dias} {dias === 1 ? "día" : "días"}</span>
+                  <span>·</span>
+                  <span>👥 {personas} {personas === 1 ? "pers." : "pers."}{conChicos ? ` (${adultos} ad., ${ninos} ${ninos === 1 ? "niño" : "niños"})` : ""}{conMayores ? " · ♿" : ""}</span>
+                  <span>·</span>
+                  <span>{movilidad === "si" ? "🚗 Auto propio" : "🚐 Con traslado"}</span>
+                  {hotel.trim() && <><span>·</span><span>🏨 {hotel.trim()}</span></>}
+                </div>
+              ) : (
+                <>
               <div className="form" style={{ marginBottom: 0 }}>
                 <div className={`campo ${faltaNombre ? "falta" : ""}`}>
                   <label htmlFor="nombre">{t.nombre}</label>
@@ -2196,18 +2232,62 @@ export default function App() {
                 </div>
                 <div className="campo">
                   <label htmlFor="personas">{t.personas}</label>
-                  <input id="personas" type="number" min="1" max="50" value={personas}
-                    onChange={(e) => setPersonas(Math.min(50, Math.max(1, Math.floor(Number(e.target.value)) || 1)))} />
+                  <input id="personas" type="number" min={conChicos ? 2 : 1} max="50" value={personas}
+                    onChange={(e) => {
+                      const p = Math.min(50, Math.max(conChicos ? 2 : 1, Math.floor(Number(e.target.value)) || 1));
+                      setPersonas(p);
+                      if (conChicos) {
+                        const nk = Math.min(Math.max(1, ninos), p - 1);
+                        setNinos(nk);
+                        setAdultos(p - nk);
+                      } else {
+                        setAdultos(p);
+                        setNinos(0);
+                      }
+                    }} />
                   <div className="grupo-checks">
                     <label className={`check-pill ${conChicos ? "activo" : ""}`}>
                       <input type="checkbox" checked={conChicos} onChange={(e) => {
                         const v = e.target.checked;
                         setConChicos(v);
                         setDiaClimaTip(null);
-                        if (v) { setModoTangara("guiado"); volarTangara(); }
+                        if (v) {
+                          const p = Math.max(2, personas);
+                          const nk = Math.min(Math.max(1, ninos || 1), p - 1);
+                          setPersonas(p);
+                          setNinos(nk);
+                          setAdultos(p - nk);
+                          setModoTangara("guiado");
+                          volarTangara();
+                        } else {
+                          setAdultos(personas);
+                          setNinos(0);
+                        }
                       }} />
                       <span>{t.conChicos}</span>
                     </label>
+                    {conChicos && (
+                      <div className="desglose-chicos">
+                        <div>
+                          <label htmlFor="adultos-cant">Adultos</label>
+                          <input id="adultos-cant" type="number" min="1" max={Math.max(1, personas - 1)} value={adultos}
+                            onChange={(e) => {
+                              const a = Math.min(Math.max(1, personas - 1), Math.max(1, Math.floor(Number(e.target.value)) || 1));
+                              setAdultos(a);
+                              setNinos(Math.max(1, personas - a));
+                            }} />
+                        </div>
+                        <div>
+                          <label htmlFor="ninos-cant">Niños</label>
+                          <input id="ninos-cant" type="number" min="1" max={Math.max(1, personas - 1)} value={ninos}
+                            onChange={(e) => {
+                              const k = Math.min(Math.max(1, personas - 1), Math.max(1, Math.floor(Number(e.target.value)) || 1));
+                              setNinos(k);
+                              setAdultos(Math.max(1, personas - k));
+                            }} />
+                        </div>
+                      </div>
+                    )}
                     <label className={`check-pill ${conMayores ? "activo" : ""}`}>
                       <input type="checkbox" checked={conMayores} onChange={(e) => {
                         const v = e.target.checked;
@@ -2238,6 +2318,11 @@ export default function App() {
                   <small className="ayuda">{t.ayudaDivisa}</small>
                 </div>
               </div>
+              <button type="button" className="btn-listo-datos" onClick={() => setDatosMinimizados(true)}>
+                ✓ Listo, minimizar datos del viajero
+              </button>
+              </>
+              )}
             </section>
 
             <div className="layout">
