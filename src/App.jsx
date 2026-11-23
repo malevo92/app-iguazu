@@ -1739,6 +1739,7 @@ export default function App() {
           background: transparent; position: relative; border: none; }
         .titulo-cartel-wrap { margin: 4px 0 6px; padding: 0; display: flex; align-items: center; }
         .titulo-cartel-img { width: min(100%, 440px); height: auto; display: block; filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.55)); }
+        .titulo-cartel-fallback { color: #fff; font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
         .app .portada .subtitulo { color: #fff; margin: 0; font-size: 1.05rem; text-shadow: 0 1px 6px rgba(0,0,0,.4); }
         .controles-top { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
         .ctrl-top { height: 36px; min-width: 36px; padding: 0 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28); background: rgba(9,9,11,.6);
