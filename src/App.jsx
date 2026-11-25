@@ -1271,7 +1271,7 @@ function Deslizable({ etiqueta = "article", className = "", onConectar, deshabil
 
 const esVideoUrl = (u = "") => /\.(mp4|webm|mov)(\?|$)/i.test(u);
 
-function Carrusel({ fotos = [], videos = [], nombre }) {
+function Carrusel({ fotos = [], videos = [], nombre, onCambioFoto }) {
   const medios = [...fotos, ...videos].map((u) =>
     typeof u === "string" ? { src: u, tipo: esVideoUrl(u) ? "video" : "foto" } : u
   );
@@ -1280,6 +1280,12 @@ function Carrusel({ fotos = [], videos = [], nombre }) {
   const [pausado, setPausado] = useState(false);
   const [abierto, setAbierto] = useState(false);
   const touchX = useRef(0);
+
+  useEffect(() => {
+    if (!onCambioFoto) return;
+    const m = medios[idx];
+    if (m && m.tipo === "foto") onCambioFoto(m.src);
+  }, [idx]);
 
   useEffect(() => {
     if (medios.length <= 1 || pausado || abierto || vista !== "mazo") return;
@@ -1705,6 +1711,7 @@ export default function App() {
   const [rafagaPlumas, setRafagaPlumas] = useState(null);
   const swipeTabRef = useRef({ x: 0, y: 0, ignorar: false });
   const [colabCat, setColabCat] = useState("hoteles");
+  const [colabFotoActiva, setColabFotoActiva] = useState({});
   const [agendaCat, setAgendaCat] = useState("todos");
   const [diaClimaTip, setDiaClimaTip] = useState(null);
   const [busquedaColab, setBusquedaColab] = useState("");
@@ -2431,7 +2438,13 @@ export default function App() {
         .colab-vacio .btn-whatsapp { max-width: 320px; margin: 0 auto; }
         .colab-promo { display: inline-block; margin-top: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(251,191,36,.18); border: 1px solid #f59e0b; color: #fde68a; font-size: .8rem; font-weight: 700; }
         .colab-card { background: var(--papel); border-radius: 24px; overflow: hidden; margin-bottom: 24px; border-top: 8px solid #1f8a4c; }
-        .colab-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 24px 24px 8px; }
+        .colab-cab { position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; padding: 24px 24px 18px; }
+        .colab-cab > *:not(.colab-cab-fondo) { position: relative; z-index: 2; }
+        .colab-cab-fondo { position: absolute; top: 0; right: 0; bottom: 0; width: min(74%, 420px); pointer-events: none; z-index: 1; overflow: hidden; }
+        .colab-cab-img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; opacity: .9; animation: lbEntrada .45s ease;
+          -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.35) 28%, rgba(0,0,0,.92) 68%, #000 100%), linear-gradient(180deg, #000 62%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.35) 28%, rgba(0,0,0,.92) 68%, #000 100%), linear-gradient(180deg, #000 62%, transparent 100%);
+          -webkit-mask-composite: source-in; mask-composite: intersect; }
         .medallon { width: 120px; height: 120px; flex: none; border-radius: 50%; background: #fff; border: 4px solid #1f8a4c; box-shadow: 0 8px 20px rgba(11,37,64,.25); display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .medallon img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
         .medallon-ini { font-family: Georgia, serif; font-size: 2.2rem; font-weight: 700; color: #1f8a4c; }
@@ -3673,6 +3686,16 @@ export default function App() {
                 colabsDeCategoria.map((c) => (
                   <article key={c.id} className="colab-card">
                     <div className="colab-cab">
+                      {(colabFotoActiva[c.id] || c.fotos?.[0]) && (
+                        <div className="colab-cab-fondo" aria-hidden="true">
+                          <img
+                            key={colabFotoActiva[c.id] || c.fotos[0]}
+                            src={colabFotoActiva[c.id] || c.fotos[0]}
+                            alt=""
+                            className="colab-cab-img"
+                          />
+                        </div>
+                      )}
                       <div className="medallon">
                         <ImagenRespaldo src={c.logo} respaldo={c.logoRespaldo} alt={`Logo de ${c.nombre}`}
                           fallback={<span className="medallon-ini">{c.nombre.split(" ").map((w) => w[0]).slice(0, 2).join("")}</span>} />
@@ -3686,7 +3709,7 @@ export default function App() {
                     </div>
 
                     <div className="colab-cuerpo">
-                      <Carrusel fotos={c.fotos} videos={c.videos || []} nombre={c.nombre} />
+                      <Carrusel fotos={c.fotos} videos={c.videos || []} nombre={c.nombre} onCambioFoto={(url) => setColabFotoActiva((prev) => (prev[c.id] === url ? prev : { ...prev, [c.id]: url }))} />
                       <div className="colab-info">
                         <p>{c.descripcion}</p>
                         <ul className="colab-datos">
