@@ -1269,59 +1269,187 @@ function Deslizable({ etiqueta = "article", className = "", onConectar, deshabil
   );
 }
 
-function Carrusel({ fotos = [], nombre }) {
+const esVideoUrl = (u = "") => /\.(mp4|webm|mov)(\?|$)/i.test(u);
+
+function Carrusel({ fotos = [], videos = [], nombre }) {
+  const medios = [...fotos, ...videos].map((u) =>
+    typeof u === "string" ? { src: u, tipo: esVideoUrl(u) ? "video" : "foto" } : u
+  );
   const [idx, setIdx] = useState(0);
+  const [vista, setVista] = useState("mazo"); // "mazo" (3D coverflow fan) | "grilla" (editorial grid)
   const [pausado, setPausado] = useState(false);
   const [abierto, setAbierto] = useState(false);
+  const touchX = useRef(0);
 
   useEffect(() => {
-    if (fotos.length <= 1 || pausado || abierto) return;
-    const iv = setInterval(() => setIdx((i) => (i + 1) % fotos.length), 5000);
+    if (medios.length <= 1 || pausado || abierto || vista !== "mazo") return;
+    if (medios[idx]?.tipo === "video") return;
+    const iv = setInterval(() => setIdx((i) => (i + 1) % medios.length), 5000);
     return () => clearInterval(iv);
-  }, [fotos.length, pausado, abierto]);
+  }, [medios.length, pausado, abierto, vista, idx]);
 
-  if (!fotos.length) return <div className="carrusel car-vacio">Sin fotos</div>;
-  const prev = (e) => { e?.stopPropagation(); setIdx((i) => (i - 1 + fotos.length) % fotos.length); };
-  const next = (e) => { e?.stopPropagation(); setIdx((i) => (i + 1) % fotos.length); };
+  if (!medios.length) return <div className="carrusel car-vacio">Sin fotos</div>;
+  const prev = (e) => { e?.stopPropagation(); setIdx((i) => (i - 1 + medios.length) % medios.length); };
+  const next = (e) => { e?.stopPropagation(); setIdx((i) => (i + 1) % medios.length); };
+
+  const relOffset = (i) => {
+    const n = medios.length;
+    let d = i - idx;
+    if (d > n / 2) d -= n;
+    if (d < -n / 2) d += n;
+    return d;
+  };
+
+  const onDeckDown = (e) => {
+    if (e.target.closest("button")) return;
+    touchX.current = e.clientX;
+  };
+  const onDeckUp = (e) => {
+    if (!touchX.current) return;
+    const dx = e.clientX - touchX.current;
+    touchX.current = 0;
+    if (Math.abs(dx) > 40) {
+      if (dx < 0) next();
+      else prev();
+    }
+  };
+
+  const actual = medios[idx] || medios[0];
 
   return (
-    <div className="car-wrap">
-      <div
-        className={`carrusel clic ${pausado ? "pausado" : ""}`}
-        onMouseEnter={() => setPausado(true)}
-        onMouseLeave={() => setPausado(false)}
-        onClick={() => setAbierto(true)}
-      >
-        {fotos.map((f, i) => (
-          <img key={f} src={f} alt={`${nombre} ${i + 1}`} className={`slide ${i === idx ? "activa" : ""}`} />
-        ))}
-        {fotos.length > 1 && (
-          <>
-            <button type="button" className="car-btn prev" onClick={prev} aria-label="Foto anterior">‹</button>
-            <button type="button" className="car-btn next" onClick={next} aria-label="Foto siguiente">›</button>
-          </>
-        )}
-        <div className="car-badge" onClick={(e) => e.stopPropagation()}>
-          <span>{idx + 1} / {fotos.length}</span>
-          <button type="button" className="car-ampliar" onClick={() => setAbierto(true)}>Ampliar</button>
+    <div className="deck-wrap" onMouseEnter={() => setPausado(true)} onMouseLeave={() => setPausado(false)}>
+      <div className="deck-bar">
+        <div className="deck-modos" role="tablist" aria-label="Vista de galería">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={vista === "mazo"}
+            className={`deck-modo-btn ${vista === "mazo" ? "activo" : ""}`}
+            onClick={() => setVista("mazo")}
+          >
+            ✦ Mazo 3D
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={vista === "grilla"}
+            className={`deck-modo-btn ${vista === "grilla" ? "activo" : ""}`}
+            onClick={() => setVista("grilla")}
+          >
+            ⊞ Grilla
+          </button>
         </div>
+        <span className="deck-cont">{idx + 1} / {medios.length}</span>
       </div>
-      {fotos.length > 1 && (
-        <div className="thumbs">
-          {fotos.map((f, i) => (
-            <button key={f} type="button" className={`thumb ${i === idx ? "activa" : ""}`} onClick={() => setIdx(i)} aria-label={`Ver foto ${i + 1}`}>
-              <img src={f} alt={`${nombre} miniatura ${i + 1}`} />
+
+      {vista === "grilla" ? (
+        <div className="deck-grilla">
+          {medios.map((m, i) => (
+            <button
+              key={m.src + i}
+              type="button"
+              className={`deck-tile ${i === idx ? "activa" : ""}`}
+              onClick={() => { setIdx(i); setVista("mazo"); }}
+            >
+              {m.tipo === "video" ? (
+                <>
+                  <video src={m.src} muted playsInline preload="metadata" className="deck-media" />
+                  <span className="deck-play" aria-hidden="true">▶</span>
+                </>
+              ) : (
+                <img src={m.src} alt={`${nombre} ${i + 1}`} className="deck-media" loading="lazy" />
+              )}
+              <span className="deck-tile-num">0{i + 1}</span>
             </button>
           ))}
         </div>
+      ) : (
+        <div
+          className="deck-escena"
+          onPointerDown={onDeckDown}
+          onPointerUp={onDeckUp}
+        >
+          {medios.map((m, i) => {
+            const off = relOffset(i);
+            const abs = Math.abs(off);
+            const visible = abs <= 2;
+            const tx = off * 54;
+            const sc = off === 0 ? 1 : abs === 1 ? 0.84 : 0.68;
+            const op = !visible ? 0 : off === 0 ? 1 : abs === 1 ? 0.82 : 0.48;
+            const z = 10 - abs;
+            const rot = off * -4;
+            return (
+              <div
+                key={m.src + i}
+                className={`deck-card ${off === 0 ? "centro" : ""}`}
+                style={{
+                  transform: `translate3d(calc(-50% + ${tx}px), -50%, 0) scale(${sc}) rotate(${rot}deg)`,
+                  opacity: op,
+                  zIndex: z,
+                  pointerEvents: visible ? "auto" : "none",
+                }}
+                onClick={() => {
+                  if (off === 0) setAbierto(true);
+                  else setIdx(i);
+                }}
+              >
+                {m.tipo === "video" ? (
+                  <>
+                    <video
+                      src={m.src}
+                      muted
+                      loop
+                      playsInline
+                      autoPlay={off === 0}
+                      className="deck-media"
+                    />
+                    <span className="deck-play" aria-hidden="true">▶ Video</span>
+                  </>
+                ) : (
+                  <img src={m.src} alt={`${nombre} ${i + 1}`} className="deck-media" />
+                )}
+                {off === 0 && (
+                  <div className="deck-card-pie" onClick={(e) => e.stopPropagation()}>
+                    <span>0{i + 1}</span>
+                    <button type="button" className="deck-ampliar" onClick={() => setAbierto(true)}>Ampliar ⤢</button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {medios.length > 1 && (
+            <>
+              <button type="button" className="deck-flecha prev" onClick={prev} aria-label="Anterior">‹</button>
+              <button type="button" className="deck-flecha next" onClick={next} aria-label="Siguiente">›</button>
+            </>
+          )}
+        </div>
       )}
+
+      {medios.length > 1 && vista === "mazo" && (
+        <div className="deck-dots" aria-hidden="true">
+          {medios.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`deck-dot ${i === idx ? "activo" : ""}`}
+              onClick={() => setIdx(i)}
+            />
+          ))}
+        </div>
+      )}
+
       {abierto && (
         <div className="lightbox" role="dialog" aria-modal="true" onClick={() => setAbierto(false)}>
-          <span className="lb-cont">{idx + 1} / {fotos.length}</span>
+          <span className="lb-cont">{idx + 1} / {medios.length}</span>
           <button type="button" className="lb-cerrar" onClick={() => setAbierto(false)} aria-label="Cerrar">✕</button>
-          {fotos.length > 1 && <button type="button" className="lb-btn prev" onClick={prev} aria-label="Anterior">‹</button>}
-          <img className="lb-img" src={fotos[idx]} alt={`${nombre} ${idx + 1}`} onClick={(e) => e.stopPropagation()} />
-          {fotos.length > 1 && <button type="button" className="lb-btn next" onClick={next} aria-label="Siguiente">›</button>}
+          {medios.length > 1 && <button type="button" className="lb-btn prev" onClick={prev} aria-label="Anterior">‹</button>}
+          {actual.tipo === "video" ? (
+            <video className="lb-img" src={actual.src} controls autoPlay playsInline onClick={(e) => e.stopPropagation()} />
+          ) : (
+            <img className="lb-img" src={actual.src} alt={`${nombre} ${idx + 1}`} onClick={(e) => e.stopPropagation()} />
+          )}
+          {medios.length > 1 && <button type="button" className="lb-btn next" onClick={next} aria-label="Siguiente">›</button>}
         </div>
       )}
     </div>
@@ -2701,6 +2829,41 @@ export default function App() {
         .firma { justify-content: center !important; text-align: center; margin: 20px auto 84px !important; }
         .barra-movil { bottom: 72px !important; }
         .tangara-flotante { bottom: 76px !important; }
+
+        /* ---------- GALERÍA COLABORADORES: MAZO 3D + GRILLA EDITORIAL ---------- */
+        .deck-wrap { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .deck-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .deck-modos { display: inline-flex; gap: 4px; padding: 3px; border-radius: 999px; background: var(--niebla); border: 1px solid rgba(120, 140, 130, 0.25); }
+        .deck-modo-btn { border: none; background: transparent; color: var(--suave); font-family: inherit; font-size: .74rem; font-weight: 700; padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: background .2s, color .2s; }
+        .deck-modo-btn.activo { background: linear-gradient(135deg, #1b86c6, #24b47e); color: #ffffff; box-shadow: 0 3px 10px rgba(27, 134, 198, 0.28); }
+        .deck-cont { font-size: .76rem; font-weight: 800; color: var(--suave); letter-spacing: .04em; }
+        .deck-escena { position: relative; height: clamp(238px, 60vw, 290px); border-radius: 22px; overflow: hidden;
+          background: radial-gradient(circle at 50% 45%, rgba(36, 180, 126, 0.12), rgba(14, 24, 20, 0.06) 72%);
+          border: 1px solid rgba(120, 140, 130, 0.22); touch-action: pan-y; user-select: none; }
+        .app:not(.claro) .deck-escena { background: radial-gradient(circle at 50% 45%, rgba(52, 211, 153, 0.14), rgba(9, 13, 12, 0.85) 75%); border-color: #27272a; }
+        .deck-card { position: absolute; top: 50%; left: 50%; width: clamp(180px, 56%, 228px); aspect-ratio: 4 / 4.6;
+          border-radius: 20px; overflow: hidden; background: #141417; cursor: pointer;
+          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.36);
+          transition: transform .52s cubic-bezier(.22, 1, .36, 1), opacity .42s ease, box-shadow .35s ease; }
+        .deck-card.centro { box-shadow: 0 22px 44px rgba(0, 0, 0, 0.48), 0 0 0 2px rgba(52, 211, 153, 0.72); cursor: zoom-in; }
+        .deck-media { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+        .deck-play { position: absolute; top: 10px; left: 10px; padding: 4px 9px; border-radius: 999px; background: rgba(9, 13, 12, 0.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: #ffffff; font-size: .72rem; font-weight: 800; }
+        .deck-card-pie { position: absolute; inset: auto 0 0 0; padding: 24px 10px 10px; display: flex; align-items: center; justify-content: space-between;
+          background: linear-gradient(180deg, transparent 0%, rgba(9, 13, 12, 0.78) 100%); color: #ffffff; font-size: .76rem; font-weight: 800; }
+        .deck-ampliar { border: none; border-radius: 999px; padding: 5px 10px; background: rgba(255, 255, 255, 0.92); color: #10241c; font-family: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
+        .deck-flecha { position: absolute; top: 50%; transform: translateY(-50%); z-index: 20; width: 34px; height: 34px; border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(15, 24, 21, 0.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+          color: #ffffff; font-size: 1.4rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .deck-flecha.prev { left: 8px; }
+        .deck-flecha.next { right: 8px; }
+        .deck-dots { display: flex; justify-content: center; gap: 6px; }
+        .deck-dot { width: 7px; height: 7px; padding: 0; border: none; border-radius: 999px; background: rgba(120, 140, 130, 0.4); cursor: pointer; transition: width .25s ease, background .25s ease; }
+        .deck-dot.activo { width: 22px; background: #10b981; }
+        .deck-grilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 6px; border-radius: 20px; background: var(--niebla); border: 1px solid rgba(120, 140, 130, 0.2); animation: entrarVista .28s ease; }
+        .deck-tile { position: relative; aspect-ratio: 1 / 1; padding: 0; border: 2px solid transparent; border-radius: 16px; overflow: hidden; background: #141417; cursor: pointer; transition: transform .2s ease, border-color .2s ease; }
+        .deck-tile:hover { transform: translateY(-2px); }
+        .deck-tile.activa { border-color: #10b981; box-shadow: 0 8px 18px rgba(16, 185, 129, 0.28); }
+        .deck-tile-num { position: absolute; bottom: 6px; left: 8px; padding: 2px 7px; border-radius: 999px; background: rgba(9, 13, 12, 0.65); color: #ffffff; font-size: .68rem; font-weight: 800; }
       `}</style>
 
       <PlumasTransicion rafaga={rafagaPlumas} onFin={() => setRafagaPlumas(null)} />
@@ -3523,7 +3686,7 @@ export default function App() {
                     </div>
 
                     <div className="colab-cuerpo">
-                      <Carrusel fotos={c.fotos} nombre={c.nombre} />
+                      <Carrusel fotos={c.fotos} videos={c.videos || []} nombre={c.nombre} />
                       <div className="colab-info">
                         <p>{c.descripcion}</p>
                         <ul className="colab-datos">
