@@ -1466,7 +1466,11 @@ function PantallaInicio({
   return (
     <section
       className={`inicio-papel ${modoClaro ? "claro" : ""}`}
-      style={{ backgroundImage: `url(${FONDO_INICIO_ACUARELA})` }}
+      style={{
+        backgroundImage: modoClaro
+          ? `url(${FONDO_INICIO_ACUARELA})`
+          : `linear-gradient(180deg, rgba(10, 18, 15, 0.8) 0%, rgba(9, 13, 12, 0.86) 100%), url(${FONDO_INICIO_ACUARELA})`,
+      }}
     >
       {controles && <div className="inicio-top">{controles}</div>}
 
@@ -1605,7 +1609,7 @@ export default function App() {
   const [carrito, setCarrito] = useState(Array.isArray(guardado.carrito) ? guardado.carrito : []);
   const [divisa, setDivisa] = useState(guardado.divisa || "ARS");
   const [idioma, setIdioma] = useState(guardado.idioma || "es");
-  const [modoClaro, setModoClaro] = useState(Boolean(guardado.modoClaro));
+  const [modoClaro, setModoClaro] = useState(guardado.modoClaroV2 !== undefined ? Boolean(guardado.modoClaroV2) : true);
   const [clima, setClima] = useState(null);
   const [climaEstado, setClimaEstado] = useState("cargando");
 
@@ -1716,7 +1720,7 @@ export default function App() {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias, personas, conChicos, adultos, ninos, conMayores, datosMinimizados, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, bienvenidaVista, onboardingV2: bienvenidaVista, modoTangara })
+        JSON.stringify({ dias, personas, conChicos, adultos, ninos, conMayores, datosMinimizados, movilidad, hotel, nombreTurista, origen, carrito, divisa, idioma, modoClaro, modoClaroV2: modoClaro, bienvenidaVista, onboardingV2: bienvenidaVista, modoTangara })
       );
     } catch {
       // ignorar
@@ -1761,7 +1765,7 @@ export default function App() {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ dias: 3, personas: 2, conChicos: false, adultos: 2, ninos: 0, conMayores: false, datosMinimizados: false, movilidad: "no", hotel: "", nombreTurista: "", origen: "", carrito: [], divisa, idioma, modoClaro, bienvenidaVista: true, onboardingV2: true, modoTangara })
+        JSON.stringify({ dias: 3, personas: 2, conChicos: false, adultos: 2, ninos: 0, conMayores: false, datosMinimizados: false, movilidad: "no", hotel: "", nombreTurista: "", origen: "", carrito: [], divisa, idioma, modoClaro, modoClaroV2: modoClaro, bienvenidaVista: true, onboardingV2: true, modoTangara })
       );
     } catch {
       // ignorar
@@ -2094,7 +2098,7 @@ export default function App() {
         .fondo-portada-img { position: absolute; inset: -16px 0 -40px; width: 100%; height: calc(100% + 56px); object-fit: cover; object-position: center 35%;
           will-change: transform; opacity: .88; }
         .fondo-portada-velo { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,16,26,.48) 0%, rgba(9,9,11,.28) 55%, var(--fondo) 100%); }
-        .app.claro .fondo-portada-velo { background: linear-gradient(180deg, rgba(10,25,35,.42) 0%, rgba(228,228,231,.22) 55%, var(--fondo) 100%); }
+        .app.claro .fondo-portada-velo { background: linear-gradient(180deg, rgba(10,25,35,.32) 0%, rgba(244,247,242,.38) 55%, var(--fondo) 100%); }
         .contenedor { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; transition: filter .35s ease; }
         .contenedor.difuminado { filter: blur(8px) brightness(.72); pointer-events: none; user-select: none; -webkit-user-select: none; }
         .app h1, .app h2, .app h3 { color: var(--tinta); }
@@ -2504,7 +2508,7 @@ export default function App() {
         .carrito-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
         .carrito-cab h2 { margin: 0; }
         .btn-limpiar { border: 1px solid #7f1d1d; background: rgba(127,29,29,.22); color: #fca5a5; border-radius: 999px; padding: 6px 12px; font-size: .78rem; font-weight: 700; cursor: pointer; }
-        .app.claro { --tinta: #18181b; --rio: #059669; --niebla: #f4f4f5; --papel: #ffffff; --suave: #52525b; --fondo: #e4e4e7; color-scheme: light; background: #e4e4e7; color: #18181b; }
+        .app.claro { --tinta: #182720; --rio: #059669; --niebla: #f0f5f2; --papel: #ffffff; --suave: #52665c; --fondo: #f4f7f2; color-scheme: light; background: #f4f7f2; color: #182720; }
         .app.claro .bienvenida-capa { background: rgba(228,228,231,.65); }
         .app.claro .bienvenida-card { background: rgba(255,255,255,.97); border-color: #059669; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
         .app.claro .bienvenida-card p { color: #3f3f46; }
@@ -2610,9 +2614,12 @@ export default function App() {
         .app.claro.con-fondo-atractivo .caja, .app.claro.con-fondo-atractivo .pais-bloque, .app.claro.con-fondo-atractivo .tarjeta { background: rgba(255, 255, 255, 0.84); }
 
         /* ---------- PANTALLA DE INICIO (ESTILO ACUARELA BOTÁNICA) ---------- */
-        .app.en-inicio { background: #f4f7f2 !important; color: #1d2b24 !important; padding-top: 10px !important; }
+        .app.en-inicio { padding-top: 10px !important; }
+        .app.en-inicio.claro { background: #f4f7f2 !important; color: #1d2b24 !important; }
+        .app.en-inicio:not(.claro) { background: #090d0c !important; color: #f4f4f5 !important; }
         .app.en-inicio .fondo-portada { display: none; }
-        .app.en-inicio .firma span { color: #243b31; opacity: .92; }
+        .app.en-inicio.claro .firma span { color: #243b31; opacity: .92; }
+        .app.en-inicio:not(.claro) .firma span { color: #e4e4e7; opacity: .88; }
         .titulo-typo-interna { margin: 4px 0 8px; font-family: 'Outfit', 'Segoe UI', sans-serif; font-weight: 900; letter-spacing: -0.02em; font-size: clamp(2rem, 6.2vw, 3.1rem); line-height: 1.05; color: #ffffff !important; text-shadow: 0 3px 14px rgba(0, 0, 0, 0.52); }
         .inicio-papel {
           position: relative;
@@ -2640,10 +2647,10 @@ export default function App() {
         .inicio-hola { margin: 0; font-size: clamp(1rem, 4.2vw, 1.15rem); font-weight: 700; color: #2b4236; letter-spacing: .01em; }
         .inicio-marca-typo { margin: 0; font-family: 'Outfit', 'Segoe UI', sans-serif; font-weight: 900; letter-spacing: -0.02em; font-size: clamp(1.9rem, 8.2vw, 2.45rem); line-height: 1.05; color: #1a3829 !important; text-shadow: 0 2px 8px rgba(255, 255, 255, 0.85); }
         .inicio-marca-typo::after { content: ""; display: block; width: 64px; height: 3.5px; margin: 6px auto 0; border-radius: 999px; background: linear-gradient(90deg, #1b86c6, #24b47e, #d97706); }
-        .inicio-escena { position: relative; display: flex; justify-content: center; align-items: flex-end; height: clamp(178px, 29vh, 238px); margin-top: 2px; margin-bottom: -16px; }
-        .inicio-ave-wrap { position: relative; z-index: 2; height: 92%; display: flex; align-items: flex-end; justify-content: center; cursor: pointer; margin-bottom: 6px; }
-        .inicio-ave { height: 95%; width: auto; max-width: 56vw; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(28, 36, 30, 0.32)); animation: flotarAve 3.2s ease-in-out infinite; }
-        .inicio-globo { position: absolute; z-index: 3; top: 8px; right: 0; max-width: 45%; border: none; background: #e3ebef; color: #1b2c25; font-family: inherit; font-size: .82rem; font-weight: 700; line-height: 1.28; text-align: left; padding: 10px 13px; border-radius: 18px 18px 18px 4px; box-shadow: 0 6px 16px rgba(22, 42, 34, 0.14); cursor: pointer; transition: transform .18s; }
+        .inicio-escena { position: relative; display: flex; justify-content: flex-start; align-items: flex-end; height: clamp(176px, 28vh, 230px); margin-top: 2px; margin-bottom: -16px; padding-left: 8%; }
+        .inicio-ave-wrap { position: relative; z-index: 2; height: 90%; display: flex; align-items: flex-end; justify-content: center; cursor: pointer; margin-bottom: 6px; }
+        .inicio-ave { height: 92%; width: auto; max-width: 48vw; object-fit: contain; filter: drop-shadow(0 12px 14px rgba(28, 36, 30, 0.32)); animation: flotarAve 3.2s ease-in-out infinite; }
+        .inicio-globo { position: absolute; z-index: 3; top: 4px; right: 0; max-width: 44%; border: none; background: #e3ebef; color: #1b2c25; font-family: inherit; font-size: .78rem; font-weight: 700; line-height: 1.25; text-align: left; padding: 9px 11px; border-radius: 18px 18px 18px 4px; box-shadow: 0 6px 16px rgba(22, 42, 34, 0.14); cursor: pointer; transition: transform .18s; }
         .inicio-globo small { display: block; margin-top: 3px; font-size: .68rem; font-weight: 600; color: #0f766e; }
         .inicio-globo:hover { transform: scale(1.03); }
         .inicio-glass { position: relative; z-index: 3; background: rgba(255, 255, 255, 0.72); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1.5px solid rgba(255, 255, 255, 0.9); border-radius: 20px; padding: 14px 16px; box-shadow: 0 12px 28px rgba(28, 52, 42, 0.14); display: flex; flex-direction: column; gap: 9px; color: #1c2b24; }
@@ -2664,6 +2671,22 @@ export default function App() {
         .inicio-card-ico { font-size: 1.25rem; line-height: 1; flex: none; }
         .inicio-card-btn strong { display: block; font-size: .76rem; font-weight: 800; letter-spacing: .02em; line-height: 1.2; color: #182720; }
         .inicio-card-btn small { display: block; margin-top: 2px; font-size: .66rem; line-height: 1.22; color: #52665c; }
+
+        /* Modo oscuro en Pantalla de Inicio */
+        .inicio-papel:not(.claro) { background-color: #0e1714; color: #f4f4f5; box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55); border: 1px solid rgba(52, 211, 153, 0.16); }
+        .inicio-papel:not(.claro) .inicio-top .ctrl-top { background: rgba(20, 28, 25, 0.85); color: #f4f4f5; border-color: rgba(255, 255, 255, 0.18); }
+        .inicio-papel:not(.claro) .inicio-top .ctrl-top.activo { background: #10b981; color: #04261a; border-color: #10b981; }
+        .inicio-papel:not(.claro) .inicio-hola { color: #6ee7b7; }
+        .inicio-papel:not(.claro) .inicio-marca-typo { color: #ffffff !important; text-shadow: 0 3px 14px rgba(0, 0, 0, 0.65); }
+        .inicio-papel:not(.claro) .inicio-globo { background: rgba(24, 34, 30, 0.94); color: #f4f4f5; border: 1px solid rgba(52, 211, 153, 0.35); }
+        .inicio-papel:not(.claro) .inicio-globo small { color: #6ee7b7; }
+        .inicio-papel:not(.claro) .inicio-glass { background: rgba(16, 24, 21, 0.78); border-color: rgba(255, 255, 255, 0.14); color: #f4f4f5; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45); }
+        .inicio-papel:not(.claro) .inicio-fecha { color: #34d399; }
+        .inicio-papel:not(.claro) .inicio-fila { color: #f4f4f5; }
+        .inicio-papel:not(.claro) .inicio-ico.ico-hora { background: rgba(255, 255, 255, 0.1); }
+        .inicio-papel:not(.claro) .inicio-card-btn { background: rgba(18, 27, 24, 0.88); border-color: rgba(255, 255, 255, 0.12); color: #f4f4f5; }
+        .inicio-papel:not(.claro) .inicio-card-btn strong { color: #ffffff; }
+        .inicio-papel:not(.claro) .inicio-card-btn small { color: #a1b5ac; }
 
         /* ---------- BARRA INFERIOR FIJA (TEAL OSCURO MODERNO) ---------- */
         .nav-inf { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 520px; z-index: 700; display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0px)); background: #213c3d; border-top: 1px solid rgba(255,255,255,.12); border-radius: 22px 22px 0 0; box-shadow: 0 -8px 28px rgba(12, 28, 28, 0.35); }
